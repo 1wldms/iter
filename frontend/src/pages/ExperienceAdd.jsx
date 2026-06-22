@@ -74,7 +74,8 @@ export const ExperienceAdd = () => {
         body: JSON.stringify(form),
       });
       if (res.ok) {
-        navigate("/dashboard");
+        const data = await res.json();
+        navigate("/ai-session", { state: { experience: data.experience } });
       }
     } catch (e) {
       console.error(e);

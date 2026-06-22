@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { AppHeader } from "../components/AppHeader";
+import { authFetch } from "../auth";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://127.0.0.1:5001";
 
@@ -73,6 +74,7 @@ export const AISession = () => {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [fields, setFields] = useState(experience);
+  const [targetField, setTargetField] = useState(null);
   const bottomRef = useRef(null);
 
   // 페이지 진입 시 AI 첫 인사
@@ -80,14 +82,13 @@ export const AISession = () => {
     const greet = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`${BACKEND_URL}/ai/session/start`, {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ experience }),
-        });
-        const data = await res.json();
-        setMessages([{ role: "ai", text: data.message, time: formatTime() }]);
+        const res = await authFetch(`${BACKEND_URL}/ai/session/start`, {
+            method: "POST",
+            body: JSON.stringify({ experience: fields }),
+          });
+          const data = await res.json();
+          setMessages([{ role: "ai", text: data.message, time: formatTime() }]);
+          setTargetField(data.target_field);
       } catch {
         setMessages([{
           role: "ai",
@@ -113,19 +114,22 @@ export const AISession = () => {
     setLoading(true);
 
     try {
-      const res = await fetch(`${BACKEND_URL}/ai/session/chat`, {
+    const res = await authFetch(`${BACKEND_URL}/ai/session/chat`, {
         method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text.trim(), experience: fields, history: messages }),
+        body: JSON.stringify({
+          message: text.trim(),
+          experience: fields,
+          history: messages,
+          target_field: targetField,
+        }),
       });
       const data = await res.json();
       setMessages((prev) => [...prev, { role: "ai", text: data.message, time: formatTime() }]);
 
-      // AI가 업데이트한 필드가 있으면 반영
       if (data.updated_fields) {
         setFields((prev) => ({ ...prev, ...data.updated_fields }));
       }
+      setTargetField(data.target_field);
     } catch {
       setMessages((prev) => [...prev, {
         role: "ai",
@@ -321,7 +325,11 @@ export const AISession = () => {
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && sendMessage(input)}
+                  onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
+                          sendMessage(input);
+                        }
+                      }}
                   placeholder="ITER에게 답변을 남겨주세요..."
                   className="w-full bg-transparent outline-none"
                   style={{
