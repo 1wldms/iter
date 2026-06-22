@@ -18,27 +18,31 @@ const FIELD_LABELS = {
 };
 
 // 채팅 말풍선 — AI
-const AIBubble = ({ text, time }) => (
+const AIBubble = ({ text, time, suggestions, targetField, onAccept }) => (
   <div className="flex flex-col gap-2" style={{ maxWidth: 576 }}>
-    <div
-      style={{
-        padding: "22px 24px 24px",
-        background: "white",
-        boxShadow: "4px 4px 0px black",
-        borderRadius: 4,
-        outline: "1px solid black",
-        outlineOffset: -1,
-      }}
-    >
+    <div style={{ padding: "22px 24px 24px", background: "white", boxShadow: "4px 4px 0px black", borderRadius: 4, outline: "1px solid black", outlineOffset: -1 }}>
       <p style={{ color: "black", fontSize: 18, fontWeight: 400, lineHeight: "28.8px", whiteSpace: "pre-wrap" }}>
         {text}
       </p>
     </div>
-    {time && (
-      <p className="pl-1" style={{ color: "#5D5F5F", fontSize: 10, fontFamily: "'Inter', sans-serif", fontWeight: 400, lineHeight: "15px" }}>
-        {time}
-      </p>
+
+    {suggestions && suggestions.length > 0 && (
+      <div className="flex flex-col gap-2" style={{ paddingLeft: 4 }}>
+        <span style={{ color: "#5D5F5F", fontSize: 12 }}>이렇게 써보는 건 어때요~? (클릭하면 칸에 들어가요)</span>
+        {suggestions.map((s, i) => (
+          <button
+            key={i}
+            onClick={() => onAccept(targetField, s)}
+            className="text-left hover:opacity-70 transition-opacity"
+            style={{ background: "#F3F2F1", border: "1px solid #C6C6C7", padding: "10px 14px", borderRadius: 4, fontSize: 15, color: "#1B1C1C" }}
+          >
+            {s}
+          </button>
+        ))}
+      </div>
     )}
+
+    {time && <p className="pl-1" style={{ color: "#5D5F5F", fontSize: 10 }}>{time}</p>}
   </div>
 );
 
@@ -80,25 +84,24 @@ export const AISession = () => {
   // 페이지 진입 시 AI 첫 인사
   useEffect(() => {
     const greet = async () => {
-      setLoading(true);
-      try {
-        const res = await authFetch(`${BACKEND_URL}/ai/session/start`, {
-            method: "POST",
-            body: JSON.stringify({ experience: fields }),
-          });
-          const data = await res.json();
-          setMessages([{ role: "ai", text: data.message, time: formatTime() }]);
-          setTargetField(data.target_field);
-      } catch {
-        setMessages([{
-          role: "ai",
-          text: "안녕하세요! 작성하신 경험을 함께 살펴볼게요. 어떤 부분을 더 깊이 이야기해볼까요?",
-          time: formatTime(),
-        }]);
-      } finally {
-        setLoading(false);
-      }
-    };
+  setLoading(true);
+  try {
+    const res = await authFetch(`${BACKEND_URL}/ai/session/start`, {
+      method: "POST",
+      body: JSON.stringify({ experience: fields }),
+    });
+    const data = await res.json();
+    setMessages([{
+      role: "ai", text: data.message, time: formatTime(),
+      suggestions: data.suggestions || [], targetField: data.target_field,
+    }]);
+    setTargetField(data.target_field);
+  } catch {
+    setMessages([{ role: "ai", text: "안녕하세요! 작성하신 경험을 함께 살펴볼게요.", time: formatTime() }]);
+  } finally {
+    setLoading(false);
+  }
+};
     greet();
   }, []);
 
@@ -107,39 +110,35 @@ export const AISession = () => {
   }, [messages, loading]);
 
   const sendMessage = async (text) => {
-    if (!text.trim()) return;
-    const userMsg = { role: "user", text: text.trim(), time: formatTime() };
-    setMessages((prev) => [...prev, userMsg]);
-    setInput("");
-    setLoading(true);
+      if (!text.trim()) return;
+      const userMsg = { role: "user", text: text.trim(), time: formatTime() };
+      const newHistory = [...messages, userMsg];
+      setMessages(newHistory);
+      setInput("");
+      setLoading(true);
 
-    try {
-    const res = await authFetch(`${BACKEND_URL}/ai/session/chat`, {
-        method: "POST",
-        body: JSON.stringify({
-          message: text.trim(),
-          experience: fields,
-          history: messages,
-          target_field: targetField,
-        }),
-      });
-      const data = await res.json();
-      setMessages((prev) => [...prev, { role: "ai", text: data.message, time: formatTime() }]);
-
-      if (data.updated_fields) {
-        setFields((prev) => ({ ...prev, ...data.updated_fields }));
+      try {
+        const res = await authFetch(`${BACKEND_URL}/ai/session/chat`, {
+          method: "POST",
+          body: JSON.stringify({
+            message: text.trim(),
+            experience: fields,
+            history: newHistory,
+            target_field: targetField,
+          }),
+        });
+        const data = await res.json();
+        setMessages((prev) => [...prev, {
+          role: "ai", text: data.message, time: formatTime(),
+          suggestions: data.suggestions || [], targetField: data.target_field,
+        }]);
+        setTargetField(data.target_field);
+      } catch {
+        setMessages((prev) => [...prev, { role: "ai", text: "잠시 오류가 생겼어요. 다시 시도해 주세요.", time: formatTime() }]);
+      } finally {
+        setLoading(false);
       }
-      setTargetField(data.target_field);
-    } catch {
-      setMessages((prev) => [...prev, {
-        role: "ai",
-        text: "잠시 오류가 생겼어요. 다시 시도해 주세요.",
-        time: formatTime(),
-      }]);
-    } finally {
-      setLoading(false);
-    }
-  };
+};
 
   const handleSave = async () => {
     try {
@@ -155,14 +154,19 @@ export const AISession = () => {
     }
   };
 
+  const handleAcceptSuggestion = (field, text) => {
+    if (!field) return;
+    setFields((prev) => ({ ...prev, [field]: text }));
+  };
+
   return (
     <div
-      className="w-full min-h-screen flex flex-col"
-      style={{ background: "linear-gradient(0deg, #FBF9F9 0%, #FBF9F9 100%), white" }}
-    >
-      <AppHeader />
+        className="w-full h-screen flex flex-col overflow-hidden"
+        style={{ background: "linear-gradient(0deg, #FBF9F9 0%, #FBF9F9 100%), white" }}
+        >
+        <AppHeader />
 
-      <div className="flex flex-1 overflow-hidden" style={{ height: "calc(100vh - 64px)" }}>
+  <div className="flex flex-1 overflow-hidden">
         {/* ── 좌측 패널: 경험 요약 ── */}
         <aside
           className="flex flex-col overflow-y-auto flex-shrink-0"
@@ -291,12 +295,19 @@ export const AISession = () => {
           {/* 채팅 메시지 영역 */}
           <div className="flex-1 overflow-y-auto flex flex-col" style={{ padding: "40px 64px", gap: 24 }}>
             {messages.map((msg, i) =>
-              msg.role === "ai" ? (
-                <AIBubble key={i} text={msg.text} time={msg.time} />
-              ) : (
-                <UserBubble key={i} text={msg.text} time={msg.time} />
-              )
-            )}
+                    msg.role === "ai" ? (
+                      <AIBubble
+                        key={i}
+                        text={msg.text}
+                        time={msg.time}
+                        suggestions={msg.suggestions}
+                        targetField={msg.targetField}
+                        onAccept={handleAcceptSuggestion}
+                      />
+                    ) : (
+                      <UserBubble key={i} text={msg.text} time={msg.time} />
+                    )
+      )}
             {loading && (
               <div className="flex gap-1 items-center" style={{ paddingLeft: 4 }}>
                 {[0, 1, 2].map((i) => (

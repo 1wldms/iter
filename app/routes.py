@@ -235,7 +235,6 @@ def experience_delete(experience_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 400
     
-
 # AI 세션 시작
 @main.route('/ai/session/start', methods=['POST'])
 def ai_session_start():
@@ -248,7 +247,12 @@ def ai_session_start():
 
     next_field = get_next_empty_field(fields)
     if next_field is None:
-        return jsonify({"message": "이미 다 채워져 있네요! 저장해볼까요~?", "target_field": None, "is_complete": True})
+        return jsonify({
+            "message": "이미 다 채워져 있네요! 저장해볼까요~?",
+            "suggestions": [],
+            "target_field": None,
+            "is_complete": True,
+        }), 200
 
     system, messages = build_session_messages(fields, [], next_field)
 
@@ -257,10 +261,14 @@ def ai_session_start():
     except Exception as e:
         return jsonify({"error": "AI 호출 실패", "detail": str(e)}), 500
 
-    return jsonify({"message": result["message"], "target_field": next_field, "is_complete": False}), 200
+    return jsonify({
+        "message": result["message"],
+        "suggestions": result.get("suggestions", []),
+        "target_field": next_field,
+        "is_complete": False,
+    }), 200
 
-
-# AI 세션 이어가기
+# AI 세션 채팅
 @main.route('/ai/session/chat', methods=['POST'])
 def ai_session_chat():
     user = get_user_from_token(request)
@@ -273,71 +281,34 @@ def ai_session_chat():
     user_message = data.get('message', '')
     target_field = data.get('target_field')
 
-    # 사용자가 직접 입력한 답변을 그대로 해당 항목에 채움 (AI가 대신 쓰지 않음)
-    updated_fields = {}
-    if target_field and user_message:
-        updated_fields[target_field] = user_message
-        fields = {**fields, **updated_fields}
+    if not target_field:
+        target_field = get_next_empty_field(fields)
 
-    next_field = get_next_empty_field(fields)
-    if next_field is None:
+    if target_field is None:
         return jsonify({
             "message": "이제 다 모인 것 같아요~ 저장해볼까요?",
+            "suggestions": [],
             "target_field": None,
             "is_complete": True,
-            "updated_fields": updated_fields,
         }), 200
 
-    # 프론트의 메시지 형태({role:"ai"/"user", text})를 GPT 형태로 변환
     gpt_history = [
         {"role": "assistant" if h.get("role") == "ai" else "user", "content": h.get("text", "")}
         for h in history
     ]
 
-    system, messages = build_session_messages(fields, gpt_history, next_field)
+    system, messages = build_session_messages(fields, gpt_history, target_field, user_message=user_message)
 
     try:
         result = call_gpt(system, messages)
     except Exception as e:
         return jsonify({"error": "AI 호출 실패", "detail": str(e)}), 500
 
+    # 다음 질문할 항목은 사용자가 실제로 칸을 채운 뒤 프론트가 다시 보내줄 fields 기준으로 정해짐.
+    # 지금 이 응답에서는 같은 target_field에 대한 "제안"을 주는 것이므로 target_field 유지.
     return jsonify({
         "message": result["message"],
-        "target_field": next_field,
+        "suggestions": result.get("suggestions", []),
+        "target_field": target_field,
         "is_complete": False,
-        "updated_fields": updated_fields,
     }), 200
-
-
-# 키워드 추출 (저장 이후에 호출)
-@main.route('/ai/keywords/extract', methods=['POST'])
-def ai_extract_keywords():
-    user = get_user_from_token(request)
-    if not user:
-        return jsonify({"error": "unauthorized"}), 401
-
-    data = request.get_json()
-    experience_id = data.get('experience_id')
-
-    try:
-        res = supabase.table('experiences').select('*').eq('id', experience_id).eq('user_id', user.id).single().execute()
-        experience = res.data
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
-
-    if not experience:
-        return jsonify({"error": "experience not found"}), 404
-
-    system, messages = build_keyword_extraction_messages(experience)
-
-    try:
-        result = call_gpt(system, messages)
-    except Exception as e:
-        return jsonify({"error": "AI 호출 실패", "detail": str(e)}), 500
-
-    try:
-        supabase.table('experiences').update({"keywords": result["keywords"]}).eq('id', experience_id).execute()
-    except Exception as e:
-        return jsonify({"error": "키워드 저장 실패", "detail": str(e)}), 500
-
-    return jsonify(result), 200
