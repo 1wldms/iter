@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* A2Z 폰트 */
+@font-face {
+  font-family: 'A2Z';
+  src: url('./assets/fonts/A2Z-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'A2Z';
+  src: url('./assets/fonts/A2Z-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'A2Z';
+  src: url('./assets/fonts/A2Z-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'A2Z';
+  src: url('./assets/fonts/A2Z-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+
+/* 한국어 기본 폰트를 A2Z로 */
+:root {
+  font-family: 'A2Z', 'Inter', sans-serif;
+}
+
+@layer base {
+  button, input, select, textarea {
+    @apply appearance-none bg-transparent border-0 outline-none;
+    font-family: inherit;
+  }
+}
+
+@layer components {
+  .all-\[unset\] { all: unset; }
+}

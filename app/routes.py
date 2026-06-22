@@ -1,6 +1,8 @@
 from flask import Blueprint, jsonify, request, redirect, session, url_for
 from app import supabase
 from functools import wraps
+import anthropic
+import os
 
 main = Blueprint('main', __name__)
 
@@ -243,3 +245,85 @@ def experience_delete(experience_id):
         return jsonify({"message": "경험 삭제 성공!"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
+
+# ── AI 세션 ──────────────────────────────────────────
+
+FIELD_LABELS = {
+    "role": "역할",
+    "background": "배경",
+    "action": "액션",
+    "result": "결과",
+    "learned": "배운 점",
+    "reflection": "느낀 점",
+    "memo": "기타 메모",
+}
+
+def build_experience_summary(exp: dict) -> str:
+    lines = []
+    for key, label in FIELD_LABELS.items():
+        val = exp.get(key, "").strip()
+        if val:
+            lines.append(f"[{label}] {val}")
+    return "\n".join(lines) if lines else "(아직 작성된 내용이 없어요)"
+
+AI_SYSTEM_PROMPT = """당신은 ITER AI입니다. 사용자가 자신의 경험을 더 풍부하게 기록할 수 있도록 돕는 인터뷰어예요.
+
+핵심 원칙:
+- 짧고 따뜻하게, 해요체로 말해요
+- 한 번에 한 가지 질문만 해요
+- 글은 절대 대신 써주지 않아요 — 질문으로 스스로 떠올리게 도와요
+- 비어있는 항목(배경, 결과, 배운 점, 느낀 점)을 우선 채울 수 있도록 유도해요
+- "배경 부분이 조금 더 구체적이면 좋겠어요." 처럼 밑줄 강조가 필요한 핵심 문구는 **별표**로 감싸요
+
+대화 흐름:
+1. 작성된 내용 중 인상적인 부분 짧게 언급
+2. 비어있거나 더 깊이 파고들 수 있는 항목에 대해 질문
+3. 사용자 답변을 듣고 -> 공감 -> 다음 질문"""
+
+
+@main.route('/ai/session/start', methods=['POST'])
+def ai_session_start():
+    data = request.get_json()
+    experience = data.get('experience', {})
+    summary = build_experience_summary(experience)
+
+    client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+    msg = client.messages.create(
+        model="claude-sonnet-4-6",
+        max_tokens=512,
+        system=AI_SYSTEM_PROMPT,
+        messages=[{
+            "role": "user",
+            "content": f"사용자가 작성한 경험 내용이에요:\n{summary}\n\n첫 인사와 함께 대화를 시작해주세요."
+        }]
+    )
+    return jsonify({"message": msg.content[0].text})
+
+
+@main.route('/ai/session/chat', methods=['POST'])
+def ai_session_chat():
+    data = request.get_json()
+    user_message = data.get('message', '')
+    experience = data.get('experience', {})
+    history = data.get('history', [])
+
+    summary = build_experience_summary(experience)
+
+    # 대화 히스토리 변환
+    claude_messages = []
+    for msg in history:
+        role = "assistant" if msg['role'] == 'ai' else "user"
+        claude_messages.append({"role": role, "content": msg['text']})
+    claude_messages.append({"role": "user", "content": user_message})
+
+    system = f"{AI_SYSTEM_PROMPT}\n\n현재 사용자의 경험 기록:\n{summary}"
+
+    client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+    msg = client.messages.create(
+        model="claude-sonnet-4-6",
+        max_tokens=512,
+        system=system,
+        messages=claude_messages,
+    )
+    return jsonify({"message": msg.content[0].text})
