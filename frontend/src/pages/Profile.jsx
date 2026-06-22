@@ -1,40 +1,79 @@
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import iconArrowRight from "../assets/icon-arrow-right.svg";
 import { AppHeader } from "../components/AppHeader";
+import { saveToken, authFetch } from "../auth";
 
-// 실제 서비스에서는 백엔드 /profile API에서 받아옴
-const mockUser = {
-  name: "김윤아",
-  bio: null, // 경험이 쌓이면 AI가 생성
-  languages: "Python, JavaScript, English",
-  school: "한국대학교 컴퓨터공학부",
-  link: "github.com/yuna-kim",
-  contact: "hello@yunakim.com",
-};
-
-const infoRows = [
-  { label: "사용 언어", value: mockUser.languages, font: "Inter" },
-  { label: "학교 / 학과", value: mockUser.school, font: "A2Z" },
-  { label: "링크", value: mockUser.link, font: "Inter" },
-];
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://127.0.0.1:5001";
 
 export const Profile = () => {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get('token');
+        if (token) {
+          saveToken(token);
+          window.history.replaceState({}, '', '/profile');
+        }
+        const res = await authFetch(`${BACKEND_URL}/profile`);
+        if (res.status === 401) {
+          navigate("/login");
+          return;
+        }
+        const data = await res.json();
+        setUser(data.user);
+        setProfile(data.profile);
+        if (!data.profile || !data.profile.school) {
+          navigate("/onboarding");
+        }
+      } catch {
+        navigate("/login");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProfile();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="w-full min-h-screen flex items-center justify-center" style={{ background: "#FBF9F9" }}>
+        <p style={{ color: "#5D5F5F", fontSize: 16 }}>불러오는 중이에요...</p>
+      </div>
+    );
+  }
+
+  const displayName = user?.name || "이름 없음";
+  const languages = profile?.languages?.join(", ") || "";
+  const school = [profile?.school, profile?.department].filter(Boolean).join(" ") || "";
+  const link = profile?.github_url || "";
+  const contact = profile?.contact || "";
+  const bio = profile?.bio_sentence || null;
+
+  const infoRows = [
+    { label: "사용 언어", value: languages },
+    { label: "학교 / 학과", value: school },
+    { label: "링크", value: link },
+  ];
 
   return (
-    <div className="w-full min-h-screen bg-white flex flex-col">
+    <div className="w-full bg-white flex flex-col" style={{ height: "100vh", overflow: "hidden" }}>
       <AppHeader />
 
-      {/* 메인 컨텐츠 */}
       <main
-        className="relative flex-1 w-full mx-auto flex flex-col justify-end"
+        className="relative flex-1 w-full mx-auto flex items-end"
         style={{
           maxWidth: 1280,
-          minHeight: 819,
-          paddingTop: 497,
-          paddingBottom: 128,
+          height: "calc(100vh - 64px)",
           paddingLeft: 64,
           paddingRight: 64,
+          paddingBottom: 80,
         }}
       >
         {/* 격자 배경 */}
@@ -48,114 +87,46 @@ export const Profile = () => {
         />
 
         {/* 우측 인포 패널 */}
-        <div
-          className="absolute"
-          style={{ right: 64, bottom: 128 + 209 /* 이름 영역 높이만큼 */ }}
-        >
+        <div className="absolute" style={{ right: 64, top: "50%", transform: "translateY(-50%)" }}>
           <div
-            className="flex flex-col gap-6"
+            className="flex flex-col gap-4"
             style={{
               paddingTop: 16,
               paddingBottom: 16,
               paddingLeft: 32,
               borderLeft: "1px solid black",
-              width: 335 + 32,
+              width: 320,
             }}
           >
             {infoRows.map((row) => (
-              <div
-                key={row.label}
-                className="relative"
-                style={{ borderBottom: "1px solid #DBDAD9", paddingBottom: 16 }}
-              >
-                <p
-                  style={{
-                    color: "#5D5F5F",
-                    fontSize: 14,
-                    fontFamily: "sans-serif",
-                    fontWeight: 400,
-                    lineHeight: "16.8px",
-                    letterSpacing: 0.70,
-                    marginBottom: 4,
-                  }}
-                >
+              <div key={row.label} style={{ borderBottom: "1px solid #DBDAD9", paddingBottom: 12 }}>
+                <p style={{ color: "#5D5F5F", fontSize: 14, fontWeight: 400, letterSpacing: 0.70, marginBottom: 4 }}>
                   {row.label}
                 </p>
-                <p
-                  style={{
-                    color: "black",
-                    fontSize: 16,
-                    fontFamily: row.font === "Inter" ? "'Inter', sans-serif" : "sans-serif",
-                    fontWeight: 400,
-                    lineHeight: "24px",
-                  }}
-                >
+                <p style={{ color: "black", fontSize: 20, fontWeight: 400, lineHeight: "28px" }}>
                   {row.value}
                 </p>
               </div>
             ))}
-
-            {/* 연락처 (보더 없음) */}
             <div>
-              <p
-                style={{
-                  color: "#5D5F5F",
-                  fontSize: 14,
-                  fontFamily: "sans-serif",
-                  fontWeight: 400,
-                  lineHeight: "16.8px",
-                  letterSpacing: 0.70,
-                  marginBottom: 4,
-                }}
-              >
+              <p style={{ color: "#5D5F5F", fontSize: 14, fontWeight: 400, letterSpacing: 0.70, marginBottom: 4 }}>
                 연락처
               </p>
-              <p
-                style={{
-                  color: "black",
-                  fontSize: 16,
-                  fontFamily: "'Inter', sans-serif",
-                  fontWeight: 400,
-                  lineHeight: "24px",
-                }}
-              >
-                {mockUser.contact}
+              <p style={{ color: "black", fontSize: 20, fontFamily: "'Inter', sans-serif", fontWeight: 400, lineHeight: "28px" }}>
+                {contact}
               </p>
             </div>
           </div>
         </div>
 
         {/* 좌측 하단 — 이름 + 한 문장 */}
-        <div className="relative flex flex-col" style={{ maxWidth: 760 }}>
-          {/* 검은 선 */}
-          <div style={{ width: 64, height: 4, background: "black", marginBottom: 32 }} />
-
-          {/* 이름 */}
-          <h1
-            style={{
-              color: "black",
-              fontSize: 120,
-              fontFamily: "sans-serif",
-              fontWeight: 400,
-              lineHeight: "120px",
-              marginBottom: 24,
-            }}
-          >
-            {mockUser.name}
+        <div className="relative flex flex-col" style={{ maxWidth: 700 }}>
+          <div style={{ width: 48, height: 3, background: "black", marginBottom: 24 }} />
+          <h1 style={{ color: "black", fontSize: 80, fontWeight: 400, lineHeight: "80px", marginBottom: 16 }}>
+            {displayName}
           </h1>
-
-          {/* 한 문장 (AI 생성 or 안내 문구) */}
-          <p
-            style={{
-              color: "#5D5F5F",
-              fontSize: 18,
-              fontFamily: "sans-serif",
-              fontWeight: 400,
-              lineHeight: "28.8px",
-              maxWidth: 448,
-            }}
-          >
-            {mockUser.bio ?? "경험을 기록해주세요, 나를 표현하는 문장이 만들어집니다."}
+          <p style={{ color: "#5D5F5F", fontSize: 16, fontWeight: 400, lineHeight: "26px", maxWidth: 400 }}>
+            {bio ?? "경험을 기록해주세요, 나를 표현하는 문장이 만들어집니다."}
           </p>
         </div>
 
@@ -163,22 +134,12 @@ export const Profile = () => {
         <button
           onClick={() => navigate("/dashboard")}
           className="absolute flex items-center gap-4 hover:opacity-70 transition-opacity"
-          style={{ right: 64, bottom: 128 }}
+          style={{ right: 64, bottom: 60 }}
         >
-          <span
-            style={{
-              color: "black",
-              fontSize: 14,
-              fontFamily: "sans-serif",
-              fontWeight: 400,
-              textTransform: "uppercase",
-              lineHeight: "16.8px",
-              letterSpacing: 1.40,
-            }}
-          >
+          <span style={{ color: "black", fontSize: 13, fontWeight: 400, textTransform: "uppercase", letterSpacing: 1.40 }}>
             대시보드 보기
           </span>
-          <img src={iconArrowRight} alt="" aria-hidden="true" style={{ width: 16, filter: "brightness(0)" }} />
+          <img src={iconArrowRight} alt="" aria-hidden="true" style={{ width: 14, filter: "brightness(0)" }} />
         </button>
       </main>
     </div>

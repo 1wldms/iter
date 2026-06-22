@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { authFetch } from "../auth";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://127.0.0.1:5001";
 
@@ -68,14 +69,12 @@ export const ExperienceAdd = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const res = await fetch(`${BACKEND_URL}/experiences/add`, {
+      const res = await authFetch(`${BACKEND_URL}/experiences/add`, {
         method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
       if (res.ok) {
-        navigate("/experiences");
+        navigate("/dashboard");
       }
     } catch (e) {
       console.error(e);

@@ -1,35 +1,9 @@
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppHeader } from "../components/AppHeader";
+import { authFetch } from "../auth";
 
-const mockExperiences = [
-  {
-    id: 1,
-    category: "UX RESEARCH",
-    date: "2023.10.15",
-    title: "교내 프로젝트 사용자 조사",
-    role: "리서치 리드 및 인터뷰어",
-    background:
-      "학생 커뮤니티 앱 개편을 위해 20명의 재학생을 대상으로 심층 인터뷰를 기획하고 진행했어요. 인사이트를 도출하여 문제 정의 단계에 기여했습니다.",
-  },
-  {
-    id: 2,
-    category: "PRODUCT DESIGN",
-    date: "2023.08.22",
-    title: "스타트업 인턴십: 프로토타이핑",
-    role: "UI/UX 디자인 인턴",
-    background:
-      "초기 핀테크 스타트업에서 온보딩 프로세스를 재설계했어요. 전환율을 높이기 위해 A/B 테스트를 위한 두 가지 버전의 고해상도 프로토타입을 제작했습니다.",
-  },
-  {
-    id: 3,
-    category: "DATA ANALYSIS",
-    date: "2023.05.10",
-    title: "공공데이터 활용 해커톤",
-    role: "데이터 분석 및 시각화 담당",
-    background:
-      "서울시 대중교통 데이터를 분석하여 심야 버스 노선 최적화 방안을 제안했어요. 복잡한 데이터를 직관적으로 이해할 수 있도록 대시보드로 시각화하여 우수상을 수상했습니다.",
-  },
-];
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://127.0.0.1:5001";
 
 const ExperienceCard = ({ exp, onClick }) => (
   <div
@@ -45,7 +19,6 @@ const ExperienceCard = ({ exp, onClick }) => (
       gap: 7,
     }}
   >
-    {/* 카테고리 + 날짜 */}
     <div className="flex items-center justify-between">
       <span
         className="px-3 py-1"
@@ -61,51 +34,26 @@ const ExperienceCard = ({ exp, onClick }) => (
           letterSpacing: 0.70,
         }}
       >
-        {exp.category}
+        {exp.role || "경험"}
       </span>
-      <span
-        style={{
-          color: "#5D5F5F",
-          fontSize: 14,
-          fontWeight: 600,
-          lineHeight: "16.8px",
-          letterSpacing: 0.70,
-        }}
-      >
-        기록일: {exp.date}
+      <span style={{ color: "#5D5F5F", fontSize: 14, fontWeight: 600, lineHeight: "16.8px", letterSpacing: 0.70 }}>
+        기록일: {new Date(exp.created_at).toLocaleDateString("ko-KR")}
       </span>
     </div>
 
-    {/* 제목 */}
-    <h3
-      style={{
-        color: "black",
-        fontSize: 32,
-        fontWeight: 400,
-        lineHeight: "41.6px",
-        paddingTop: 9,
-      }}
-    >
-      {exp.title}
+    <h3 style={{ color: "black", fontSize: 28, fontWeight: 400, lineHeight: "36px", paddingTop: 9 }}>
+      {exp.title || exp.role || "제목 없음"}
     </h3>
 
-    {/* 역할 */}
     <div className="flex flex-col gap-1">
-      <p style={{ color: "#4C4546", fontSize: 14, fontWeight: 400, lineHeight: "16.8px", letterSpacing: 0.70 }}>
-        역할
-      </p>
-      <p style={{ color: "black", fontSize: 16, fontWeight: 400, lineHeight: "24px" }}>
-        {exp.role}
-      </p>
+      <p style={{ color: "#4C4546", fontSize: 14, fontWeight: 400, lineHeight: "16.8px", letterSpacing: 0.70 }}>역할</p>
+      <p style={{ color: "black", fontSize: 16, fontWeight: 400, lineHeight: "24px" }}>{exp.role}</p>
     </div>
 
-    {/* 배경 요약 */}
     <div className="flex flex-col gap-1 pt-2">
-      <p style={{ color: "#4C4546", fontSize: 14, fontWeight: 400, lineHeight: "16.8px", letterSpacing: 0.70 }}>
-        배경 요약
-      </p>
+      <p style={{ color: "#4C4546", fontSize: 14, fontWeight: 400, lineHeight: "16.8px", letterSpacing: 0.70 }}>배경 요약</p>
       <p style={{ color: "#1B1C1C", fontSize: 16, fontWeight: 400, lineHeight: "24px" }}>
-        {exp.background}
+        {exp.background || "내용 없음"}
       </p>
     </div>
   </div>
@@ -113,43 +61,43 @@ const ExperienceCard = ({ exp, onClick }) => (
 
 export const Dashboard = () => {
   const navigate = useNavigate();
+  const [experiences, setExperiences] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchExperiences = async () => {
+      try {
+        const res = await authFetch(`${BACKEND_URL}/experiences`);
+        if (res.status === 401) {
+          navigate("/login");
+          return;
+        }
+        const data = await res.json();
+        setExperiences(data.experiences || []);
+      } catch {
+        console.error("경험 불러오기 실패");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchExperiences();
+  }, []);
 
   return (
-    <div
-      className="w-full min-h-screen flex flex-col"
-      style={{ background: "linear-gradient(0deg, #FBF9F9 0%, #FBF9F9 100%), white" }}
-    >
+    <div className="w-full min-h-screen flex flex-col" style={{ background: "#FBF9F9" }}>
       <AppHeader />
 
       <main
         className="w-full mx-auto flex flex-col"
-        style={{
-          maxWidth: 1280,
-          paddingTop: 96,
-          paddingBottom: 128,
-          paddingLeft: 64,
-          paddingRight: 64,
-          gap: 32,
-        }}
+        style={{ maxWidth: 1280, paddingTop: 64, paddingBottom: 128, paddingLeft: 64, paddingRight: 64, gap: 32 }}
       >
-        {/* 헤더 영역 */}
         <div className="flex flex-col gap-2">
           <div className="flex items-end justify-between">
-            <h1 style={{ color: "black", fontSize: 48, fontWeight: 400, lineHeight: "57.6px" }}>
-              내 경험
-            </h1>
+            <h1 style={{ color: "black", fontSize: 48, fontWeight: 400, lineHeight: "57.6px" }}>내 경험</h1>
             <button
               onClick={() => navigate("/experiences")}
               className="mb-1 px-3 py-1"
-              style={{
-                outline: "1px solid black",
-                outlineOffset: -1,
-                color: "black",
-                fontSize: 14,
-                fontWeight: 400,
-                lineHeight: "16.8px",
-                letterSpacing: 0.70,
-              }}
+              style={{ outline: "1px solid black", outlineOffset: -1, color: "black", fontSize: 14, fontWeight: 400 }}
             >
               모두 보기
             </button>
@@ -159,44 +107,39 @@ export const Dashboard = () => {
           </p>
         </div>
 
-        {/* 경험 카드 그리드 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
-          {mockExperiences.map((exp) => (
-            <ExperienceCard
-              key={exp.id}
-              exp={exp}
-              onClick={() => navigate(`/experiences/${exp.id}`)}
-            />
-          ))}
-        </div>
-
-        {/* 하단 구분선 */}
-        <div className="flex justify-center pt-8">
-          <div className="relative" style={{ width: 256, height: 1, background: "#CFC4C5" }}>
-            <div
-              className="absolute"
-              style={{ width: 64, height: 3, top: -1, left: 0, background: "black" }}
-            />
+        {loading ? (
+          <p style={{ color: "#5D5F5F", fontSize: 16 }}>불러오는 중이에요...</p>
+        ) : experiences.length === 0 ? (
+          <div className="flex flex-col items-center justify-center" style={{ paddingTop: 80, gap: 16 }}>
+            <p style={{ color: "#5D5F5F", fontSize: 20 }}>아직 기록된 경험이 없어요.</p>
+            <button
+              onClick={() => navigate("/experiences/add")}
+              style={{ background: "black", color: "white", padding: "12px 24px", fontSize: 16 }}
+            >
+              첫 경험 기록하기
+            </button>
           </div>
-        </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
+            {experiences.slice(0, 4).map((exp) => (
+              <ExperienceCard
+                key={exp.id}
+                exp={exp}
+                onClick={() => navigate(`/experiences/${exp.id}`)}
+              />
+            ))}
+          </div>
+        )}
       </main>
 
-      {/* FAB 추가 버튼 */}
       <button
         onClick={() => navigate("/experiences/add")}
         className="fixed flex items-center justify-center hover:opacity-80 transition-opacity"
         style={{
-          right: 64,
-          bottom: 64,
-          width: 56,
-          height: 56,
-          background: "black",
-          borderRadius: 12,
-          boxShadow: "2px 2px 0px rgba(0,0,0,0.30)",
-          color: "white",
-          fontSize: 28,
-          fontWeight: 300,
-          lineHeight: 1,
+          right: 64, bottom: 64,
+          width: 56, height: 56,
+          background: "black", borderRadius: 12,
+          color: "white", fontSize: 28, fontWeight: 300,
         }}
         aria-label="경험 추가하기"
       >

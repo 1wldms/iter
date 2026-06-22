@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 const navItems = [
   { label: "Card", path: "/profile" },
   { label: "Insights", path: "/insights" },
-  { label: "Archive", path: "/archive" },
+  { label: "Archive", path: "/dashboard" },
 ];
 
 export const AppHeader = () => {
@@ -92,6 +92,7 @@ export const AppHeader = () => {
             로그아웃
           </button>
           <button
+            onClick={() => navigate("/onboarding")}
             className="px-6 py-3"
             style={{
               background: "black",
@@ -102,7 +103,7 @@ export const AppHeader = () => {
               lineHeight: "16px",
             }}
           >
-            QnA
+            정보수정
           </button>
         </div>
       </div>
