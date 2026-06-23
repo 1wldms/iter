@@ -25,7 +25,7 @@ export const Landing = () => {
   const navigate = useNavigate();
 
   return (
-    <div style={{ width: "100%", minHeight: "100vh", background: "#FBF9F9", display: "flex", flexDirection: "column" }}>
+    <div style={{ width: "100%", height: "100vh", background: "#FBF9F9", display: "flex", flexDirection: "column", overflow: "hidden" }}>
       
       {/* 헤더 */}
       <div style={{ width: "100%", height: 64, paddingLeft: 64, paddingRight: 64, background: "#FBF9F9", borderBottom: "1px solid black", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
@@ -33,12 +33,18 @@ export const Landing = () => {
           ITER
         </span>
         <div style={{ display: "flex", alignItems: "center" }}>
-          {["Card", "Insights", "Archive"].map((item) => (
-            <div key={item} style={{ padding: "8px 12px" }}>
-              <span style={{ color: "#5D5F5F", fontSize: 14, fontFamily: "'Playfair Display', serif", fontWeight: 600, letterSpacing: 0.70 }}>
-                {item}
-              </span>
-            </div>
+          {[
+            { label: "Card", path: "/profile" },
+            { label: "Insights", path: "/insights" },
+            { label: "Archive", path: "/dashboard" },
+          ].map((item) => (
+            <button
+              key={item.label}
+              onClick={() => navigate(item.path)}
+              style={{ padding: "8px 12px", background: "transparent", color: "#5D5F5F", fontSize: 16, fontFamily: "'Playfair Display', serif", fontWeight: 600, letterSpacing: 0.70 }}
+            >
+              {item.label}
+            </button>
           ))}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
@@ -52,11 +58,11 @@ export const Landing = () => {
       </div>
 
       {/* 히어로 */}
-      <div style={{ maxWidth: 1280, margin: "0 auto", width: "100%", paddingLeft: 64, paddingRight: 64, paddingTop: 90, paddingBottom: 80, display: "flex", alignItems: "center", gap: 80 }}>
+      <div style={{ flex: 1, maxWidth: 1280, margin: "0 auto", width: "100%", paddingLeft: 64, paddingRight: 64, paddingBottom: 130, display: "flex", alignItems: "flex-end", gap: 80 }}>
         
         {/* 좌측 카피 */}
-        <div style={{ flexShrink: 0, width: 300, display: "flex", flexDirection: "column", gap: 20 }}>
-          <div style={{ color: "black", fontSize: 52, fontFamily: "'Playfair Display', serif", fontWeight: 700, lineHeight: "64px" }}>
+        <div style={{ flexShrink: 0, width: 300, display: "flex", flexDirection: "column", gap: 28, paddingBottom: 16 }}>
+          <div style={{ color: "black", fontSize: 52, fontFamily: "'Playfair Display', serif", fontWeight: 700, lineHeight: "70px" }}>
             Welcome<br />to your ITER
           </div>
           <div style={{ color: "#5D5F5F", fontSize: 18, fontWeight: 400, lineHeight: "28.8px" }}>
@@ -85,7 +91,7 @@ export const Landing = () => {
                 display: "flex",
                 flexDirection: "column",
                 gap: 16,
-                minHeight: 320,
+                minHeight: 450,
               }}
             >
               <div style={{ width: 48, height: 48, background: "#FBF9F9", borderRadius: 12, outline: "1px solid black", outlineOffset: -1, display: "flex", alignItems: "center", justifyContent: "center" }}>

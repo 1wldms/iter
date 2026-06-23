@@ -246,13 +246,7 @@ def ai_session_start():
     fields = data.get('experience', {})
 
     next_field = get_next_empty_field(fields)
-    if next_field is None:
-        return jsonify({
-            "message": "이미 다 채워져 있네요! 저장해볼까요~?",
-            "suggestions": [],
-            "target_field": None,
-            "is_complete": True,
-        }), 200
+    # next_field가 None이어도 그냥 진행 (깊게 파고들기 모드)
 
     system, messages = build_session_messages(fields, [], next_field)
 

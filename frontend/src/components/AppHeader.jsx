@@ -54,12 +54,12 @@ export const AppHeader = () => {
                 <button
                   onClick={() => navigate(item.path)}
                   className="flex items-center px-4 h-full"
-                  style={isActive ? { borderBottom: "1px solid black" } : {}}
+                  style={isActive ? { borderBottom: "2px solid black", marginBottom: "-1px" } : {}}
                 >
                   <span
                     style={{
                       color: isActive ? "black" : "#5D5F5F",
-                      fontSize: 14,
+                      fontSize: 17,
                       fontFamily: "'Playfair Display', serif",
                       fontWeight: isActive ? 900 : 600,
                       lineHeight: "16.8px",
@@ -84,7 +84,7 @@ export const AppHeader = () => {
               outline: "1px solid black",
               outlineOffset: -1,
               color: "black",
-              fontSize: 16,
+              fontSize: 14,
               fontWeight: 400,
               lineHeight: "16px",
             }}
@@ -98,7 +98,7 @@ export const AppHeader = () => {
               background: "black",
               borderRadius: 2,
               color: "white",
-              fontSize: 16,
+              fontSize: 14,
               fontWeight: 400,
               lineHeight: "16px",
             }}

@@ -9,6 +9,8 @@ import { ExperienceAdd } from "./pages/ExperienceAdd";
 import { AISession } from "./pages/AISession";
 import { Onboarding } from "./pages/Onboarding";
 import { ExperienceDetail } from "./pages/ExperienceDetail";
+import { ExperienceEdit } from "./pages/ExperienceEdit";
+
 
 function App() {
   return (
@@ -23,6 +25,7 @@ function App() {
         <Route path="/ai-session" element={<AISession />} />
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/experiences/:id" element={<ExperienceDetail />} />
+        <Route path="/experiences/:id/edit" element={<ExperienceEdit />} />
       </Routes>
     </BrowserRouter>
   );
