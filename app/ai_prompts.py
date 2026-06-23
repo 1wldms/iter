@@ -9,6 +9,17 @@ EXPERIENCE_FIELDS = {
     "memo":       {"label": "기타",  "guide": "카테고리에 안 맞지만 적어두고 싶은 메모"},
 }
 
+FIELD_TIPS = {
+    "title": "제목은 경험의 핵심이 드러나게 적어보세요.",
+    "role": "역할에는 팀장, 개발자 등 맡은 포지션을 적어보세요.",
+    "background": "왜 시작했는지, 어떤 계기가 있었는지 적어보세요.",
+    "action": "실제로 내가 한 행동을 구체적으로 적어보세요.",
+    "result": "가능하면 수치나 객관적 성과를 적어보세요.",
+    "learned": "어떤 역량이 향상되었는지 적어보세요.",
+    "reflection": "당시 감정이나 생각의 변화를 적어보세요.",
+    "memo": "기타 기록해두고 싶은 내용을 자유롭게 적어보세요.",
+}
+
 SESSION_SYSTEM_PROMPT = """
 당신은 사용자가 자신의 경험을 더 깊고 풍부하게 표현하도록 돕는 AI 인터뷰어입니다.
 
@@ -24,6 +35,15 @@ SESSION_SYSTEM_PROMPT = """
    처럼 열린 질문만 하고 suggestions를 빈 배열 []로 둬도 됩니다.
 6. 친구처럼 편한 말투, 짧은 문장을 씁니다.
 7. 사용자의 답변이 너무 짧거나 모호하면, 제안 없이 다른 각도로 다시 질문합니다.
+8. suggestions(제안 문장)는 반드시 "~했습니다", "~었습니다" 같은 정중한
+   문어체(합쇼체)로 작성합니다. "~했어요", "~있었어요" 같은 구어체나
+   "~했다" 같은 반말체는 절대 쓰지 않습니다. 이 문장들은 포트폴리오에
+   그대로 들어갈 공식적인 기록이기 때문입니다.
+   단, message(질문)는 지금처럼 친근한 말투를 유지해도 됩니다.
+9. 사용자가 이미 말한 내용을 그대로 반복한 suggestion을 만들지 마세요.
+10. "더 구체적으로 설명해주세요" 라고 질문하는 경우에는,
+    suggestions도 더 구체적인 예시가 되어야 합니다.
+11. 사용자가 말한 문장을 단순 재진술하지 마세요.
 
 [이미 내용이 채워진 경우]
 - 빈 칸이 없더라도 대화를 끝내지 마세요.
@@ -50,7 +70,22 @@ KEYWORD_SYSTEM_PROMPT = """
 응답은 반드시 아래 JSON 형식으로만 하세요.
 { "keywords": ["키워드1", "키워드2"] }
 """
+TIP_KEYWORDS = [
+    "팁",
+    "도움",
+    "어떻게 써",
+    "어떻게 쓰",
+    "예시",
+    "작성법",
+]
 
+def is_tip_request(message: str) -> bool:
+    if not message:
+        return False
+
+    message = message.strip().lower()
+
+    return any(keyword in message for keyword in TIP_KEYWORDS)
 
 def get_next_empty_field(fields: dict):
     for key in EXPERIENCE_FIELDS:

@@ -26,19 +26,36 @@ const AIBubble = ({ id, text, time, suggestions, targetField, used, selected, on
     </div>
     {suggestions && suggestions.length > 0 && (
       <div className="flex flex-col gap-2" style={{ paddingLeft: 4 }}>
-        <span style={{ color: "#5D5F5F", fontSize: 11 }}>
-          {used ? "선택 완료했어요" : "이렇게 써보는 건 어때요~?"}
+        <span style={{ color: "#5D5F5F", fontSize: 12 }}>
+          {used ? "✓ 아래 항목을 칸에 넣었어요" : "💡 골라서 칸에 넣을 수 있어요 (여러 개 가능)"}
         </span>
         {suggestions.map((s, i) => {
-          const isSelected = selected.includes(i);
-          return (
-            <button key={i} onClick={() => !used && onToggle(id, i)} disabled={used}
-              className="text-left transition-opacity"
-              style={{ background: isSelected ? "black" : "#F3F2F1", color: isSelected ? "white" : "#1B1C1C", border: "1px solid #C6C6C7", padding: "8px 12px", borderRadius: 4, fontSize: 13, opacity: used && !isSelected ? 0.4 : 1, cursor: used ? "default" : "pointer" }}>
-              {s}
-            </button>
-          );
-        })}
+            const isSelected = selected.includes(i);
+            return (
+              <button
+                key={i}
+                onClick={() => !used && onToggle(id, i)}
+                disabled={used}
+                className="text-left transition-all"
+                style={{
+                  background: isSelected ? "#E8F0FE" : "white",
+                  color: "#1B1C1C",
+                  border: isSelected ? "2px solid #4A6CF7" : "1.5px dashed #B0B0B0",
+                  padding: "10px 14px",
+                  borderRadius: 8,
+                  fontSize: 15,
+                  opacity: used && !isSelected ? 0.35 : 1,
+                  cursor: used ? "default" : "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                }}
+              >
+      <span style={{ fontSize: 13 }}>{isSelected ? "☑" : "☐"}</span>
+      <span>{s}</span>
+    </button>
+  );
+})}
         {!used && (
           <button onClick={() => onSubmit(id, targetField, selected.map((i) => suggestions[i]))}
             disabled={selected.length === 0}
@@ -69,7 +86,8 @@ const formatTime = () => {
   const m = String(now.getMinutes()).padStart(2, "0");
   return `${h < 12 ? "오전" : "오후"} ${h > 12 ? h - 12 : h}:${m}`;
 };
-const genId = () => `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+let _idCounter = 0;
+const genId = () => `msg-${++_idCounter}-${Date.now()}`;
 
 export const AISession = () => {
   const navigate = useNavigate();

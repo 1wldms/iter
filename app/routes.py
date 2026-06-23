@@ -6,6 +6,8 @@ from app.ai_prompts import (
     get_next_empty_field,
     build_session_messages,
     build_keyword_extraction_messages,
+    is_tip_request,
+    FIELD_TIPS,
 )
 from openai import OpenAI
 
@@ -277,6 +279,17 @@ def ai_session_chat():
 
     if not target_field:
         target_field = get_next_empty_field(fields)
+
+    if is_tip_request(user_message):
+        return jsonify({
+            "message": FIELD_TIPS.get(
+                target_field,
+                "현재 항목을 작성할 때는 구체적인 경험과 사례를 떠올려보세요."
+            ),
+            "suggestions": [],
+            "target_field": target_field,
+            "is_complete": False,
+        }), 200
 
     if target_field is None:
         return jsonify({
