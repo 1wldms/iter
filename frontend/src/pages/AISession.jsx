@@ -192,8 +192,14 @@ export const AISession = () => {
         body: JSON.stringify({ message: "이 내용을 칸에 추가했어요. 다음 질문 부탁해요.", experience: updatedFields, history: historyOverride || messages, target_field: null }),
       });
       const data = await res.json();
-      if (!res.ok || !data.message) return;
-      setMessages((prev) => [...prev, { role: "ai", text: data.message, time: formatTime(), suggestions: data.suggestions || [], targetField: data.target_field }]);
+      if (!res.ok || !data.message) {
+        console.error("advance 응답 이상함:", data);
+        return;
+      }
+      setMessages((prev) => [...prev, {
+        role: "ai", text: data.message, time: formatTime(),
+        suggestions: data.suggestions || [], targetField: data.target_field,
+      }]);
       setTargetField(data.target_field);
       setIsComplete(data.is_complete);
     } catch (err) { console.error(err); }
@@ -201,20 +207,34 @@ export const AISession = () => {
   };
 
   const askAboutField = async (fieldKey) => {
-    setLoading(true);
-    try {
-      const res = await authFetch(`${BACKEND_URL}/ai/session/chat`, {
-        method: "POST",
-        body: JSON.stringify({ message: "이 항목에 대해 더 이야기해보고 싶어요.", experience: fields, history: messages, target_field: fieldKey }),
-      });
-      const data = await res.json();
-      if (!res.ok || !data.message) return;
-      setMessages((prev) => [...prev, { role: "ai", text: data.message, time: formatTime(), suggestions: data.suggestions || [], targetField: data.target_field || fieldKey }]);
-      setTargetField(data.target_field || fieldKey);
-      setIsComplete(false);
-    } catch (err) { console.error(err); }
-    finally { setLoading(false); }
-  };
+  setLoading(true);
+  try {
+    const res = await authFetch(`${BACKEND_URL}/ai/session/chat`, {
+      method: "POST",
+      body: JSON.stringify({
+        message: "이 항목에 대해 조금 더 자세히 이야기해보고 싶어요. 추가로 물어봐주세요.",
+        experience: fields,
+        history: messages,
+        target_field: fieldKey,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.message) {
+      console.error("askAboutField 응답 이상함:", data);
+      return;
+    }
+    setMessages((prev) => [...prev, {
+      role: "ai", text: data.message, time: formatTime(),
+      suggestions: data.suggestions || [], targetField: data.target_field || fieldKey,
+    }]);
+    setTargetField(data.target_field || fieldKey);
+    setIsComplete(false);
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="w-full h-screen flex flex-col overflow-hidden" style={{ background: "#FBF9F9" }}>
