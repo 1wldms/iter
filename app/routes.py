@@ -193,7 +193,28 @@ def experiences_add():
     user = get_user_from_token(request)
     if not user:
         return jsonify({"error": "unauthorized"}), 401
+
     data = request.get_json()
+
+    fields = {
+        "title": data.get('title', ''),
+        "role": data.get('role', ''),
+        "background": data.get('background', ''),
+        "action": data.get('action', ''),
+        "result": data.get('result', ''),
+        "learned": data.get('learned', ''),
+        "reflection": data.get('reflection', ''),
+        "memo": data.get('memo', ''),
+    }
+
+    try:
+        system, messages = build_keyword_extraction_messages(fields)
+        result = call_gpt(system, messages)
+        keywords = result.get("keywords", [])
+    except Exception as e:
+        print("키워드 추출 실패:", e)
+        keywords = []
+
     experience_data = {
         "user_id": user.id,
         "title": data.get('title', ''),
@@ -204,11 +225,16 @@ def experiences_add():
         "learned": data.get('learned', ''),
         "reflection": data.get('reflection', ''),
         "memo": data.get('memo', ''),
-        "keywords": data.get('keywords', [])
+        "keywords": keywords
     }
+
     try:
         res = supabase.table('experiences').insert(experience_data).execute()
-        return jsonify({"message": "경험 추가 성공!", "experience": res.data[0]}), 200
+        return jsonify({
+            "message": "경험 추가 성공!",
+            "experience": res.data[0]
+        }), 200
+
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
@@ -231,9 +257,16 @@ def experience_delete(experience_id):
     user = get_user_from_token(request)
     if not user:
         return jsonify({"error": "unauthorized"}), 401
+
     try:
-        supabase.table('experiences').delete().eq('id', experience_id).eq('user_id', user.id).execute()
+        supabase.table('experiences')\
+            .delete()\
+            .eq('id', experience_id)\
+            .eq('user_id', user.id)\
+            .execute()
+
         return jsonify({"message": "경험 삭제 성공!"}), 200
+
     except Exception as e:
         return jsonify({"error": str(e)}), 400
     
