@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request, redirect
-from app import supabase
+from app.supabase_client import supabase
 import os
 import json
 from app.ai_prompts import (
