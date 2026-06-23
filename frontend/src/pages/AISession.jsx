@@ -18,7 +18,7 @@ const FIELD_LABELS = {
 };
 
 // 채팅 말풍선 — AI
-const AIBubble = ({ text, time, suggestions, targetField, onAccept }) => (
+const AIBubble = ({ id, text, time, suggestions, targetField, used, selected, onToggle, onSubmit }) => (
   <div className="flex flex-col gap-2" style={{ maxWidth: 576 }}>
     <div style={{ padding: "22px 24px 24px", background: "white", boxShadow: "4px 4px 0px black", borderRadius: 4, outline: "1px solid black", outlineOffset: -1 }}>
       <p style={{ color: "black", fontSize: 18, fontWeight: 400, lineHeight: "28.8px", whiteSpace: "pre-wrap" }}>
@@ -28,17 +28,42 @@ const AIBubble = ({ text, time, suggestions, targetField, onAccept }) => (
 
     {suggestions && suggestions.length > 0 && (
       <div className="flex flex-col gap-2" style={{ paddingLeft: 4 }}>
-        <span style={{ color: "#5D5F5F", fontSize: 12 }}>이렇게 써보는 건 어때요~? (클릭하면 칸에 들어가요)</span>
-        {suggestions.map((s, i) => (
+        <span style={{ color: "#5D5F5F", fontSize: 12 }}>
+          {used ? "선택 완료했어요" : "이렇게 써보는 건 어때요~? (여러 개 선택 가능)"}
+        </span>
+        {suggestions.map((s, i) => {
+          const isSelected = selected.includes(i);
+          return (
+            <button
+              key={i}
+              onClick={() => !used && onToggle(id, i)}
+              disabled={used}
+              className="text-left transition-opacity"
+              style={{
+                background: isSelected ? "black" : "#F3F2F1",
+                color: isSelected ? "white" : "#1B1C1C",
+                border: "1px solid #C6C6C7",
+                padding: "10px 14px",
+                borderRadius: 4,
+                fontSize: 15,
+                opacity: used && !isSelected ? 0.4 : 1,
+                cursor: used ? "default" : "pointer",
+              }}
+            >
+              {s}
+            </button>
+          );
+        })}
+        {!used && (
           <button
-            key={i}
-            onClick={() => onAccept(targetField, s)}
-            className="text-left hover:opacity-70 transition-opacity"
-            style={{ background: "#F3F2F1", border: "1px solid #C6C6C7", padding: "10px 14px", borderRadius: 4, fontSize: 15, color: "#1B1C1C" }}
+            onClick={() => onSubmit(id, targetField, selected.map((i) => suggestions[i]))}
+            disabled={selected.length === 0}
+            className="hover:opacity-80 transition-opacity disabled:opacity-40"
+            style={{ alignSelf: "flex-start", marginTop: 4, background: "black", color: "white", padding: "8px 20px", borderRadius: 4, fontSize: 14 }}
           >
-            {s}
+            선택한 내용 보내기
           </button>
-        ))}
+        )}
       </div>
     )}
 
@@ -47,9 +72,12 @@ const AIBubble = ({ text, time, suggestions, targetField, onAccept }) => (
 );
 
 // 채팅 말풍선 — 사용자
-const UserBubble = ({ text, time }) => (
+const UserBubble = ({ text, time, fromSuggestion }) => (
   <div className="flex flex-col items-end gap-2" style={{ maxWidth: 576, alignSelf: "flex-end" }}>
-    <div style={{ padding: "24px 33px 24px 24px", background: "black", borderRadius: 4 }}>
+    {fromSuggestion && (
+      <span style={{ color: "#5D5F5F", fontSize: 11 }}>제안에서 선택한 답변</span>
+    )}
+    <div style={{ padding: "24px 33px 24px 24px", background: fromSuggestion ? "#3A3A3A" : "black", borderRadius: 4 }}>
       <p style={{ color: "white", fontSize: 18, fontWeight: 400, lineHeight: "28.8px", whiteSpace: "pre-wrap" }}>
         {text}
       </p>
@@ -68,6 +96,8 @@ const formatTime = () => {
   const m = String(now.getMinutes()).padStart(2, "0");
   return `${h < 12 ? "오전" : "오후"} ${h > 12 ? h - 12 : h}:${m}`;
 };
+const genId = () => `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
 
 export const AISession = () => {
   const navigate = useNavigate();
@@ -81,6 +111,9 @@ export const AISession = () => {
   const [targetField, setTargetField] = useState(null);
   const bottomRef = useRef(null);
   const hasGreeted = useRef(false);
+  const [isComplete, setIsComplete] = useState(false);
+  const [selectedSuggestions, setSelectedSuggestions] = useState({});
+  const [usedSuggestionMsgs, setUsedSuggestionMsgs] = useState({});
 
   // 페이지 진입 시 AI 첫 인사
   const greet = async () => {
@@ -91,19 +124,21 @@ export const AISession = () => {
       body: JSON.stringify({ experience: fields }),
     });
     const data = await res.json();
-      if (!res.ok || !data.message) {
-        console.error("chat 응답 이상함:", data);
-        setMessages((prev) => [...prev, { role: "ai", text: "응답을 받지 못했어요. 다시 시도해주세요.", time: formatTime() }]);
-        return;
-      }
-      setMessages((prev) => [...prev, {
-        role: "ai", text: data.message, time: formatTime(),
-        suggestions: data.suggestions || [], targetField: data.target_field,
-      }]);
-      setTargetField(data.target_field);
-        } catch (err) {
-          console.error(err);
-    setMessages([{ role: "ai", text: "안녕하세요! 작성하신 경험을 함께 살펴볼게요.", time: formatTime() }]);
+    if (!res.ok || !data.message) {
+      console.error("start 응답 이상함:", data);
+      setMessages([{ role: "ai", text: "AI 응답을 받지 못했어요. 다시 시도해주세요.", time: formatTime(), id: genId() }]);
+      return;
+    }
+    setMessages([{
+      role: "ai", text: data.message, time: formatTime(),
+      suggestions: data.suggestions || [], targetField: data.target_field,
+      id: genId(),
+    }]);
+    setTargetField(data.target_field);
+    setIsComplete(data.is_complete);
+  } catch (err) {
+    console.error(err);
+    setMessages([{ role: "ai", text: "안녕하세요! 작성하신 경험을 함께 살펴볼게요.", time: formatTime(), id: genId() }]);
   } finally {
     setLoading(false);
   }
@@ -117,7 +152,7 @@ export const AISession = () => {
 
   const sendMessage = async (text) => {
       if (!text.trim()) return;
-      const userMsg = { role: "user", text: text.trim(), time: formatTime() };
+      const userMsg = { role: "user", text: text.trim(), time: formatTime(), id: genId() };
       const newHistory = [...messages, userMsg];
       setMessages(newHistory);
       setInput("");
@@ -134,17 +169,25 @@ export const AISession = () => {
           }),
         });
         const data = await res.json();
+        if (!res.ok || !data.message) {
+          console.error("chat 응답 이상함:", data);
+          setMessages((prev) => [...prev, { role: "ai", text: "응답을 받지 못했어요. 다시 시도해주세요.", time: formatTime(), id: genId() }]);
+          return;
+        }
         setMessages((prev) => [...prev, {
           role: "ai", text: data.message, time: formatTime(),
           suggestions: data.suggestions || [], targetField: data.target_field,
+          id: genId(),
         }]);
         setTargetField(data.target_field);
-      } catch {
-        setMessages((prev) => [...prev, { role: "ai", text: "잠시 오류가 생겼어요. 다시 시도해 주세요.", time: formatTime() }]);
+        setIsComplete(data.is_complete);
+      } catch (err) {
+        console.error(err);
+        setMessages((prev) => [...prev, { role: "ai", text: "잠시 오류가 생겼어요. 다시 시도해 주세요.", time: formatTime(), id: genId() }]);
       } finally {
         setLoading(false);
       }
-};
+    };
 
   const handleSave = async () => {
     try {
@@ -160,10 +203,97 @@ export const AISession = () => {
     }
   };
 
-  const handleAcceptSuggestion = (field, text) => {
-    if (!field) return;
-    setFields((prev) => ({ ...prev, [field]: text }));
+  const toggleSuggestion = (msgId, index) => {
+  setSelectedSuggestions((prev) => {
+    const current = prev[msgId] || [];
+    const next = current.includes(index)
+      ? current.filter((i) => i !== index)
+      : [...current, index];
+    return { ...prev, [msgId]: next };
+  });
+};
+
+  const submitSuggestions = (msgId, field, texts) => {
+    if (!field || texts.length === 0) return;
+    setUsedSuggestionMsgs((prev) => ({ ...prev, [msgId]: true }));
+    const combined = texts.join("\n");
+    const existing = fields[field] || "";
+    const merged = existing ? `${existing}\n${combined}` : combined;
+    const updatedFields = { ...fields, [field]: merged };
+  setFields(updatedFields);
+
+  const userMsg = {
+    role: "user",
+    text: combined,
+    time: formatTime(),
+    id: genId(),
+    fromSuggestion: true,   // ← 표시용 플래그
   };
+  const newHistory = [...messages, userMsg];
+  setMessages(newHistory);
+
+  advanceToNextQuestion(updatedFields, newHistory);
+};
+
+  const advanceToNextQuestion = async (updatedFields, historyOverride) => {
+    setLoading(true);
+    try {
+      const res = await authFetch(`${BACKEND_URL}/ai/session/chat`, {
+        method: "POST",
+        body: JSON.stringify({
+          message: "이 내용을 칸에 추가했어요. 다음 질문 부탁해요.",
+          experience: updatedFields,
+          history: historyOverride || messages,
+          target_field: null,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.message) {
+        console.error("advance 응답 이상함:", data);
+        return;
+      }
+      setMessages((prev) => [...prev, {
+        role: "ai", text: data.message, time: formatTime(),
+        suggestions: data.suggestions || [], targetField: data.target_field,
+      }]);
+      setTargetField(data.target_field);
+      setIsComplete(data.is_complete);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const askAboutField = async (fieldKey) => {
+  setLoading(true);
+  try {
+    const res = await authFetch(`${BACKEND_URL}/ai/session/chat`, {
+      method: "POST",
+      body: JSON.stringify({
+        message: "이 항목에 대해 조금 더 자세히 이야기해보고 싶어요. 추가로 물어봐주세요.",
+        experience: fields,
+        history: messages,
+        target_field: fieldKey,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.message) {
+      console.error("askAboutField 응답 이상함:", data);
+      return;
+    }
+    setMessages((prev) => [...prev, {
+      role: "ai", text: data.message, time: formatTime(),
+      suggestions: data.suggestions || [], targetField: data.target_field || fieldKey,
+    }]);
+    setTargetField(data.target_field || fieldKey);
+    setIsComplete(false);
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div
@@ -233,6 +363,22 @@ export const AISession = () => {
                       >
                         {value || "아직 비어있어요. 오른쪽 ITER AI에게 말을 걸어보세요."}
                       </p>
+                        <button
+                          onClick={() => askAboutField(key)}
+                          className="hover:opacity-70 transition-opacity"
+                          style={{
+                            alignSelf: "flex-start",
+                            marginTop: 8,
+                            color: "#5D5F5F",
+                            fontSize: 12,
+                            textDecoration: "underline",
+                            background: "none",
+                            border: "none",
+                            cursor: "pointer",
+                          }}
+                        >
+                          AI에게 더 물어보기
+                        </button>
                     </div>
                   )}
                 </div>
@@ -300,20 +446,24 @@ export const AISession = () => {
 
           {/* 채팅 메시지 영역 */}
           <div className="flex-1 overflow-y-auto flex flex-col" style={{ padding: "40px 64px", gap: 24 }}>
-            {messages.map((msg, i) =>
-                    msg.role === "ai" ? (
-                      <AIBubble
-                        key={i}
-                        text={msg.text}
-                        time={msg.time}
-                        suggestions={msg.suggestions}
-                        targetField={msg.targetField}
-                        onAccept={handleAcceptSuggestion}
-                      />
-                    ) : (
-                      <UserBubble key={i} text={msg.text} time={msg.time} />
-                    )
-      )}
+            {messages.map((msg) =>
+                msg.role === "ai" ? (
+                  <AIBubble
+                    key={msg.id}
+                    id={msg.id}
+                    text={msg.text}
+                    time={msg.time}
+                    suggestions={msg.suggestions}
+                    targetField={msg.targetField}
+                    used={!!usedSuggestionMsgs[msg.id]}
+                    selected={selectedSuggestions[msg.id] || []}
+                    onToggle={toggleSuggestion}
+                    onSubmit={submitSuggestions}
+                  />
+                ) : (
+                 <UserBubble key={msg.id} text={msg.text} time={msg.time} fromSuggestion={msg.fromSuggestion} />
+                )
+              )}
             {loading && (
               <div className="flex gap-1 items-center" style={{ paddingLeft: 4 }}>
                 {[0, 1, 2].map((i) => (
