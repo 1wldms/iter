@@ -80,10 +80,10 @@ export const AISession = () => {
   const [fields, setFields] = useState(experience);
   const [targetField, setTargetField] = useState(null);
   const bottomRef = useRef(null);
+  const hasGreeted = useRef(false);
 
   // 페이지 진입 시 AI 첫 인사
-  useEffect(() => {
-    const greet = async () => {
+  const greet = async () => {
   setLoading(true);
   try {
     const res = await authFetch(`${BACKEND_URL}/ai/session/start`, {
@@ -91,23 +91,29 @@ export const AISession = () => {
       body: JSON.stringify({ experience: fields }),
     });
     const data = await res.json();
-    setMessages([{
-      role: "ai", text: data.message, time: formatTime(),
-      suggestions: data.suggestions || [], targetField: data.target_field,
-    }]);
-    setTargetField(data.target_field);
-  } catch {
+      if (!res.ok || !data.message) {
+        console.error("chat 응답 이상함:", data);
+        setMessages((prev) => [...prev, { role: "ai", text: "응답을 받지 못했어요. 다시 시도해주세요.", time: formatTime() }]);
+        return;
+      }
+      setMessages((prev) => [...prev, {
+        role: "ai", text: data.message, time: formatTime(),
+        suggestions: data.suggestions || [], targetField: data.target_field,
+      }]);
+      setTargetField(data.target_field);
+        } catch (err) {
+          console.error(err);
     setMessages([{ role: "ai", text: "안녕하세요! 작성하신 경험을 함께 살펴볼게요.", time: formatTime() }]);
   } finally {
     setLoading(false);
   }
 };
-    greet();
-  }, []);
+   useEffect(() => {
+  if (hasGreeted.current) return;
+  hasGreeted.current = true;
+  greet();
+}, []);
 
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, loading]);
 
   const sendMessage = async (text) => {
       if (!text.trim()) return;
