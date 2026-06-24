@@ -69,7 +69,7 @@ export const Landing = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1">
           {featureCards.map((card, i) => (
             <div key={i} className="flex flex-col gap-4"
-              style={{ padding: 24, background: "white", outline: "1px solid black", outlineOffset: -1, minHeight: 180 }}>
+              style={{ padding: 24, background: "white", outline: "1px solid black", outlineOffset: -1, minHeight: 280 }}>
               <div style={{ width: 44, height: 44, background: "#FBF9F9", borderRadius: 12, outline: "1px solid black", outlineOffset: -1, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                 <img src={card.icon} alt="" aria-hidden="true" style={{ width: 20, height: 20 }} />
               </div>

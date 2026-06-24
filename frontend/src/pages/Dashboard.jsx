@@ -3,6 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { AppHeader } from "../components/AppHeader";
 import { authFetch } from "../auth";
 
+const KEYWORD_COLORS = [
+  { bg: "#FDECEC", text: "#977171" }, // 레드
+  { bg: "#FEF3E2", text: "#857948" }, // 옐로우
+  { bg: "#cbdfcd", text: "#638866" }, // 그린
+  { bg: "#E3F2FD", text: "#647382" }, // 블루
+  { bg: "#cdfaf5", text: "#566e6b" }, // 민트
+];
+
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://127.0.0.1:5001";
 
 const ExperienceCard = ({ exp, onClick }) => (
@@ -22,11 +30,14 @@ const ExperienceCard = ({ exp, onClick }) => (
     </h3>
     <div className="flex gap-2 flex-wrap">
       {(exp.keywords && exp.keywords.length > 0)
-        ? exp.keywords.map((kw, i) => (
-            <span key={i} style={{ background: "#F5F3F3", color: "#4C4546", fontSize: 11, padding: "2px 8px", borderRadius: 4 }}>
-              {kw}
-            </span>
-          ))
+        ? exp.keywords.map((kw, i) => {
+            const color = KEYWORD_COLORS[i % KEYWORD_COLORS.length];
+            return (
+              <span key={i} style={{ background: color.bg, color: color.text, fontSize: 11, fontWeight: 500, padding: "2px 8px", borderRadius: 4 }}>
+                #{kw}
+              </span>
+            );
+          })
         : <p style={{ color: "#C6C6C7", fontSize: 12 }}>키워드가 아직 없어요</p>
       }
     </div>
