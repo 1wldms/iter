@@ -5,9 +5,9 @@ import json
 from app.ai_prompts import (
     get_next_empty_field,
     build_session_messages,
+    build_summary_messages,
     build_keyword_extraction_messages,
-    is_tip_request,
-    FIELD_TIPS,
+    EXPERIENCE_FIELDS,
 )
 from openai import OpenAI
 
@@ -279,11 +279,12 @@ def ai_session_start():
 
     data = request.get_json()
     fields = data.get('experience', {})
+    target_field = data.get('target_field') or get_next_empty_field(fields)
 
-    next_field = get_next_empty_field(fields)
-    # next_field가 None이어도 그냥 진행 (깊게 파고들기 모드)
+    if not target_field:
+        target_field = list(EXPERIENCE_FIELDS.keys())[0]
 
-    system, messages = build_session_messages(fields, [], next_field)
+    system, messages = build_session_messages(fields, [], target_field)
 
     try:
         result = call_gpt(system, messages)
@@ -292,8 +293,8 @@ def ai_session_start():
 
     return jsonify({
         "message": result["message"],
-        "suggestions": result.get("suggestions", []),
-        "target_field": next_field,
+        "suggestions": [],
+        "target_field": target_field,
         "is_complete": False,
     }), 200
 
@@ -312,17 +313,6 @@ def ai_session_chat():
 
     if not target_field:
         target_field = get_next_empty_field(fields)
-
-    if is_tip_request(user_message):
-        return jsonify({
-            "message": FIELD_TIPS.get(
-                target_field,
-                "현재 항목을 작성할 때는 구체적인 경험과 사례를 떠올려보세요."
-            ),
-            "suggestions": [],
-            "target_field": target_field,
-            "is_complete": False,
-        }), 200
 
     if target_field is None:
         return jsonify({
@@ -352,3 +342,27 @@ def ai_session_chat():
         "target_field": target_field,
         "is_complete": False,
     }), 200
+    
+@main.route('/ai/session/summarize', methods=['POST'])
+def ai_session_summarize():
+    user = get_user_from_token(request)
+    if not user:
+        return jsonify({"error": "unauthorized"}), 401
+
+    data = request.get_json()
+    fields = data.get('experience', {})
+    history = data.get('history', [])
+    target_field = data.get('target_field')
+
+    if not target_field:
+        return jsonify({"error": "target_field 없음"}), 400
+
+    from app.ai_prompts import build_summary_messages
+    system, messages = build_summary_messages(fields, history, target_field)
+
+    try:
+        result = call_gpt(system, messages)
+    except Exception as e:
+        return jsonify({"error": "AI 호출 실패", "detail": str(e)}), 500
+
+    return jsonify({"summary": result.get("summary", "")}), 200
