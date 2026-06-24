@@ -18,7 +18,10 @@ def create_app():
 
     CORS(
         app,
-        origins=["http://localhost:5173"],
+        origins=[
+        "http://localhost:5173",
+        "https://wonderful-quietude-production-ff4d.up.railway.app"
+        ],
         supports_credentials=True
     )
 
