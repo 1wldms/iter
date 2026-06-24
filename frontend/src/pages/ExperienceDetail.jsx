@@ -55,8 +55,8 @@ export const ExperienceDetail = () => {
         <div className="w-full min-h-screen flex flex-col" style={{ background: "#FBF9F9" }}>
             <AppHeader />
 
-            <main className="w-full mx-auto flex flex-col"
-                className="px-4 md:px-8" style={{ maxWidth: 640, paddingTop: 32, paddingBottom: 64, gap: 24 }}>
+            <main className="w-full mx-auto flex flex-col px-5 md:px-8"
+                style={{ maxWidth: 720, paddingTop: 32, paddingBottom: 64, gap: 24 }}>
 
                 {/* 상단 */}
                 <div className="flex items-center justify-between">
