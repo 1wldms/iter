@@ -254,6 +254,15 @@ def experience_edit(experience_id):
     if not user:
         return jsonify({"error": "unauthorized"}), 401
     data = request.get_json()
+
+    # 키워드 재추출
+    try:
+        system, messages = build_keyword_extraction_messages(data)
+        result = call_gpt(system, messages)
+        data["keywords"] = result.get("keywords", [])
+    except Exception as e:
+        print("키워드 추출 실패:", e)
+
     try:
         res = supabase.table('experiences').update(data).eq('id', experience_id).eq('user_id', user.id).execute()
         return jsonify({"message": "경험 수정 성공!", "experience": res.data[0]}), 200
