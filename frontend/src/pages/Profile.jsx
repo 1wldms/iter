@@ -52,7 +52,7 @@ export const Profile = () => {
   const displayName = user?.name || "이름 없음";
   const languages = profile?.languages?.join(", ") || "";
   const school = [profile?.school, profile?.department].filter(Boolean).join(" ") || "";
-  const displayName = user?.name || "이름 없음";
+  const link = profile?.github_url || "";
   const contact = profile?.contact || "";
   const bio = profile?.bio_sentence || null;
 
