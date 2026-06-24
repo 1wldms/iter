@@ -1,7 +1,10 @@
 from flask import Blueprint, jsonify, request, redirect
+print("routes: flask imported")
 from app.supabase_client import supabase
+print("routes: supabase imported")
 import os
 import json
+print("routes: os/json imported")
 from app.ai_prompts import (
     get_next_empty_field,
     build_session_messages,
@@ -9,7 +12,9 @@ from app.ai_prompts import (
     build_keyword_extraction_messages,
     EXPERIENCE_FIELDS,
 )
+print("routes: ai_prompts imported")
 from openai import OpenAI
+print("routes: openai imported")
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
