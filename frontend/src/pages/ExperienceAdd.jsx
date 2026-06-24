@@ -63,7 +63,7 @@ export const ExperienceAdd = () => {
         
         {/* 안내 문구 */}
         <p style={{ color: "#5D5F5F", fontSize: 16, fontWeight: 400, lineHeight: "26px" }}>
-          작은 경험이라도 차곡차곡 모이면 훌륭한 포트폴리오가 됩니다.<br />
+          작은 경험이라도 차곡차곡 모이면 훌륭한 포트폴리오가 됩니다.<br className="hidden md:block" />
           기억이 생생할 때 자세히 기록해 보세요.
         </p>
 
