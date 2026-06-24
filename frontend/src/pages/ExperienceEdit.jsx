@@ -51,6 +51,12 @@ export const ExperienceEdit = () => {
         };
         fetchData();
     }, [id]);
+    useEffect(() => {
+        document.querySelectorAll("textarea").forEach((el) => {
+            el.style.height = "auto";
+            el.style.height = el.scrollHeight + "px";
+        });
+    }, [loading]);
 
     const handleChange = (key, value) => setForm((f) => ({ ...f, [key]: value }));
 

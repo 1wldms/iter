@@ -17,21 +17,18 @@ const ExperienceCard = ({ exp, onClick }) => (
         기록일: {new Date(exp.created_at).toLocaleDateString("ko-KR")}
       </span>
     </div>
-    <h3 style={{ color: "black", fontSize: 18, fontWeight: 400, lineHeight: "26px", paddingTop: 4 }}>
+    <h3 style={{ color: "black", fontSize: 18, fontWeight: 400, lineHeight: "26px", paddingTop: 4, flex: 1 }}>
       {exp.title || exp.role || "제목 없음"}
     </h3>
-    <div className="flex flex-col gap-1 pt-1">
-      <p style={{ color: "#4C4546", fontSize: 11, fontWeight: 400, letterSpacing: 0.70 }}>키워드</p>
-      <div className="flex gap-2 flex-wrap">
-        {(exp.keywords && exp.keywords.length > 0)
-          ? exp.keywords.map((kw, i) => (
-              <span key={i} style={{ background: "#F5F3F3", color: "#4C4546", fontSize: 11, padding: "2px 8px", borderRadius: 4 }}>
-                {kw}
-              </span>
-            ))
-          : <p style={{ color: "#C6C6C7", fontSize: 12 }}>키워드가 아직 없어요</p>
-        }
-      </div>
+    <div className="flex gap-2 flex-wrap">
+      {(exp.keywords && exp.keywords.length > 0)
+        ? exp.keywords.map((kw, i) => (
+            <span key={i} style={{ background: "#F5F3F3", color: "#4C4546", fontSize: 11, padding: "2px 8px", borderRadius: 4 }}>
+              {kw}
+            </span>
+          ))
+        : <p style={{ color: "#C6C6C7", fontSize: 12 }}>키워드가 아직 없어요</p>
+      }
     </div>
   </div>
 );
