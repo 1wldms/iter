@@ -16,6 +16,9 @@ print("routes: ai_prompts imported")
 from openai import OpenAI
 print("routes: openai imported")
 
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+BACKEND_URL = os.getenv("BACKEND_URL", "http://127.0.0.1:5001")
+
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
@@ -58,7 +61,7 @@ def google_login():
     res = supabase.auth.sign_in_with_oauth({
         "provider": "google",
         "options": {
-            "redirect_to": "http://127.0.0.1:5001/auth/callback"
+            "redirect_to": f"{BACKEND_URL}/auth/callback"
         }
     })
     return redirect(res.url)
@@ -71,10 +74,10 @@ def callback():
         try:
             res = supabase.auth.exchange_code_for_session({"auth_code": code})
             token = res.session.access_token
-            return redirect(f"http://localhost:5173/profile?token={token}")
+            return redirect(f"{FRONTEND_URL}/profile?token={token}")
         except Exception as e:
-            return redirect("http://localhost:5173/login")
-    return redirect("http://localhost:5173/login")
+            return redirect(f"{FRONTEND_URL}/login")
+    return redirect(f"{FRONTEND_URL}/login")
 
 # 이메일 회원가입
 @main.route('/auth/signup', methods=['POST'])
