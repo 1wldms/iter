@@ -124,7 +124,9 @@ export const AISession = () => {
     setMessages(newHistory);
     setInput("");
 
-    const aiMsgCount = messages.filter(m => m.role === "ai").length;
+    const lastDividerIdx = [...messages].map(m => m.role).lastIndexOf("divider");
+    const currentFieldMessages = lastDividerIdx === -1 ? messages : messages.slice(lastDividerIdx + 1);
+    const aiMsgCount = currentFieldMessages.filter(m => m.role === "ai").length;
     const addHint = aiMsgCount >= 2;
 
     setLoading(true);
@@ -156,9 +158,13 @@ export const AISession = () => {
     }
     setLoading(true);
     try {
+      // 마지막 divider 이후 메시지만 현재 필드 대화로 추출
+      const lastDividerIdx = [...messages].map(m => m.role).lastIndexOf("divider");
+      const currentFieldHistory = lastDividerIdx === -1 ? messages : messages.slice(lastDividerIdx + 1);
+
       const res = await authFetch(`${BACKEND_URL}/ai/session/summarize`, {
         method: "POST",
-        body: JSON.stringify({ experience: fields, history: messages, target_field: targetField }),
+        body: JSON.stringify({ experience: fields, history: currentFieldHistory, target_field: targetField }),
       });
       const data = await res.json();
       setMessages(prev => [...prev, { role: "ai", text: data.summary, time: formatTime(), id: genId(), isSummary: true }]);
@@ -304,10 +310,10 @@ export const AISession = () => {
                   </p>
                   {isActive ? (
                     <textarea
+                      ref={(el) => { if (el) { el.style.height = "auto"; el.style.height = el.scrollHeight + "px"; } }}
                       value={editValues[key] || ""}
                       onChange={(e) => { setEditValues(prev => ({ ...prev, [key]: e.target.value })); autoResize(e); }}
                       onInput={autoResize}
-                      rows={3}
                       placeholder="여기에 직접 입력하거나 AI 정리 결과를 참고해서 작성해요"
                       className="w-full bg-transparent outline-none resize-none"
                       style={{ color: "black", fontSize: 12, lineHeight: "18px", minHeight: 54 }}
