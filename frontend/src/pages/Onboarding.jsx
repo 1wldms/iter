@@ -28,7 +28,7 @@ export const Onboarding = () => {
             if (data.profile) {
             setIsEdit(true);
             setForm({
-                name: data.user?.name || "",
+                name: data.profile?.name || data.user?.name || "",
                 school: data.profile.school || "",
                 department: data.profile.department || "",
                 languages: (data.profile.languages || []).join(", "),

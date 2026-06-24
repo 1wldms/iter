@@ -29,7 +29,7 @@ export const Profile = () => {
         const data = await res.json();
         setUser(data.user);
         setProfile(data.profile);
-        if (!data.profile || !data.profile.school) {
+        if (!data.profile) {
           navigate("/onboarding");
         }
       } catch {
@@ -52,7 +52,7 @@ export const Profile = () => {
   const displayName = user?.name || "이름 없음";
   const languages = profile?.languages?.join(", ") || "";
   const school = [profile?.school, profile?.department].filter(Boolean).join(" ") || "";
-  const link = profile?.github_url || "";
+  const displayName = user?.name || "이름 없음";
   const contact = profile?.contact || "";
   const bio = profile?.bio_sentence || null;
 

@@ -139,7 +139,7 @@ def profile():
         "user": {
             "id": user.id,
             "email": user.email,
-            "name": user.user_metadata.get('full_name', '')
+            "name": profile_data.get('name', '') if profile_data else user.user_metadata.get('full_name', '')
         },
         "profile": profile_data
     })
@@ -153,6 +153,7 @@ def profile_save():
     data = request.get_json()
     profile_data = {
         "user_id": user.id,
+        "name": data.get('name', ''), 
         "languages": data.get('languages', []),
         "school": data.get('school', ''),
         "department": data.get('department', ''),
