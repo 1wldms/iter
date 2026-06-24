@@ -384,3 +384,79 @@ def ai_session_summarize():
         return jsonify({"error": "AI 호출 실패", "detail": str(e)}), 500
 
     return jsonify({"summary": result.get("summary", "")}), 200
+
+# 폴더 목록 조회
+@main.route('/folders')
+def folders_list():
+    user = get_user_from_token(request)
+    if not user:
+        return jsonify({"error": "unauthorized"}), 401
+    try:
+        res = supabase.table('folders').select('*').eq('user_id', user.id).order('created_at').execute()
+        return jsonify({"folders": res.data})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+# 폴더 추가
+@main.route('/folders/add', methods=['POST'])
+def folders_add():
+    user = get_user_from_token(request)
+    if not user:
+        return jsonify({"error": "unauthorized"}), 401
+    data = request.get_json()
+    name = data.get('name', '').strip()
+    if not name:
+        return jsonify({"error": "폴더 이름이 필요해요"}), 400
+    try:
+        res = supabase.table('folders').insert({"user_id": user.id, "name": name}).execute()
+        return jsonify({"message": "폴더 생성 성공!", "folder": res.data[0]}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+# 폴더 이름 수정
+@main.route('/folders/<folder_id>/edit', methods=['POST'])
+def folders_edit(folder_id):
+    user = get_user_from_token(request)
+    if not user:
+        return jsonify({"error": "unauthorized"}), 401
+    data = request.get_json()
+    name = data.get('name', '').strip()
+    if not name:
+        return jsonify({"error": "폴더 이름이 필요해요"}), 400
+    try:
+        res = supabase.table('folders').update({"name": name}).eq('id', folder_id).eq('user_id', user.id).execute()
+        return jsonify({"message": "폴더 이름 수정 성공!"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+# 폴더 삭제
+@main.route('/folders/<folder_id>/delete', methods=['POST'])
+def folders_delete(folder_id):
+    user = get_user_from_token(request)
+    if not user:
+        return jsonify({"error": "unauthorized"}), 401
+    try:
+        # 그 폴더에 속한 경험들은 "분류 안 됨" 상태로 되돌림
+        supabase.table('experiences').update({"folder_id": None}).eq('folder_id', folder_id).eq('user_id', user.id).execute()
+        supabase.table('folders').delete().eq('id', folder_id).eq('user_id', user.id).execute()
+        return jsonify({"message": "폴더 삭제 성공!"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+# 경험을 폴더로 이동
+@main.route('/experiences/<experience_id>/move', methods=['POST'])
+def experience_move(experience_id):
+    user = get_user_from_token(request)
+    if not user:
+        return jsonify({"error": "unauthorized"}), 401
+    data = request.get_json()
+    folder_id = data.get('folder_id')  # null이면 "분류 안 됨"으로 이동
+    try:
+        res = supabase.table('experiences').update({"folder_id": folder_id}).eq('id', experience_id).eq('user_id', user.id).execute()
+        return jsonify({"message": "이동 성공!", "experience": res.data[0]}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
