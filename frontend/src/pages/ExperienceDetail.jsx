@@ -56,7 +56,7 @@ export const ExperienceDetail = () => {
             <AppHeader />
 
             <main className="w-full mx-auto flex flex-col"
-                style={{ maxWidth: 640, paddingTop: 32, paddingBottom: 64, paddingLeft: 32, paddingRight: 32, gap: 24 }}>
+                className="px-4 md:px-8" style={{ maxWidth: 640, paddingTop: 32, paddingBottom: 64, gap: 24 }}>
 
                 {/* 상단 */}
                 <div className="flex items-center justify-between">
@@ -91,7 +91,7 @@ export const ExperienceDetail = () => {
                 </div>
 
                 {/* 버튼들 */}
-                <div className="flex gap-3 mt-4">
+                <div className="flex flex-wrap gap-3 mt-4">
                     <button
                         onClick={() => navigate(`/experiences/${id}/edit`)}
                         style={{ background: "black", color: "white", fontSize: 13, padding: "8px 16px" }}

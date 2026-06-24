@@ -6,14 +6,14 @@ import { authFetch } from "../auth";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://127.0.0.1:5001";
 
 const FIELD_KEYS = ["title", "role", "background", "action", "result", "learned", "reflection", "memo"];
-const AI_FIELD_KEYS = ["background", "action", "result", "learned", "reflection", "memo"]; // 제목·역할 제외
+const AI_FIELD_KEYS = ["background", "action", "result", "learned", "reflection", "memo"];
 const FIELD_LABELS = {
   title: "제목", role: "역할", background: "배경", action: "액션",
   result: "결과", learned: "배운 점", reflection: "느낀 점", memo: "기타 메모",
 };
 
 const AIBubble = ({ text, time, isSummary }) => (
-  <div className="flex flex-col gap-2" style={{ maxWidth: 520 }}>
+  <div className="flex flex-col gap-2" style={{ maxWidth: "min(520px, 100%)" }}>
     <div style={{
       padding: "14px 16px", background: isSummary ? "#F0F4FF" : "white",
       boxShadow: "3px 3px 0px black", borderRadius: 4,
@@ -37,7 +37,7 @@ const AIBubble = ({ text, time, isSummary }) => (
 );
 
 const UserBubble = ({ text, time }) => (
-  <div className="flex flex-col items-end gap-1" style={{ maxWidth: 520, alignSelf: "flex-end" }}>
+  <div className="flex flex-col items-end gap-1" style={{ maxWidth: "min(520px, 100%)", alignSelf: "flex-end" }}>
     <div style={{ padding: "12px 16px", background: "black", borderRadius: 4 }}>
       <p style={{ color: "white", fontSize: 14, fontWeight: 400, lineHeight: "22px", whiteSpace: "pre-wrap" }}>{text}</p>
     </div>
@@ -75,6 +75,7 @@ export const AISession = () => {
   const [fields, setFields] = useState(experience);
   const [targetField, setTargetField] = useState(null);
   const [editValues, setEditValues] = useState(experience);
+  const [activePanel, setActivePanel] = useState("chat"); // 모바일 탭
   const bottomRef = useRef(null);
   const hasGreeted = useRef(false);
   const inputRef = useRef(null);
@@ -83,7 +84,6 @@ export const AISession = () => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
 
-  // textarea auto-resize
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.style.height = "auto";
@@ -124,9 +124,8 @@ export const AISession = () => {
     setMessages(newHistory);
     setInput("");
 
-    // 현재 필드의 AI 메시지 수 카운트
     const aiMsgCount = messages.filter(m => m.role === "ai").length;
-    const addHint = aiMsgCount >= 2; // 3번째 AI 메시지부터 안내
+    const addHint = aiMsgCount >= 2;
 
     setLoading(true);
     try {
@@ -147,12 +146,10 @@ export const AISession = () => {
   };
 
   const handleSummarize = async () => {
-    // 사용자 메시지가 없으면 막기
     const userMessages = messages.filter(m => m.role === "user");
     if (userMessages.length === 0) {
       setMessages(prev => [...prev, {
-        role: "ai",
-        text: "아직 이야기를 나누지 않았어요! 질문에 답해볼까요? 짧은 이야기도 좋아요 😊",
+        role: "ai", text: "아직 이야기를 나누지 않았어요! 질문에 답해볼까요? 짧은 이야기도 좋아요 😊",
         time: formatTime(), id: genId()
       }]);
       return;
@@ -175,8 +172,6 @@ export const AISession = () => {
   const handleNextField = async () => {
     const currentIndex = AI_FIELD_KEYS.indexOf(targetField);
     const nextField = AI_FIELD_KEYS[currentIndex + 1] || null;
-
-    // 현재 editValues 저장
     const updatedFields = { ...fields, [targetField]: editValues[targetField] };
     setFields(updatedFields);
 
@@ -188,10 +183,8 @@ export const AISession = () => {
       return;
     }
 
-    // 구분선 추가
     setMessages(prev => [...prev, {
-      role: "divider", from: FIELD_LABELS[targetField], to: FIELD_LABELS[nextField],
-      id: genId()
+      role: "divider", from: FIELD_LABELS[targetField], to: FIELD_LABELS[nextField], id: genId()
     }]);
 
     setTargetField(nextField);
@@ -219,8 +212,7 @@ export const AISession = () => {
     setFields(updatedFields);
 
     setMessages(prev => [...prev, {
-      role: "divider", from: FIELD_LABELS[targetField], to: FIELD_LABELS[key],
-      id: genId()
+      role: "divider", from: FIELD_LABELS[targetField], to: FIELD_LABELS[key], id: genId()
     }]);
 
     setTargetField(key);
@@ -258,7 +250,6 @@ export const AISession = () => {
     } catch (e) { console.error(e); }
   };
 
-  // textarea auto-resize for left panel
   const autoResize = (e) => {
     e.target.style.height = "auto";
     e.target.style.height = e.target.scrollHeight + "px";
@@ -267,11 +258,25 @@ export const AISession = () => {
   return (
     <div className="w-full h-screen flex flex-col overflow-hidden" style={{ background: "#FBF9F9" }}>
       <AppHeader />
+
+      {/* 모바일 탭 바 */}
+      <div className="md:hidden flex flex-shrink-0" style={{ background: "white", borderBottom: "1px solid black" }}>
+        <button onClick={() => setActivePanel("form")} className="flex-1 py-3 text-sm transition-colors"
+          style={{ color: activePanel === "form" ? "black" : "#5D5F5F", fontWeight: activePanel === "form" ? 700 : 400, borderBottom: activePanel === "form" ? "2px solid black" : "2px solid transparent" }}>
+          경험 기록
+        </button>
+        <button onClick={() => setActivePanel("chat")} className="flex-1 py-3 text-sm transition-colors"
+          style={{ color: activePanel === "chat" ? "black" : "#5D5F5F", fontWeight: activePanel === "chat" ? 700 : 400, borderBottom: activePanel === "chat" ? "2px solid black" : "2px solid transparent" }}>
+          AI 대화
+        </button>
+      </div>
+
       <div className="flex flex-1 overflow-hidden">
 
-        {/* 좌측 패널 */}
-        <aside className="flex flex-col overflow-y-auto flex-shrink-0"
-          style={{ width: "32%", background: "#FBF9F9", borderRight: "1px solid black", padding: "24px 20px", gap: 12 }}>
+        {/* 좌측 패널 (경험 기록) */}
+        <aside
+          className={`${activePanel === "form" ? "flex" : "hidden"} md:flex flex-col overflow-y-auto flex-shrink-0 w-full md:w-[32%]`}
+          style={{ background: "#FBF9F9", borderRight: "1px solid black", padding: "24px 20px", gap: 12 }}>
           <h2 style={{ color: "black", fontSize: 18, fontWeight: 400 }}>경험 조각 기록하기</h2>
           {fields.title && (
             <p style={{ color: "black", fontSize: 15, fontWeight: 600, borderBottom: "1px solid #DBDAD9", paddingBottom: 12 }}>
@@ -294,19 +299,13 @@ export const AISession = () => {
                     background: isActive ? "white" : "transparent",
                     cursor: isClickable ? "pointer" : "default",
                   }}>
-                  <p style={{
-                    color: isActive ? "black" : "#5D5F5F", fontSize: 10,
-                    fontWeight: 700, textTransform: "uppercase", letterSpacing: 1
-                  }}>
+                  <p style={{ color: isActive ? "black" : "#5D5F5F", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1 }}>
                     {isActive ? `▶ ${FIELD_LABELS[key]}` : FIELD_LABELS[key]}
                   </p>
                   {isActive ? (
                     <textarea
                       value={editValues[key] || ""}
-                      onChange={(e) => {
-                        setEditValues(prev => ({ ...prev, [key]: e.target.value }));
-                        autoResize(e);
-                      }}
+                      onChange={(e) => { setEditValues(prev => ({ ...prev, [key]: e.target.value })); autoResize(e); }}
                       onInput={autoResize}
                       rows={3}
                       placeholder="여기에 직접 입력하거나 AI 정리 결과를 참고해서 작성해요"
@@ -330,9 +329,10 @@ export const AISession = () => {
         </aside>
 
         {/* 우측 채팅 패널 */}
-        <div className="flex flex-col flex-1 overflow-hidden" style={{ background: "white" }}>
+        <div className={`${activePanel === "chat" ? "flex" : "hidden"} md:flex flex-col flex-1 overflow-hidden`}
+          style={{ background: "white" }}>
           <div className="flex items-center justify-between flex-shrink-0"
-            style={{ padding: "16px 32px", background: "white", borderBottom: "1px solid black" }}>
+            style={{ padding: "12px 16px", background: "white", borderBottom: "1px solid black" }}>
             <div className="flex items-center gap-2">
               <div style={{ width: 28, height: 28, background: "black", borderRadius: 2, display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <span style={{ color: "white", fontSize: 12, fontWeight: 700 }}>AI</span>
@@ -345,12 +345,12 @@ export const AISession = () => {
               </div>
             </div>
             <button onClick={handleNextField} className="hover:opacity-80 transition-opacity"
-              style={{ padding: "6px 14px", background: "black", color: "white", fontSize: 12 }}>
-              다음 칸으로 →
+              style={{ padding: "6px 12px", background: "black", color: "white", fontSize: 12, whiteSpace: "nowrap" }}>
+              다음 칸 →
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto flex flex-col" style={{ padding: "24px 32px", gap: 16 }}>
+          <div className="flex-1 overflow-y-auto flex flex-col" style={{ padding: "16px", gap: 16 }}>
             {messages.map((msg) =>
               msg.role === "divider" ? (
                 <SectionDivider key={msg.id} from={msg.from} to={msg.to} />
@@ -372,8 +372,8 @@ export const AISession = () => {
           </div>
 
           <div className="flex-shrink-0 flex flex-col"
-            style={{ padding: "16px 32px", background: "white", borderTop: "1px solid black", gap: 10 }}>
-            <div className="flex items-end gap-3">
+            style={{ padding: "12px 16px", background: "white", borderTop: "1px solid black", gap: 10 }}>
+            <div className="flex items-end gap-2">
               <textarea
                 ref={inputRef}
                 value={input}
@@ -386,17 +386,13 @@ export const AISession = () => {
               />
               <button onClick={() => sendMessage(input)} disabled={loading || !input.trim()}
                 className="hover:opacity-80 transition-opacity disabled:opacity-40 flex-shrink-0"
-                style={{ padding: "8px 20px", background: "black", color: "white", fontSize: 13 }}>
+                style={{ padding: "8px 16px", background: "black", color: "white", fontSize: 13 }}>
                 보내기
               </button>
             </div>
             <button onClick={handleSummarize} disabled={loading}
               className="hover:opacity-70 transition-opacity disabled:opacity-40"
-              style={{
-                alignSelf: "flex-start", padding: "8px 20px",
-                background: "#1B1C1C", color: "white",
-                borderRadius: 6, fontSize: 13, fontWeight: 500
-              }}>
+              style={{ alignSelf: "flex-start", padding: "8px 16px", background: "#1B1C1C", color: "white", borderRadius: 6, fontSize: 13, fontWeight: 500 }}>
               ✦ 지금까지 내용 정리하기
             </button>
           </div>

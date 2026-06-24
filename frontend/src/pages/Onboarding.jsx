@@ -91,7 +91,7 @@ export const Onboarding = () => {
     return (
         <div className="w-full min-h-screen flex flex-col items-center justify-center"
         style={{ background: "#FBF9F9" }}>
-        <div className="w-full flex flex-col" style={{ maxWidth: 560, padding: "24px 32px" }}>
+        <div className="w-full flex flex-col px-4 md:px-8" style={{ maxWidth: 560, paddingTop: 24, paddingBottom: 32 }}>
             <span style={{ fontSize: 24, fontFamily: "'Playfair Display', serif", fontWeight: 700, marginBottom: 24 }}>
             ITER
             </span>
@@ -100,7 +100,7 @@ export const Onboarding = () => {
             {isEdit ? "정보 수정" : "안녕하세요! 👋"}
             </h1>
             <p style={{ color: "#5D5F5F", fontSize: 13, lineHeight: "20px", marginBottom: 24 }}>
-            {isEdit ? "내 정보를 수정할 수 있어요." : "먼저 나를 소개하는 정보를 채워볼게요. 나중에 언제든지 수정할 수 있어요."}
+            {isEdit ? "내 정보를 수정할 수 있어요." : <>먼저 나를 소개하는 정보를 채워볼게요.<br />나중에 언제든지 수정할 수 있어요.</>}
             </p>
 
             <div className="flex flex-col" style={{ gap: 20 }}>

@@ -5,7 +5,7 @@ import { authFetch } from "../auth";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://127.0.0.1:5001";
 
 const fields = [
-  { key: "title", label: "제목", placeholder: "이 경험을 한 마디로 표현하면?", rows: 1, borderColor: "#6B7280" },
+  { key: "title", label: "제목", placeholder: "경험 이름 ex) [교내 공모전] 프론트엔드 개발", rows: 1, borderColor: "#6B7280" },
   { key: "role", label: "역할", placeholder: "프로젝트에서 내가 맡은 포지션이 뭐였나요?", rows: 1, borderColor: "#6B7280" },
   { key: "background", label: "배경", placeholder: "이 활동을 시작하게 된 계기나 당시 상황을 설명해 주세요.", rows: 3, borderColor: "#C6C6C7" },
   { key: "action", label: "액션", placeholder: "목표를 달성하기 위해 구체적으로 어떤 행동을 했나요?", rows: 3, borderColor: "#C6C6C7" },
@@ -50,7 +50,7 @@ export const ExperienceAdd = () => {
       {/* 상단 바 */}
       <div className="w-full flex-shrink-0" style={{ background: "#FBF9F9", borderBottom: "1px solid black" }}>
         <div className="w-full mx-auto flex items-center justify-between"
-          style={{ maxWidth: 1280, padding: "20px 64px" }}>
+          className="w-full mx-auto flex items-center justify-between px-4 md:px-16" style={{ maxWidth: 1280, paddingTop: 20, paddingBottom: 20 }}>
           <button onClick={() => navigate(-1)} className="flex items-center gap-3 hover:opacity-70 transition-opacity">
             <span style={{ color: "black", fontSize: 14 }}>←</span>
             <span style={{ color: "black", fontSize: 20, fontWeight: 400 }}>경험 기록하기</span>
@@ -59,7 +59,7 @@ export const ExperienceAdd = () => {
       </div>
 
       {/* 폼 영역 */}
-      <div className="flex flex-col" style={{ width: "100%", maxWidth: 640, paddingTop: 24, gap: 32 }}>
+      <div className="flex flex-col w-full px-4 md:px-0" style={{ maxWidth: 640, paddingTop: 24, gap: 32 }}>
         
         {/* 안내 문구 */}
         <p style={{ color: "#5D5F5F", fontSize: 16, fontWeight: 400, lineHeight: "26px" }}>

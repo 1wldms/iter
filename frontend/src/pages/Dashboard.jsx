@@ -61,8 +61,8 @@ export const Dashboard = () => {
     <div className="w-full min-h-screen flex flex-col" style={{ background: "#FBF9F9" }}>
       <AppHeader />
 
-      <main className="w-full mx-auto flex flex-col"
-        style={{ maxWidth: 1280, paddingTop: 40, paddingBottom: 80, paddingLeft: 64, paddingRight: 64, gap: 24 }}>
+      <main className="w-full mx-auto flex flex-col px-4 md:px-16"
+        style={{ maxWidth: 1280, paddingTop: 40, paddingBottom: 80, gap: 24 }}>
         <div className="flex flex-col gap-1">
           <div className="flex items-end justify-between">
             <h1 style={{ color: "black", fontSize: 32, fontWeight: 400, lineHeight: "40px" }}>내 경험</h1>
@@ -97,7 +97,7 @@ export const Dashboard = () => {
 
       <button onClick={() => navigate("/experiences/add")}
         className="fixed flex items-center justify-center hover:opacity-80 transition-opacity"
-        style={{ right: 48, bottom: 48, width: 48, height: 48, background: "black", borderRadius: 10, color: "white", fontSize: 24, fontWeight: 300 }}
+        style={{ right: 16, bottom: 16, width: 48, height: 48, background: "black", borderRadius: 10, color: "white", fontSize: 24, fontWeight: 300 }}
         aria-label="경험 추가하기">
         +
       </button>

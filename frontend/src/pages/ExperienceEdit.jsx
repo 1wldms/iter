@@ -78,7 +78,7 @@ export const ExperienceEdit = () => {
     return (
         <div className="w-full min-h-screen flex flex-col items-center" style={{ background: "#FBF9F9", paddingBottom: 64 }}>
         <div className="w-full flex-shrink-0" style={{ background: "#FBF9F9", borderBottom: "1px solid black" }}>
-            <div className="w-full mx-auto flex items-center justify-between" style={{ maxWidth: 1280, padding: "20px 64px" }}>
+            <div className="w-full mx-auto flex items-center justify-between px-4 md:px-16" style={{ maxWidth: 1280, paddingTop: 20, paddingBottom: 20 }}>
             <button onClick={() => navigate(-1)} className="flex items-center gap-3 hover:opacity-70 transition-opacity">
                 <span style={{ color: "black", fontSize: 14 }}>←</span>
                 <span style={{ color: "black", fontSize: 20, fontWeight: 400 }}>경험 수정하기</span>
@@ -86,7 +86,7 @@ export const ExperienceEdit = () => {
             </div>
         </div>
 
-        <div className="flex flex-col" style={{ width: "100%", maxWidth: 640, paddingTop: 24, gap: 28 }}>
+        <div className="flex flex-col w-full px-4 md:px-0" style={{ maxWidth: 640, paddingTop: 24, gap: 28 }}>
             {fields.map((field) => (
             <div key={field.key} className="flex flex-col" style={{ gap: 6 }}>
                 <label style={{ color: "black", fontSize: 14, fontWeight: 600, letterSpacing: 0.70 }}>
