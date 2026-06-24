@@ -6,31 +6,52 @@ import { authFetch } from "../auth";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://127.0.0.1:5001";
 
 const FIELD_KEYS = ["title", "role", "background", "action", "result", "learned", "reflection", "memo"];
+const AI_FIELD_KEYS = ["background", "action", "result", "learned", "reflection", "memo"]; // 제목·역할 제외
 const FIELD_LABELS = {
   title: "제목", role: "역할", background: "배경", action: "액션",
   result: "결과", learned: "배운 점", reflection: "느낀 점", memo: "기타 메모",
 };
 
 const AIBubble = ({ text, time, isSummary }) => (
-  <div className="flex flex-col gap-2" style={{ maxWidth: 480 }}>
+  <div className="flex flex-col gap-2" style={{ maxWidth: 520 }}>
     <div style={{
       padding: "14px 16px", background: isSummary ? "#F0F4FF" : "white",
       boxShadow: "3px 3px 0px black", borderRadius: 4,
       outline: isSummary ? "1.5px solid #4A6CF7" : "1px solid black", outlineOffset: -1
     }}>
-      {isSummary && <p style={{ color: "#4A6CF7", fontSize: 11, fontWeight: 700, marginBottom: 6 }}>✦ 정리 결과</p>}
-      <p style={{ color: "black", fontSize: 14, fontWeight: 400, lineHeight: "22px", whiteSpace: "pre-wrap" }}>{text}</p>
+      {isSummary && (
+        <>
+          <p style={{ color: "#4A6CF7", fontSize: 11, fontWeight: 700, marginBottom: 6 }}>✦ 정리 결과</p>
+          <p style={{ color: "black", fontSize: 14, fontWeight: 400, lineHeight: "22px", whiteSpace: "pre-wrap" }}>{text}</p>
+          <p style={{ color: "#5D5F5F", fontSize: 11, marginTop: 10, paddingTop: 8, borderTop: "1px solid #E0E0E0" }}>
+            원하는 방향으로 수정해서 왼쪽 칸에 붙여넣어요! ✏️
+          </p>
+        </>
+      )}
+      {!isSummary && (
+        <p style={{ color: "black", fontSize: 14, fontWeight: 400, lineHeight: "22px", whiteSpace: "pre-wrap" }}>{text}</p>
+      )}
     </div>
     {time && <p className="pl-1" style={{ color: "#5D5F5F", fontSize: 10 }}>{time}</p>}
   </div>
 );
 
 const UserBubble = ({ text, time }) => (
-  <div className="flex flex-col items-end gap-1" style={{ maxWidth: 480, alignSelf: "flex-end" }}>
+  <div className="flex flex-col items-end gap-1" style={{ maxWidth: 520, alignSelf: "flex-end" }}>
     <div style={{ padding: "12px 16px", background: "black", borderRadius: 4 }}>
       <p style={{ color: "white", fontSize: 14, fontWeight: 400, lineHeight: "22px", whiteSpace: "pre-wrap" }}>{text}</p>
     </div>
     {time && <p className="pr-1" style={{ color: "#5D5F5F", fontSize: 10 }}>{time}</p>}
+  </div>
+);
+
+const SectionDivider = ({ from, to }) => (
+  <div className="flex items-center gap-3" style={{ margin: "8px 0" }}>
+    <div style={{ flex: 1, height: 1, background: "#DBDAD9" }} />
+    <span style={{ color: "#5D5F5F", fontSize: 11, whiteSpace: "nowrap" }}>
+      {from} 완료 · {to} 시작
+    </span>
+    <div style={{ flex: 1, height: 1, background: "#DBDAD9" }} />
   </div>
 );
 
@@ -56,16 +77,24 @@ export const AISession = () => {
   const [editValues, setEditValues] = useState(experience);
   const bottomRef = useRef(null);
   const hasGreeted = useRef(false);
+  const inputRef = useRef(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
 
-  const getFirstEmptyField = (f) => FIELD_KEYS.find(k => !(f[k] || "").trim()) || null;
+  // textarea auto-resize
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.style.height = "auto";
+      inputRef.current.style.height = inputRef.current.scrollHeight + "px";
+    }
+  }, [input]);
+
+  const getFirstAIField = (f) => AI_FIELD_KEYS.find(k => !(f[k] || "").trim()) || AI_FIELD_KEYS[0];
 
   const greet = async () => {
-    const firstField = getFirstEmptyField(fields);
-    const tf = firstField || FIELD_KEYS[0];
+    const tf = getFirstAIField(fields);
     setTargetField(tf);
     setLoading(true);
     try {
@@ -94,14 +123,22 @@ export const AISession = () => {
     const newHistory = [...messages, userMsg];
     setMessages(newHistory);
     setInput("");
+
+    // 현재 필드의 AI 메시지 수 카운트
+    const aiMsgCount = messages.filter(m => m.role === "ai").length;
+    const addHint = aiMsgCount >= 2; // 3번째 AI 메시지부터 안내
+
     setLoading(true);
     try {
       const res = await authFetch(`${BACKEND_URL}/ai/session/chat`, {
         method: "POST",
-        body: JSON.stringify({ message: text.trim(), experience: fields, history: newHistory, target_field: targetField }),
+        body: JSON.stringify({ message: text.trim(), experience: fields, history: newHistory, target_field: targetField, add_hint: addHint }),
       });
       const data = await res.json();
-      setMessages(prev => [...prev, { role: "ai", text: data.message, time: formatTime(), id: genId() }]);
+      const aiText = addHint
+        ? `${data.message}\n\n충분히 이야기했다면 아래 '정리하기' 버튼을 눌러요 😊`
+        : data.message;
+      setMessages(prev => [...prev, { role: "ai", text: aiText, time: formatTime(), id: genId() }]);
     } catch {
       setMessages(prev => [...prev, { role: "ai", text: "잠시 오류가 생겼어요.", time: formatTime(), id: genId() }]);
     } finally {
@@ -110,6 +147,16 @@ export const AISession = () => {
   };
 
   const handleSummarize = async () => {
+    // 사용자 메시지가 없으면 막기
+    const userMessages = messages.filter(m => m.role === "user");
+    if (userMessages.length === 0) {
+      setMessages(prev => [...prev, {
+        role: "ai",
+        text: "아직 이야기를 나누지 않았어요! 질문에 답해볼까요? 짧은 이야기도 좋아요 😊",
+        time: formatTime(), id: genId()
+      }]);
+      return;
+    }
     setLoading(true);
     try {
       const res = await authFetch(`${BACKEND_URL}/ai/session/summarize`, {
@@ -125,25 +172,28 @@ export const AISession = () => {
     }
   };
 
-  const handleSaveField = () => {
-    const updated = { ...fields, [targetField]: editValues[targetField] };
-    setFields(updated);
-    setMessages(prev => [...prev, {
-      role: "ai", text: `'${FIELD_LABELS[targetField]}' 항목을 저장했어요! '다음 칸으로' 버튼을 눌러 계속해요.`,
-      time: formatTime(), id: genId()
-    }]);
-  };
-
   const handleNextField = async () => {
-    const currentIndex = FIELD_KEYS.indexOf(targetField);
-    const nextField = FIELD_KEYS[currentIndex + 1] || null;
+    const currentIndex = AI_FIELD_KEYS.indexOf(targetField);
+    const nextField = AI_FIELD_KEYS[currentIndex + 1] || null;
+
+    // 현재 editValues 저장
+    const updatedFields = { ...fields, [targetField]: editValues[targetField] };
+    setFields(updatedFields);
+
     if (!nextField) {
       setMessages(prev => [...prev, {
-        role: "ai", text: "모든 항목을 다 채웠어요! 저장 버튼을 눌러 완성해요 🎉",
+        role: "ai", text: "모든 항목을 다 채웠어요! 전체 저장하기 버튼을 눌러 완성해요 🎉",
         time: formatTime(), id: genId()
       }]);
       return;
     }
+
+    // 구분선 추가
+    setMessages(prev => [...prev, {
+      role: "divider", from: FIELD_LABELS[targetField], to: FIELD_LABELS[nextField],
+      id: genId()
+    }]);
+
     setTargetField(nextField);
     setLoading(true);
     try {
@@ -151,7 +201,7 @@ export const AISession = () => {
         method: "POST",
         body: JSON.stringify({
           message: `이제 '${FIELD_LABELS[nextField]}' 항목에 대해 이야기해볼게요.`,
-          experience: fields, history: messages, target_field: nextField
+          experience: updatedFields, history: messages, target_field: nextField
         }),
       });
       const data = await res.json();
@@ -163,19 +213,55 @@ export const AISession = () => {
     }
   };
 
-  const handleSaveAll = async () => {
+  const handleClickField = async (key) => {
+    if (key === targetField || key === "title" || key === "role") return;
+    const updatedFields = { ...fields, [targetField]: editValues[targetField] };
+    setFields(updatedFields);
+
+    setMessages(prev => [...prev, {
+      role: "divider", from: FIELD_LABELS[targetField], to: FIELD_LABELS[key],
+      id: genId()
+    }]);
+
+    setTargetField(key);
+    setLoading(true);
     try {
-      const experienceId = fields.id;
+      const res = await authFetch(`${BACKEND_URL}/ai/session/chat`, {
+        method: "POST",
+        body: JSON.stringify({
+          message: `'${FIELD_LABELS[key]}' 항목에 대해 이야기해볼게요.`,
+          experience: updatedFields, history: messages, target_field: key
+        }),
+      });
+      const data = await res.json();
+      setMessages(prev => [...prev, { role: "ai", text: data.message, time: formatTime(), id: genId() }]);
+    } catch {
+      setMessages(prev => [...prev, { role: "ai", text: "해당 항목으로 넘어갈게요!", time: formatTime(), id: genId() }]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSaveAll = async () => {
+    const finalFields = { ...fields, [targetField]: editValues[targetField] };
+    try {
+      const experienceId = finalFields.id;
       const url = experienceId
         ? `${BACKEND_URL}/experiences/${experienceId}/edit`
         : `${BACKEND_URL}/experiences/add`;
-      const res = await authFetch(url, { method: "POST", body: JSON.stringify(fields) });
+      const res = await authFetch(url, { method: "POST", body: JSON.stringify(finalFields) });
       const data = await res.json();
       if (res.ok) {
         const id = experienceId || data.experience.id;
         navigate(`/experiences/${id}`);
       }
     } catch (e) { console.error(e); }
+  };
+
+  // textarea auto-resize for left panel
+  const autoResize = (e) => {
+    e.target.style.height = "auto";
+    e.target.style.height = e.target.scrollHeight + "px";
   };
 
   return (
@@ -194,15 +280,20 @@ export const AISession = () => {
           )}
 
           <div className="flex flex-col" style={{ gap: 12 }}>
-            {FIELD_KEYS.map((key) => {
+            {FIELD_KEYS.filter(k => k !== "title").map((key) => {
               const isActive = key === targetField;
+              const isClickable = !["role"].includes(key) && key !== targetField;
               return (
-                <div key={key} className="flex flex-col" style={{
-                  gap: 4, padding: 10,
-                  outline: isActive ? "2px solid black" : "1px solid #DBDAD9",
-                  outlineOffset: -1,
-                  background: isActive ? "white" : "transparent",
-                }}>
+                <div key={key}
+                  onClick={() => isClickable && handleClickField(key)}
+                  className="flex flex-col"
+                  style={{
+                    gap: 4, padding: 10,
+                    outline: isActive ? "2px solid black" : "1px solid #DBDAD9",
+                    outlineOffset: -1,
+                    background: isActive ? "white" : "transparent",
+                    cursor: isClickable ? "pointer" : "default",
+                  }}>
                   <p style={{
                     color: isActive ? "black" : "#5D5F5F", fontSize: 10,
                     fontWeight: 700, textTransform: "uppercase", letterSpacing: 1
@@ -212,11 +303,15 @@ export const AISession = () => {
                   {isActive ? (
                     <textarea
                       value={editValues[key] || ""}
-                      onChange={(e) => setEditValues(prev => ({ ...prev, [key]: e.target.value }))}
-                      rows={4}
+                      onChange={(e) => {
+                        setEditValues(prev => ({ ...prev, [key]: e.target.value }));
+                        autoResize(e);
+                      }}
+                      onInput={autoResize}
+                      rows={3}
                       placeholder="여기에 직접 입력하거나 AI 정리 결과를 참고해서 작성해요"
                       className="w-full bg-transparent outline-none resize-none"
-                      style={{ color: "black", fontSize: 12, lineHeight: "18px" }}
+                      style={{ color: "black", fontSize: 12, lineHeight: "18px", minHeight: 54 }}
                     />
                   ) : (
                     <p style={{ color: fields[key] ? "#1B1C1C" : "#C6C6C7", fontSize: 12, lineHeight: "18px" }}>
@@ -229,7 +324,7 @@ export const AISession = () => {
           </div>
 
           <button onClick={handleSaveAll} className="w-full hover:opacity-80 transition-opacity"
-            style={{ padding: "10px 16px", background: "black", color: "white", fontSize: 13, marginTop: 8 }}>
+            style={{ padding: "12px 16px", background: "black", color: "white", fontSize: 13, marginTop: 8 }}>
             전체 저장하기
           </button>
         </aside>
@@ -249,21 +344,17 @@ export const AISession = () => {
                 </p>
               </div>
             </div>
-            <div className="flex gap-2">
-              <button onClick={handleSaveField} className="hover:opacity-80 transition-opacity"
-                style={{ padding: "6px 14px", outline: "1px solid black", outlineOffset: -1, fontSize: 12, color: "black" }}>
-                저장
-              </button>
-              <button onClick={handleNextField} className="hover:opacity-80 transition-opacity"
-                style={{ padding: "6px 14px", background: "black", color: "white", fontSize: 12 }}>
-                다음 칸으로 →
-              </button>
-            </div>
+            <button onClick={handleNextField} className="hover:opacity-80 transition-opacity"
+              style={{ padding: "6px 14px", background: "black", color: "white", fontSize: 12 }}>
+              다음 칸으로 →
+            </button>
           </div>
 
           <div className="flex-1 overflow-y-auto flex flex-col" style={{ padding: "24px 32px", gap: 16 }}>
             {messages.map((msg) =>
-              msg.role === "ai" ? (
+              msg.role === "divider" ? (
+                <SectionDivider key={msg.id} from={msg.from} to={msg.to} />
+              ) : msg.role === "ai" ? (
                 <AIBubble key={msg.id} text={msg.text} time={msg.time} isSummary={msg.isSummary} />
               ) : (
                 <UserBubble key={msg.id} text={msg.text} time={msg.time} />
@@ -283,22 +374,29 @@ export const AISession = () => {
           <div className="flex-shrink-0 flex flex-col"
             style={{ padding: "16px 32px", background: "white", borderTop: "1px solid black", gap: 10 }}>
             <div className="flex items-end gap-3">
-              <div className="flex-1" style={{ borderBottom: "2px solid black", paddingBottom: 10, paddingTop: 10 }}>
-                <input type="text" value={input} onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) sendMessage(input); }}
-                  placeholder={`${FIELD_LABELS[targetField] || ""}에 대해 자유롭게 이야기해주세요...`}
-                  className="w-full bg-transparent outline-none"
-                  style={{ color: "#1B1C1C", fontSize: 14 }} />
-              </div>
+              <textarea
+                ref={inputRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); sendMessage(input); } }}
+                placeholder={`${FIELD_LABELS[targetField] || ""}에 대해 자유롭게 이야기해주세요...`}
+                rows={1}
+                className="flex-1 bg-transparent outline-none resize-none"
+                style={{ color: "#1B1C1C", fontSize: 14, borderBottom: "2px solid black", paddingBottom: 8, paddingTop: 8, lineHeight: "22px", maxHeight: 120, overflowY: "auto" }}
+              />
               <button onClick={() => sendMessage(input)} disabled={loading || !input.trim()}
-                className="hover:opacity-80 transition-opacity disabled:opacity-40"
+                className="hover:opacity-80 transition-opacity disabled:opacity-40 flex-shrink-0"
                 style={{ padding: "8px 20px", background: "black", color: "white", fontSize: 13 }}>
                 보내기
               </button>
             </div>
             <button onClick={handleSummarize} disabled={loading}
               className="hover:opacity-70 transition-opacity disabled:opacity-40"
-              style={{ alignSelf: "flex-start", padding: "4px 12px", borderRadius: 12, outline: "1px solid black", outlineOffset: -1, color: "black", fontSize: 11 }}>
+              style={{
+                alignSelf: "flex-start", padding: "8px 20px",
+                background: "#1B1C1C", color: "white",
+                borderRadius: 6, fontSize: 13, fontWeight: 500
+              }}>
               ✦ 지금까지 내용 정리하기
             </button>
           </div>
