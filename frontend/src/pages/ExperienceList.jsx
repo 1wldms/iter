@@ -72,8 +72,8 @@ export const ExperienceList = () => {
               </div>
               {experiences.map((exp) => (
                 <div key={exp.id} onClick={() => navigate(`/experiences/${exp.id}`)}
-                  className="cursor-pointer flex flex-col gap-2"
-                  style={{ padding: 20, background: "white", outline: "1px solid black", outlineOffset: -1 }}>
+                  className="cursor-pointer flex-shrink-0 flex flex-col"
+                  style={{ width: CARD_WIDTH, height: 520, padding: 24, background: "white", outline: "1px solid black", outlineOffset: -1, gap: 8, overflow: "hidden" }}>
                   <div className="flex items-center justify-between">
                     <span style={{ outline: "1px solid #7E7576", outlineOffset: -1, color: "#1B1C1C", fontSize: 11, fontWeight: 600, padding: "2px 6px" }}>
                       {exp.role || "경험"}
@@ -83,19 +83,21 @@ export const ExperienceList = () => {
                   <h2 style={{ color: "#1B1C1C", fontSize: 16, fontWeight: 400, lineHeight: "24px", marginTop: 4 }}>
                     {exp.title || exp.role || "제목 없음"}
                   </h2>
-                  <div style={{ borderTop: "1px solid #E2E2E2", marginTop: 4 }} />
-                  {exp.background && (
-                    <>
-                      <p style={{ color: "#4C4546", fontSize: 11, fontWeight: 600 }}>배경</p>
-                      <p style={{ color: "#1B1C1C", fontSize: 12, lineHeight: "18px", WebkitLineClamp: 2, display: "-webkit-box", WebkitBoxOrient: "vertical", overflow: "hidden" }}>{exp.background}</p>
-                    </>
-                  )}
+                  <div style={{ borderTop: "1px solid #E2E2E2" }} />
+                  <p style={{ color: "#4C4546", fontSize: 11, fontWeight: 600 }}>배경</p>
+                  <p style={{ color: "#1B1C1C", fontSize: 12, lineHeight: "18px", display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{exp.background}</p>
+                  <div style={{ borderTop: "1px solid #E2E2E2" }} />
+                  <p style={{ color: "#4C4546", fontSize: 11, fontWeight: 600 }}>액션</p>
+                  <p style={{ color: "#1B1C1C", fontSize: 12, lineHeight: "18px", display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{exp.action}</p>
+                  <div style={{ borderTop: "1px solid #E2E2E2" }} />
+                  <p style={{ color: "#4C4546", fontSize: 11, fontWeight: 600 }}>결과</p>
+                  <p style={{ color: "#1B1C1C", fontSize: 12, lineHeight: "18px", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{exp.result}</p>
                 </div>
               ))}
             </div>
 
             {/* ───── 데스크톱: 수평 캐러셀 ───── */}
-            <div className="relative hidden md:block" style={{ paddingTop: 32, paddingBottom: 32 }}>
+            <div className="relative hidden md:block" style={{ paddingTop: 8, paddingBottom: 32 }}>
               <div className="overflow-hidden" style={{ height: 520 }}>
                 <div className="flex transition-transform duration-500 ease-in-out"
                   style={{ transform: `translateX(calc(64px - ${current * (CARD_WIDTH + 16)}px))`, gap: 16 }}>
