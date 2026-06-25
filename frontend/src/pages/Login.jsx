@@ -81,6 +81,28 @@ export const Login = () => {
       setLoading(false);
     }
   };
+  const handleForgotPassword = async () => {
+      if (!validateEmail(email)) {
+          setMessage("올바른 이메일 형식이 아니에요.");
+          return;
+      }
+      setLoading(true);
+      setMessage("");
+      try {
+          const res = await fetch(`${BACKEND_URL}/auth/reset-password`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email }),
+          });
+          const data = await res.json();
+          if (res.ok) setMessage("재설정 링크를 이메일로 보냈어요!");
+          else setMessage(data.error || "실패했어요. 다시 시도해주세요.");
+      } catch {
+          setMessage("서버에 연결할 수 없어요.");
+      } finally {
+          setLoading(false);
+      }
+  };
 
   return (
     <main className="flex h-screen flex-col items-center justify-center bg-[#efeded]">
@@ -168,6 +190,10 @@ export const Login = () => {
                 className="mt-2 text-base text-[#5D5F5F] underline">
                 아직 계정이 없어요 → 회원가입
               </button>
+              <button type="button" onClick={() => setMode("forgot")}
+                  className="mt-2 text-sm text-[#C6C6C7]">
+                  비밀번호를 잊으셨나요?
+              </button>
             </>
           )}
 
@@ -202,6 +228,28 @@ export const Login = () => {
               </button>
             </>
           )}
+          
+          {mode === "forgot" && (
+              <>
+                  <h1 className="mb-2 text-xl font-normal text-[#1b1c1c]">비밀번호 재설정</h1>
+                  <p className="mb-6 text-sm text-[#5D5F5F]">
+                      가입한 이메일을 입력하면 재설정 링크를 보내드려요.
+                  </p>
+                  <div className="w-full flex flex-col gap-3">
+                      <input type="email" placeholder="이메일" value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          onKeyDown={(e) => e.key === "Enter" && handleForgotPassword()}
+                          className="w-full border-b border-black px-2 py-2 text-base outline-none placeholder:text-[#C6C6C7]" />
+                  </div>
+                  {message && <p className={`mt-3 text-sm ${message.includes("보냈어요") ? "text-green-600" : "text-red-500"}`}>{message}</p>}
+                  <button type="button" onClick={handleForgotPassword} disabled={loading}
+                      className="mt-6 w-full bg-black px-4 py-3 text-base text-white hover:opacity-90 transition-opacity disabled:opacity-50">
+                      {loading ? "전송 중..." : "재설정 링크 보내기"}
+                  </button>
+              </>
+          )}
+
+
 
           {/* 이전으로 */}
           <div className="mt-8 flex w-full justify-center">
@@ -212,6 +260,7 @@ export const Login = () => {
               <span>이전으로</span>
             </button>
           </div>
+          
         </div>
       </section>
     </main>

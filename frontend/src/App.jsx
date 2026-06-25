@@ -11,6 +11,8 @@ import { ExperienceDetail } from "./pages/ExperienceDetail";
 import { ExperienceEdit } from "./pages/ExperienceEdit";
 import { Insights } from "./pages/Insights";
 import { Guide } from "./pages/Guide";
+import { ResetPassword } from "./pages/ResetPassword";
+
 
 
 
@@ -30,6 +32,7 @@ function App() {
         <Route path="/experiences/:id/edit" element={<ExperienceEdit />} />
         <Route path="/insights" element={<Insights />} />
         <Route path="/guide" element={<Guide />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
       </Routes>
     </BrowserRouter>
   );

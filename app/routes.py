@@ -668,3 +668,35 @@ def delete_account():
     except Exception as e:
         print("탈퇴 에러:", str(e))
         return jsonify({"error": str(e)}), 400
+
+# 비밀번호 재설정 이메일 발송
+@main.route('/auth/reset-password', methods=['POST'])
+def reset_password():
+    data = request.get_json()
+    email = data.get('email')
+    if not email:
+        return jsonify({"error": "이메일을 입력해주세요"}), 400
+    try:
+        supabase.auth.reset_password_email(
+            email,
+            options={"redirect_to": f"{FRONTEND_URL}/reset-password"}
+        )
+        return jsonify({"message": "재설정 링크를 이메일로 보냈어요!"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+    
+# 비밀번호 변경
+@main.route('/auth/update-password', methods=['POST'])
+def update_password():
+    user = get_user_from_token(request)
+    if not user:
+        return jsonify({"error": "unauthorized"}), 401
+    data = request.get_json()
+    password = data.get('password')
+    if not password or len(password) < 6:
+        return jsonify({"error": "비밀번호는 6자 이상이어야 해요"}), 400
+    try:
+        supabase.auth.update_user({"password": password})
+        return jsonify({"message": "비밀번호 변경 성공!"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
