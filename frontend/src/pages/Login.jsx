@@ -104,10 +104,13 @@ export const Login = () => {
           if (res.ok) {
               setMessage("재설정 링크를 이메일로 보냈어요!");
               setMode("login");
-          }
-          // rate limit 에러 처리
-          if (errMsg.toLowerCase().includes("rate limit")) {
-              setMessage("잠시 후 다시 시도해주세요. (이메일 발송 제한)");
+          } else {
+              const errMsg = data.error || "";
+              if (errMsg.toLowerCase().includes("rate limit") || errMsg.includes("you can only request this after")) {
+                  setMessage("잠시 후 다시 시도해주세요.");
+              } else {
+                  setMessage("실패했어요. 다시 시도해주세요.");
+              }
           }
       } catch {
           setMessage("서버에 연결할 수 없어요.");
