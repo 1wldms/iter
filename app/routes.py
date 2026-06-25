@@ -122,7 +122,16 @@ def email_login():
             }
         }), 200
     except Exception as e:
-        return jsonify({"error": str(e)}), 400
+        err = str(e).lower()
+        if "invalid login credentials" in err:
+            # 혹시 구글 계정인지 확인
+            try:
+                user_check = supabase.table("users").select("*").eq("email", email).execute()
+                if user_check.data:
+                    return jsonify({"error": "google"}), 400
+            except:
+                pass
+            return jsonify({"error": "invalid"}), 400
 
 # 로그아웃
 @main.route('/auth/logout', methods=['POST'])

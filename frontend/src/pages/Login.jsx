@@ -44,7 +44,11 @@ export const Login = () => {
         saveToken(data.access_token);
         window.location.href = "/profile";
       } else {
-        setMessage("이메일 또는 비밀번호가 올바르지 않아요.");
+          if (data.error === "google") {
+              setMessage("이 이메일은 Google 계정으로 가입됐어요. Google로 로그인해주세요.");
+          } else {
+              setMessage("이메일 또는 비밀번호가 올바르지 않아요.");
+          }
       }
     } catch {
       setMessage("서버에 연결할 수 없어요.");
