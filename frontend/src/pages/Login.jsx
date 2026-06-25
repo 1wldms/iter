@@ -81,6 +81,7 @@ export const Login = () => {
       setLoading(false);
     }
   };
+
   const handleForgotPassword = async () => {
       if (!validateEmail(email)) {
           setMessage("올바른 이메일 형식이 아니에요.");
@@ -95,8 +96,17 @@ export const Login = () => {
               body: JSON.stringify({ email }),
           });
           const data = await res.json();
-          if (res.ok) setMessage("재설정 링크를 이메일로 보냈어요!");
-          else setMessage(data.error || "실패했어요. 다시 시도해주세요.");
+          if (res.ok) {
+              setMessage("재설정 링크를 이메일로 보냈어요!");
+              setMode("login");
+          } else {
+              const errMsg = data.error || "";
+              if (errMsg.toLowerCase().includes("rate limit")) {
+                  setMessage("잠시 후 다시 시도해주세요. (이메일 발송 제한)");
+              } else {
+                  setMessage("실패했어요. 다시 시도해주세요.");
+              }
+          }
       } catch {
           setMessage("서버에 연결할 수 없어요.");
       } finally {
@@ -181,7 +191,11 @@ export const Login = () => {
                   onKeyDown={(e) => e.key === "Enter" && handleEmailLogin()}
                   className="w-full border-b border-black px-2 py-2 text-base outline-none placeholder:text-[#C6C6C7]" />
               </div>
-              {message && <p className="mt-3 text-sm text-red-500">{message}</p>}
+              {message && (
+                <p className={`mt-3 text-sm ${message.includes("보냈어요") ? "text-green-600" : "text-red-500"}`}>
+                  {message}
+                </p>
+              )}
               <button type="button" onClick={handleEmailLogin} disabled={loading}
                 className="mt-6 w-full bg-black px-4 py-3 text-base text-white hover:opacity-90 transition-opacity disabled:opacity-50">
                 {loading ? "로그인 중..." : "로그인"}
