@@ -220,8 +220,8 @@ export const Insights = () => {
             <AppHeader />
 
             <main className="w-full mx-auto flex flex-col px-4 md:px-16"
-                style={{ maxWidth: 1280, paddingTop: 32, paddingBottom: 80, gap: 28 }}>
-
+                style={{ maxWidth: 1280, paddingTop: 40, paddingBottom: 80, gap: 24 }}>
+                    
                 {/* 헤더 */}
                 <div>
                     <h1 style={{ fontSize: 36, fontWeight: 400, color: "black" }}>Insights</h1>
