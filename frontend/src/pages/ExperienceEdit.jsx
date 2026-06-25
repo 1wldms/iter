@@ -44,8 +44,9 @@ export const ExperienceEdit = () => {
                     learned: exp.learned || "",
                     reflection: exp.reflection || "",
                     memo: exp.memo || "",
-                    start_date: exp.start_date || "",
-                    end_date: exp.end_date || "",
+                    // "2026-03-01" → "2026-03" 으로 변환
+                    start_date: exp.start_date ? exp.start_date.slice(0, 7) : "",
+                    end_date: exp.end_date ? exp.end_date.slice(0, 7) : "",
                 });
             } catch {
                 navigate("/dashboard");

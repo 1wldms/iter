@@ -23,7 +23,11 @@ const ExperienceCard = ({ exp, onClick, folders, onMove }) => (
         {exp.role || "경험"}
       </span>
       <span style={{ color: "#5D5F5F", fontSize: 11, fontWeight: 600, letterSpacing: 0.70 }}>
-        기록일: {new Date(exp.created_at).toLocaleDateString("ko-KR")}
+          {exp.start_date
+              ? new Date(exp.start_date).toLocaleDateString("ko-KR", { year: "numeric", month: "long" })
+                  + (exp.end_date ? " – " + new Date(exp.end_date).toLocaleDateString("ko-KR", { year: "numeric", month: "long" }) : " – 진행 중")
+              : "기록일: " + new Date(exp.created_at).toLocaleDateString("ko-KR")
+          }
       </span>
     </div>
 
