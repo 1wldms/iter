@@ -662,6 +662,7 @@ def delete_account():
         supabase.table('experiences').delete().eq('user_id', user.id).execute()
         supabase.table('folders').delete().eq('user_id', user.id).execute()
         supabase.table('user_profiles').delete().eq('user_id', user.id).execute()
+        supabase.table('users').delete().eq('id', user.id).execute()  # 추가
         supabase_admin.auth.admin.delete_user(user.id)
         return jsonify({"message": "탈퇴 완료"}), 200
     except Exception as e:
