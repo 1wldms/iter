@@ -105,9 +105,10 @@ export const Login = () => {
               setMessage("재설정 링크를 이메일로 보냈어요!");
               setMode("login");
           } else {
-              const errMsg = data.error || "";
-              if (errMsg.toLowerCase().includes("rate limit") || errMsg.includes("you can only request this after")) {
-                  setMessage("잠시 후 다시 시도해주세요.");
+              const match = errMsg.match(/after (\d+) seconds/);
+              if (errMsg.toLowerCase().includes("rate limit") || match) {
+                  const seconds = match ? match[1] : "잠시";
+                  setMessage(`${seconds}초 후에 다시 시도해주세요.`);
               } else {
                   setMessage("실패했어요. 다시 시도해주세요.");
               }
