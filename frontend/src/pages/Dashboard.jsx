@@ -4,11 +4,11 @@ import { AppHeader } from "../components/AppHeader";
 import { authFetch } from "../auth";
 
 const KEYWORD_COLORS = [
-  { bg: "#FDECEC", text: "#977171" }, // 레드
-  { bg: "#FEF3E2", text: "#857948" }, // 옐로우
-  { bg: "#cbdfcd", text: "#638866" }, // 그린
-  { bg: "#E3F2FD", text: "#647382" }, // 블루
-  { bg: "#cdfaf5", text: "#566e6b" }, // 민트
+  { bg: "#FDECEC", text: "#977171" },
+  { bg: "#FEF3E2", text: "#857948" },
+  { bg: "#cbdfcd", text: "#638866" },
+  { bg: "#E3F2FD", text: "#647382" },
+  { bg: "#cdfaf5", text: "#566e6b" },
 ];
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://127.0.0.1:5001";
@@ -16,7 +16,6 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://127.0.0.1:5001";
 const ExperienceCard = ({ exp, onClick, folders, onMove }) => (
   <div className="hover:shadow-md transition-shadow"
     style={{ padding: 20, background: "white", outline: "1px solid black", outlineOffset: -1, display: "flex", flexDirection: "column", gap: 6, height: 200, overflow: "hidden" }}>
-
     <div onClick={onClick} className="cursor-pointer flex items-center justify-between">
       <span className="px-2 py-1"
         style={{ borderRadius: 8, outline: "1px solid #7E7576", outlineOffset: -1, color: "#4C4546", fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.70 }}>
@@ -63,9 +62,9 @@ export const Dashboard = () => {
   const navigate = useNavigate();
   const [experiences, setExperiences] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [sortOrder, setSortOrder] = useState("newest"); 
+  const [sortOrder, setSortOrder] = useState("newest");
   const [folders, setFolders] = useState([]);
-  const [selectedFolder, setSelectedFolder] = useState(null); // null = 전체
+  const [selectedFolder, setSelectedFolder] = useState(null);
   const [newFolderName, setNewFolderName] = useState("");
   const [showFolderInput, setShowFolderInput] = useState(false);
   const [showFolders, setShowFolders] = useState(false);
@@ -87,51 +86,54 @@ export const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-  const fetchFolders = async () => {
+    const fetchFolders = async () => {
+      try {
+        const res = await authFetch(`${BACKEND_URL}/folders`);
+        const data = await res.json();
+        setFolders(data.folders || []);
+      } catch {
+        console.error("폴더 불러오기 실패");
+      }
+    };
+    fetchFolders();
+  }, []);
+
+  const handleCreateFolder = async () => {
+    if (!newFolderName.trim()) return;
     try {
-      const res = await authFetch(`${BACKEND_URL}/folders`);
+      const res = await authFetch(`${BACKEND_URL}/folders/add`, {
+        method: "POST",
+        body: JSON.stringify({ name: newFolderName.trim() }),
+      });
       const data = await res.json();
-      setFolders(data.folders || []);
-    } catch {
-      console.error("폴더 불러오기 실패");
+      if (res.ok && data.folder) {
+        setFolders((prev) => [...prev, data.folder]);
+        setNewFolderName("");
+        setShowFolderInput(false);
+      } else {
+        alert(data.error || "폴더 생성에 실패했어요.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("서버 연결에 실패했어요.");
     }
   };
-  fetchFolders();
-}, []);
 
-const handleCreateFolder = async () => {
-  if (!newFolderName.trim()) return;
-  try {
-    const res = await authFetch(`${BACKEND_URL}/folders/add`, {
-      method: "POST",
-      body: JSON.stringify({ name: newFolderName.trim() }),
-    });
-    const data = await res.json();
-    if (res.ok) {
-      setFolders((prev) => [...prev, data.folder]);
-      setNewFolderName("");
-      setShowFolderInput(false);
+  const handleMoveToFolder = async (experienceId, folderId) => {
+    try {
+      const res = await authFetch(`${BACKEND_URL}/experiences/${experienceId}/move`, {
+        method: "POST",
+        body: JSON.stringify({ folder_id: folderId }),
+      });
+      if (res.ok) {
+        setExperiences((prev) =>
+          prev.map((exp) => (exp.id === experienceId ? { ...exp, folder_id: folderId } : exp))
+        );
+      }
+    } catch (err) {
+      console.error(err);
     }
-  } catch (err) {
-    console.error(err);
-  }
-};
-
-const handleMoveToFolder = async (experienceId, folderId) => {
-  try {
-    const res = await authFetch(`${BACKEND_URL}/experiences/${experienceId}/move`, {
-      method: "POST",
-      body: JSON.stringify({ folder_id: folderId }),
-    });
-    if (res.ok) {
-      setExperiences((prev) =>
-        prev.map((exp) => (exp.id === experienceId ? { ...exp, folder_id: folderId } : exp))
-      );
-    }
-  } catch (err) {
-    console.error(err);
-  }
-};
+  };
 
   const sortedExperiences = [...experiences].sort((a, b) => {
     const dateA = new Date(a.created_at);
@@ -140,8 +142,8 @@ const handleMoveToFolder = async (experienceId, folderId) => {
   });
 
   const filteredExperiences = selectedFolder === null
-  ? sortedExperiences
-  : sortedExperiences.filter((exp) => exp.folder_id === selectedFolder);
+    ? sortedExperiences
+    : sortedExperiences.filter((exp) => exp.folder_id === selectedFolder);
 
   return (
     <div className="w-full min-h-screen flex flex-col" style={{ background: "#FBF9F9" }}>
@@ -149,114 +151,76 @@ const handleMoveToFolder = async (experienceId, folderId) => {
 
       <main className="w-full mx-auto flex flex-col px-4 md:px-16"
         style={{ maxWidth: 1280, paddingTop: 40, paddingBottom: 80, gap: 24 }}>
-        
+
         <div className="flex items-end justify-between">
-            <h1 style={{ color: "black", fontSize: 32, fontWeight: 400, lineHeight: "40px" }}>내 경험</h1>
-            <div className="flex items-center gap-2 mb-1">
-              <button
-                onClick={() => setSortOrder("newest")}
-                className="px-3 py-1"
-                style={{
-                  outline: "1px solid black", outlineOffset: -1,
-                  background: sortOrder === "newest" ? "#5D5F5F" : "white",
-                  color: sortOrder === "newest" ? "white" : "black",
-                  fontSize: 13, fontWeight: 400,
-                }}>
-                최신순
-              </button>
-              <button
-                onClick={() => setSortOrder("oldest")}
-                className="px-3 py-1"
-                style={{
-                  outline: "1px solid black", outlineOffset: -1,
-                  background: sortOrder === "oldest" ? "#5D5F5F" : "white",
-                  color: sortOrder === "oldest" ? "white" : "black",
-                  fontSize: 13, fontWeight: 400,
-                }} >
-                오래된순
-              </button>
-              <button
-                onClick={() => setShowFolders((prev) => !prev)}
-                className="px-3 py-1"
-                style={{
-                  outline: "1px solid black", outlineOffset: -1,
-                  background: showFolders ? "#5D5F5F" : "white",
-                  color: showFolders ? "white" : "black",
-                  fontSize: 13, fontWeight: 400,
-                }}
-              >
-                폴더로 보기
-              </button>
-              <button onClick={() => navigate("/experiences")} className="px-3 py-1"
-                style={{ outline: "1px solid black", outlineOffset: -1, 
-                background: "black", color: "#ffffff", fontSize: 13, fontWeight: 400 }}>
-                모두 보기
-              </button>
-            </div>
+          <h1 style={{ color: "black", fontSize: 32, fontWeight: 400, lineHeight: "40px" }}>내 경험</h1>
+          <div className="flex items-center gap-2 mb-1">
+            <button onClick={() => setSortOrder("newest")} className="px-3 py-1"
+              style={{ outline: "1px solid black", outlineOffset: -1, background: sortOrder === "newest" ? "#5D5F5F" : "white", color: sortOrder === "newest" ? "white" : "black", fontSize: 13, fontWeight: 400 }}>
+              최신순
+            </button>
+            <button onClick={() => setSortOrder("oldest")} className="px-3 py-1"
+              style={{ outline: "1px solid black", outlineOffset: -1, background: sortOrder === "oldest" ? "#5D5F5F" : "white", color: sortOrder === "oldest" ? "white" : "black", fontSize: 13, fontWeight: 400 }}>
+              오래된순
+            </button>
+            <button onClick={() => setShowFolders((prev) => !prev)} className="px-3 py-1"
+              style={{ outline: "1px solid black", outlineOffset: -1, background: showFolders ? "#5D5F5F" : "white", color: showFolders ? "white" : "black", fontSize: 13, fontWeight: 400 }}>
+              폴더로 보기
+            </button>
+            <button onClick={() => navigate("/experiences")} className="px-3 py-1"
+              style={{ outline: "1px solid black", outlineOffset: -1, background: "black", color: "#ffffff", fontSize: 13, fontWeight: 400 }}>
+              모두 보기
+            </button>
           </div>
-          {showFolders && (
-          <div className="flex items-center gap-2 flex-wrap">
-          <button
-            onClick={() => setSelectedFolder(null)}
-            className="px-3 py-1"
-            style={{
-              borderRadius: 16,
-              background: selectedFolder === null ? "black" : "#F5F3F3",
-              color: selectedFolder === null ? "white" : "#4C4546",
-              fontSize: 13, fontWeight: 400,
-            }}>
-            전체
-          </button>
-          {folders.map((folder) => (
-            <button
-              key={folder.id}
-              onClick={() => setSelectedFolder(folder.id)}
-              className="px-3 py-1"
-              style={{
-                borderRadius: 16,
-                background: selectedFolder === folder.id ? "black" : "#F5F3F3",
-                color: selectedFolder === folder.id ? "white" : "#4C4546",
-                fontSize: 13, fontWeight: 400,
-              }}
-            >
-              {folder.name}
-            </button>
-          ))}
-
-          {showFolderInput ? (
-            <div className="flex items-center gap-1">
-              <input
-                value={newFolderName}
-                onChange={(e) => setNewFolderName(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.nativeEvent.isComposing) handleCreateFolder();
-                }}
-                placeholder="폴더 이름"
-                autoFocus
-                className="px-2 py-1 outline-none"
-                style={{ border: "1px solid #C6C6C7", borderRadius: 16, fontSize: 13, width: 120 }}
-              />
-              <button onClick={handleCreateFolder} className="px-2 py-1"
-                style={{ background: "black", color: "white", borderRadius: 16, fontSize: 13 }}>
-                추가
-              </button>
-              <button onClick={() => { setShowFolderInput(false); setNewFolderName(""); }} className="px-2 py-1"
-                style={{ color: "#5D5F5F", fontSize: 13 }}>
-                취소
-              </button>
-            </div>
-          ) : (
-            <button
-              onClick={() => setShowFolderInput(true)}
-              className="px-3 py-1"
-              style={{ borderRadius: 16, outline: "1px dashed #C6C6C7", outlineOffset: -1, color: "#5D5F5F", fontSize: 13 }}
-            >
-              + 새 폴더
-            </button>
-          )}
         </div>
-        )}   
 
+        {showFolders && (
+          <div className="flex items-center gap-2 flex-wrap">
+            <button onClick={() => setSelectedFolder(null)} className="px-3 py-1"
+              style={{ borderRadius: 16, background: selectedFolder === null ? "black" : "#F5F3F3", color: selectedFolder === null ? "white" : "#4C4546", fontSize: 13, fontWeight: 400 }}>
+              전체
+            </button>
+            {folders.map((folder) => (
+              <button key={folder.id} onClick={() => setSelectedFolder(folder.id)} className="px-3 py-1"
+                style={{ borderRadius: 16, background: selectedFolder === folder.id ? "black" : "#F5F3F3", color: selectedFolder === folder.id ? "white" : "#4C4546", fontSize: 13, fontWeight: 400 }}>
+                {folder.name}
+              </button>
+            ))}
+
+            {showFolderInput ? (
+              <div className="flex items-center gap-1">
+                <input
+                  value={newFolderName}
+                  onChange={(e) => setNewFolderName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.nativeEvent.isComposing) {
+                      e.preventDefault();
+                      handleCreateFolder();
+                    }
+                    if (e.key === "Escape") { setShowFolderInput(false); setNewFolderName(""); }
+                  }}
+                  placeholder="폴더 이름"
+                  autoFocus
+                  className="px-2 py-1 outline-none"
+                  style={{ border: "1px solid #C6C6C7", borderRadius: 16, fontSize: 13, width: 120 }}
+                />
+                <button type="button" onClick={handleCreateFolder} className="px-2 py-1"
+                  style={{ background: "black", color: "white", borderRadius: 16, fontSize: 13 }}>
+                  추가
+                </button>
+                <button type="button" onClick={() => { setShowFolderInput(false); setNewFolderName(""); }} className="px-2 py-1"
+                  style={{ color: "#5D5F5F", fontSize: 13 }}>
+                  취소
+                </button>
+              </div>
+            ) : (
+              <button type="button" onClick={() => setShowFolderInput(true)} className="px-3 py-1"
+                style={{ borderRadius: 16, outline: "1px dashed #C6C6C7", outlineOffset: -1, color: "#5D5F5F", fontSize: 13 }}>
+                + 새 폴더
+              </button>
+            )}
+          </div>
+        )}
 
         {loading ? (
           <p style={{ color: "#5D5F5F", fontSize: 14 }}>불러오는 중이에요...</p>
@@ -271,7 +235,13 @@ const handleMoveToFolder = async (experienceId, folderId) => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {filteredExperiences.slice(0, 4).map((exp) => (
-              <ExperienceCard key={exp.id} exp={exp} onClick={() => navigate(`/experiences/${exp.id}`)} folders={folders} onMove={handleMoveToFolder} />
+              <ExperienceCard
+                key={exp.id}
+                exp={exp}
+                onClick={() => navigate(`/experiences/${exp.id}`, { state: { from: "dashboard" } })}
+                folders={folders}
+                onMove={handleMoveToFolder}
+              />
             ))}
           </div>
         )}

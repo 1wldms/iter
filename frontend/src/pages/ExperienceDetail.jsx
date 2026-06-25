@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { AppHeader } from "../components/AppHeader";
 import { authFetch } from "../auth";
 
@@ -18,6 +18,8 @@ const FIELD_LABELS = [
 export const ExperienceDetail = () => {
     const navigate = useNavigate();
     const { id } = useParams();
+    const location = useLocation();
+    const from = location.state?.from || "experiences";
     const [exp, setExp] = useState(null);
     const [loading, setLoading] = useState(true);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -58,9 +60,11 @@ export const ExperienceDetail = () => {
             <main className="w-full mx-auto flex flex-col px-5 md:px-8"
                 style={{ maxWidth: 720, paddingTop: 32, paddingBottom: 64, gap: 24 }}>
 
-                {/* 상단 */}
                 <div className="flex items-center justify-between">
-                    <button onClick={() => navigate("/experiences")} style={{ color: "#5D5F5F", fontSize: 13 }}>
+                    <button
+                        onClick={() => navigate(from === "dashboard" ? "/dashboard" : "/experiences")}
+                        style={{ color: "#5D5F5F", fontSize: 13 }}
+                    >
                         ← 돌아가기
                     </button>
                     <span style={{ color: "#5D5F5F", fontSize: 12 }}>
@@ -68,12 +72,10 @@ export const ExperienceDetail = () => {
                     </span>
                 </div>
 
-                {/* 제목 */}
                 <h1 style={{ fontSize: 22, fontWeight: 400, lineHeight: "30px", color: "black" }}>
                     {exp.title || exp.role || "경험 기록"}
                 </h1>
 
-                {/* 필드들 */}
                 <div className="flex flex-col" style={{ gap: 16 }}>
                     {FIELD_LABELS.map(({ key, label }) => {
                         if (!exp[key]) return null;
@@ -90,7 +92,6 @@ export const ExperienceDetail = () => {
                     })}
                 </div>
 
-                {/* 버튼들 */}
                 <div className="flex flex-wrap gap-3 mt-4">
                     <button
                         onClick={() => navigate(`/experiences/${id}/edit`)}
@@ -113,7 +114,6 @@ export const ExperienceDetail = () => {
                 </div>
             </main>
 
-            {/* 삭제 확인 모달 */}
             {showDeleteModal && (
                 <div className="fixed inset-0 flex items-center justify-center"
                     style={{ background: "rgba(0,0,0,0.4)", zIndex: 50 }}>
