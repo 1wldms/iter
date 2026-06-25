@@ -183,12 +183,12 @@ export const Insights = () => {
             <AppHeader />
 
             <main className="w-full mx-auto flex flex-col px-4 md:px-16"
-                style={{ maxWidth: 1080, paddingTop: 48, paddingBottom: 80, gap: 40 }}>
+                style={{ maxWidth: 1080, paddingTop: 32, paddingBottom: 80, gap: 28 }}>
 
                 {/* 헤더 */}
                 <div>
                     <h1 style={{ fontSize: 36, fontWeight: 400, color: "black" }}>Insights</h1>
-                    <p style={{ fontSize: 16, color: "#5D5F5F", marginTop: 8 }}>
+                    <p style={{ fontSize: 16, color: "#5D5F5F", marginTop: 4 }}>
                         {experiences.length}개의 경험에서 발견한 나의 패턴
                     </p>
                 </div>
