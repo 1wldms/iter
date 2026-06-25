@@ -71,9 +71,25 @@ export const ExperienceDetail = () => {
                     </span>
                 </div>
 
+                {/* 제목 */}
                 <h1 style={{ fontSize: 22, fontWeight: 400, lineHeight: "30px", color: "black" }}>
                     {exp.title || exp.role || "경험 기록"}
                 </h1>
+
+                {/* 활동 기간 */}
+                {(exp.start_date || exp.end_date) && (
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <span style={{ fontSize: 11, fontWeight: 600, color: "#5D5F5F", textTransform: "uppercase", letterSpacing: 1 }}>활동 기간</span>
+                        <span style={{ fontSize: 12, color: "#5D5F5F" }}>
+                            {exp.start_date && new Date(exp.start_date).toLocaleDateString("ko-KR", { year: "numeric", month: "long" })}
+                            {exp.start_date && exp.end_date && " – "}
+                            {exp.end_date
+                                ? new Date(exp.end_date).toLocaleDateString("ko-KR", { year: "numeric", month: "long" })
+                                : exp.start_date ? "진행 중" : ""
+                            }
+                        </span>
+                    </div>
+                )}
 
                 <div className="flex flex-col" style={{ gap: 16 }}>
                     {FIELD_LABELS.map(({ key, label }) => {

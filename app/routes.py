@@ -172,6 +172,28 @@ def profile_save():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
+# bio_sentence만 업데이트 (Insights에서 호출)
+@main.route('/profile/update', methods=['POST'])
+def profile_update():
+    user = get_user_from_token(request)
+    if not user:
+        return jsonify({"error": "unauthorized"}), 401
+    data = request.get_json()
+    update_data = {}
+    if 'bio_sentence' in data:
+        update_data['bio_sentence'] = data['bio_sentence']
+    if not update_data:
+        return jsonify({"error": "업데이트할 내용이 없어요"}), 400
+    try:
+        existing = supabase.table('user_profiles').select('id').eq('user_id', user.id).execute()
+        if existing.data:
+            supabase.table('user_profiles').update(update_data).eq('user_id', user.id).execute()
+        else:
+            supabase.table('user_profiles').insert({"user_id": user.id, **update_data}).execute()
+        return jsonify({"message": "업데이트 성공!"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
 # 경험 전체 조회
 @main.route('/experiences')
 def experiences():
@@ -256,6 +278,12 @@ def experience_edit(experience_id):
     if not user:
         return jsonify({"error": "unauthorized"}), 401
     data = request.get_json()
+
+    # 빈 문자열 날짜를 None으로 변환 (DATE 컬럼 에러 방지)
+    if data.get('start_date') == '':
+        data['start_date'] = None
+    if data.get('end_date') == '':
+        data['end_date'] = None
 
     # 키워드 재추출
     try:
@@ -490,5 +518,88 @@ def insights_strengths():
         messages = [{"role": "user", "content": combined}]
         result = call_gpt(system, messages)
         return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+    
+    
+# ── Bio 후보 목록 조회 ──────────────────────────────────────
+@main.route('/bio-candidates', methods=['GET'])
+def bio_candidates_list():
+    user = get_user_from_token(request)
+    if not user:
+        return jsonify({"error": "unauthorized"}), 401
+    try:
+        res = supabase.table('bio_candidates').select('*').eq('user_id', user.id).order('created_at', desc=True).execute()
+        return jsonify({"candidates": res.data}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+# ── Bio 후보 추가 ────────────────────────────────────────────
+@main.route('/bio-candidates/add', methods=['POST'])
+def bio_candidates_add():
+    user = get_user_from_token(request)
+    if not user:
+        return jsonify({"error": "unauthorized"}), 401
+    data = request.get_json()
+    content = data.get('content', '').strip()
+    if not content:
+        return jsonify({"error": "내용이 없어요"}), 400
+    try:
+        res = supabase.table('bio_candidates').insert({
+            "user_id": user.id,
+            "content": content,
+            "is_selected": False,
+        }).execute()
+        return jsonify({"message": "저장 성공!", "candidate": res.data[0]}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+# ── Bio 후보 수정 ────────────────────────────────────────────
+@main.route('/bio-candidates/<candidate_id>/edit', methods=['POST'])
+def bio_candidates_edit(candidate_id):
+    user = get_user_from_token(request)
+    if not user:
+        return jsonify({"error": "unauthorized"}), 401
+    data = request.get_json()
+    content = data.get('content', '').strip()
+    if not content:
+        return jsonify({"error": "내용이 없어요"}), 400
+    try:
+        res = supabase.table('bio_candidates').update({"content": content}).eq('id', candidate_id).eq('user_id', user.id).execute()
+        return jsonify({"message": "수정 성공!", "candidate": res.data[0]}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+# ── Bio 후보 삭제 ────────────────────────────────────────────
+@main.route('/bio-candidates/<candidate_id>/delete', methods=['POST'])
+def bio_candidates_delete(candidate_id):
+    user = get_user_from_token(request)
+    if not user:
+        return jsonify({"error": "unauthorized"}), 401
+    try:
+        supabase.table('bio_candidates').delete().eq('id', candidate_id).eq('user_id', user.id).execute()
+        return jsonify({"message": "삭제 성공!"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+# ── Bio 후보 선택 (Card에 반영) ──────────────────────────────
+@main.route('/bio-candidates/<candidate_id>/select', methods=['POST'])
+def bio_candidates_select(candidate_id):
+    user = get_user_from_token(request)
+    if not user:
+        return jsonify({"error": "unauthorized"}), 401
+    try:
+        # 기존 선택 해제
+        supabase.table('bio_candidates').update({"is_selected": False}).eq('user_id', user.id).execute()
+        # 선택한 후보 선택 처리
+        res = supabase.table('bio_candidates').update({"is_selected": True}).eq('id', candidate_id).eq('user_id', user.id).execute()
+        selected_content = res.data[0]['content']
+        # profile bio_sentence에도 반영
+        existing = supabase.table('user_profiles').select('id').eq('user_id', user.id).execute()
+        if existing.data:
+            supabase.table('user_profiles').update({"bio_sentence": selected_content}).eq('user_id', user.id).execute()
+        else:
+            supabase.table('user_profiles').insert({"user_id": user.id, "bio_sentence": selected_content}).execute()
+        return jsonify({"message": "선택 성공!"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400

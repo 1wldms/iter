@@ -20,31 +20,22 @@ function aggregateKeywords(experiences) {
             count[kw] = (count[kw] || 0) + 1;
         });
     });
-    return Object.entries(count)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 10);
+    return Object.entries(count).sort((a, b) => b[1] - a[1]).slice(0, 10);
 }
 
 function WordCloud({ keywords }) {
     if (keywords.length === 0) return (
         <p style={{ fontSize: 13, color: "#C6C6C7" }}>키워드가 아직 없어요. AI 세션을 통해 경험을 정리해보세요.</p>
     );
-
     const maxCount = keywords[0][1];
     const positions = [
-        { top: "10%", left: "30%" },
-        { top: "8%",  left: "58%" },
-        { top: "28%", left: "8%" },
-        { top: "32%", left: "42%" },
-        { top: "30%", left: "70%" },
-        { top: "55%", left: "18%" },
-        { top: "58%", left: "50%" },
-        { top: "55%", left: "76%" },
-        { top: "76%", left: "30%" },
-        { top: "74%", left: "62%" },
+        { top: "10%", left: "30%" }, { top: "8%",  left: "58%" },
+        { top: "28%", left: "8%" },  { top: "32%", left: "42%" },
+        { top: "30%", left: "70%" }, { top: "55%", left: "18%" },
+        { top: "58%", left: "50%" }, { top: "55%", left: "76%" },
+        { top: "76%", left: "30%" }, { top: "74%", left: "62%" },
     ];
     const rotations = [0, -8, 5, -3, 7, -6, 2, -4, 6, -2];
-
     return (
         <div style={{ position: "relative", width: "100%", height: 260 }}>
             {keywords.map(([kw, count], i) => {
@@ -53,19 +44,14 @@ function WordCloud({ keywords }) {
                 const fontSize = 12 + Math.round(ratio * 14);
                 const fontWeight = ratio === 1 ? 700 : ratio > 0.6 ? 600 : 400;
                 const pos = positions[i] || { top: `${10 + i * 8}%`, left: `${10 + i * 7}%` };
-                const rotation = rotations[i] || 0;
                 return (
                     <span key={kw} style={{
-                        position: "absolute",
-                        top: pos.top, left: pos.left,
-                        transform: `rotate(${rotation}deg)`,
+                        position: "absolute", top: pos.top, left: pos.left,
+                        transform: `rotate(${rotations[i] || 0}deg)`,
                         background: color.bg, color: color.text,
-                        fontSize, fontWeight,
-                        padding: "4px 12px", borderRadius: 20,
-                        whiteSpace: "nowrap", userSelect: "none",
-                    }}>
-                        #{kw}
-                    </span>
+                        fontSize, fontWeight, padding: "4px 12px",
+                        borderRadius: 20, whiteSpace: "nowrap", userSelect: "none",
+                    }}>#{kw}</span>
                 );
             })}
         </div>
@@ -79,6 +65,42 @@ export const Insights = () => {
     const [strength, setStrength] = useState(null);
     const [strengthKeywords, setStrengthKeywords] = useState([]);
     const [strengthLoading, setStrengthLoading] = useState(false);
+    const [saveSuccess, setSaveSuccess] = useState(false);
+    const [saving, setSaving] = useState(false);
+
+    const analyzeStrength = async () => {
+        setStrengthLoading(true);
+        setStrength(null);
+        setStrengthKeywords([]);
+        setSaveSuccess(false);
+        try {
+            const res = await authFetch(`${BACKEND_URL}/insights/strengths`, { method: "POST" });
+            const data = await res.json();
+            setStrength(data.strength || "분석 결과를 가져오지 못했어요.");
+            setStrengthKeywords(data.keywords || []);
+        } catch {
+            setStrength("분석 중 오류가 발생했어요. 다시 시도해주세요.");
+        } finally {
+            setStrengthLoading(false);
+        }
+    };
+
+    // 프로필 한줄 소개로 저장
+    const handleSaveToBio = async () => {
+        if (!strength) return;
+        setSaving(true);
+        try {
+            const res = await authFetch(`${BACKEND_URL}/bio-candidates/add`, {
+                method: "POST",
+                body: JSON.stringify({ content: strength }),
+            });
+            if (res.ok) setSaveSuccess(true);
+        } catch {
+            alert("저장에 실패했어요.");
+        } finally {
+            setSaving(false);
+        }
+    };
 
     useEffect(() => {
         const fetchData = async () => {
@@ -96,21 +118,12 @@ export const Insights = () => {
         fetchData();
     }, []);
 
-    const handleAnalyzeStrength = async () => {
-        setStrengthLoading(true);
-        setStrength(null);
-        setStrengthKeywords([]);
-        try {
-            const res = await authFetch(`${BACKEND_URL}/insights/strengths`, { method: "POST" });
-            const data = await res.json();
-            setStrength(data.strength || "분석 결과를 가져오지 못했어요.");
-            setStrengthKeywords(data.keywords || []);
-        } catch {
-            setStrength("분석 중 오류가 발생했어요. 다시 시도해주세요.");
-        } finally {
-            setStrengthLoading(false);
+    // 경험 로드 완료 후 자동 분석 실행
+    useEffect(() => {
+        if (!loading && experiences.length > 0) {
+            analyzeStrength();
         }
-    };
+    }, [loading]);
 
     const keywords = aggregateKeywords(experiences);
     const timeline = [...experiences].sort((a, b) => {
@@ -173,7 +186,6 @@ export const Insights = () => {
                     <div className="flex flex-col">
                         {timeline.map((exp, i) => (
                             <div key={exp.id} className="flex gap-4">
-                                {/* 날짜 */}
                                 <div style={{ minWidth: 80, textAlign: "right", paddingTop: 2 }}>
                                     <span style={{ fontSize: 11, color: "#5D5F5F", display: "block" }}>
                                         {exp.start_date
@@ -187,14 +199,12 @@ export const Insights = () => {
                                         </span>
                                     )}
                                 </div>
-                                {/* 선 */}
                                 <div className="flex flex-col items-center" style={{ width: 20 }}>
                                     <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#1B1C1C", flexShrink: 0, marginTop: 4 }} />
                                     {i < timeline.length - 1 && (
                                         <div style={{ width: 1, flex: 1, background: "#DBDAD9", minHeight: 32 }} />
                                     )}
                                 </div>
-                                {/* 내용 */}
                                 <div className="flex flex-col" style={{ paddingBottom: 28, gap: 2 }}>
                                     <button
                                         onClick={() => navigate(`/experiences/${exp.id}`, { state: { from: "experiences" } })}
@@ -202,9 +212,7 @@ export const Insights = () => {
                                         style={{ fontSize: 13, fontWeight: 500, color: "black" }}>
                                         {exp.title || exp.role || "제목 없음"}
                                     </button>
-                                    {exp.role && (
-                                        <span style={{ fontSize: 11, color: "#5D5F5F" }}>{exp.role}</span>
-                                    )}
+                                    {exp.role && <span style={{ fontSize: 11, color: "#5D5F5F" }}>{exp.role}</span>}
                                 </div>
                             </div>
                         ))}
@@ -218,18 +226,6 @@ export const Insights = () => {
                     <p style={{ fontSize: 11, fontWeight: 600, color: "#5D5F5F", letterSpacing: 1, textTransform: "uppercase", marginBottom: 16 }}>
                         AI 강점 분석
                     </p>
-
-                    {!strength && !strengthLoading && (
-                        <div className="flex flex-col gap-3">
-                            <p style={{ fontSize: 13, color: "#4C4546", lineHeight: "20px" }}>
-                                지금까지의 경험을 분석해서 당신의 강점을 한눈에 보여드릴게요.
-                            </p>
-                            <button type="button" onClick={handleAnalyzeStrength}
-                                style={{ alignSelf: "flex-start", background: "black", color: "white", fontSize: 13, padding: "10px 20px" }}>
-                                강점 분석하기
-                            </button>
-                        </div>
-                    )}
 
                     {strengthLoading && (
                         <div className="flex items-center gap-3">
@@ -249,17 +245,34 @@ export const Insights = () => {
                                                 background: KEYWORD_COLORS[i % KEYWORD_COLORS.length].bg,
                                                 color: KEYWORD_COLORS[i % KEYWORD_COLORS.length].text,
                                                 fontSize: 12, padding: "3px 10px", borderRadius: 12,
-                                            }}>
-                                                {kw}
-                                            </span>
+                                            }}>{kw}</span>
                                         ))}
                                     </div>
                                 )}
                             </div>
-                            <button type="button" onClick={handleAnalyzeStrength}
-                                style={{ alignSelf: "flex-start", fontSize: 12, color: "#5D5F5F", textDecoration: "underline" }}>
-                                다시 분석하기
-                            </button>
+
+                            {/* 프로필 한줄 소개로 저장 */}
+                            <div className="flex items-center gap-3 flex-wrap">
+                                {saveSuccess ? (
+                                    <span style={{ fontSize: 12, color: "#638866" }}>
+                                        ✓ 정보수정 페이지에서 확인하고 선택할 수 있어요
+                                    </span>
+                                ) : (
+                                    <button type="button" onClick={handleSaveToBio} disabled={saving}
+                                        style={{
+                                            fontSize: 12, padding: "6px 14px",
+                                            outline: "1px solid black", outlineOffset: -1,
+                                            color: "black", background: "white",
+                                            opacity: saving ? 0.5 : 1,
+                                        }}>
+                                        {saving ? "저장 중..." : "한줄 소개 후보로 저장하기"}
+                                    </button>
+                                )}
+                                <button type="button" onClick={analyzeStrength}
+                                    style={{ fontSize: 12, color: "#5D5F5F", textDecoration: "underline" }}>
+                                    다시 분석하기
+                                </button>
+                            </div>
                         </div>
                     )}
                 </section>
