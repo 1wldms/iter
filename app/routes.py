@@ -460,3 +460,33 @@ def experience_move(experience_id):
         return jsonify({"message": "이동 성공!", "experience": res.data[0]}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
+# ── Insights: 강점 AI 분석 ──────────────────────────────────
+@main.route('/insights/strengths', methods=['POST'])
+def insights_strengths():
+    user = get_user_from_token(request)
+    if not user:
+        return jsonify({"error": "unauthorized"}), 401
+    try:
+        res = supabase.table('experiences').select('learned, reflection, action, role').eq('user_id', user.id).execute()
+        exps = res.data
+        if not exps:
+            return jsonify({"strength": "아직 경험이 없어요. 경험을 기록하고 나면 강점을 분석해드릴게요!", "keywords": []}), 200
+
+        combined = "\n\n".join([
+            f"[역할: {e.get('role','?')}]\n배운점: {e.get('learned','')}\n느낀점: {e.get('reflection','')}\n액션: {e.get('action','')}"
+            for e in exps if e.get('learned') or e.get('reflection')
+        ])
+        if not combined.strip():
+            return jsonify({"strength": "배운점과 느낀점을 채워주시면 강점을 분석해드릴 수 있어요!", "keywords": []}), 200
+
+        system = (
+            "당신은 커리어 코치입니다. 사용자의 여러 경험에서 공통된 강점과 패턴을 찾아 "
+            "한국어로 2~3문장으로 따뜻하고 명확하게 요약해주세요. "
+            "반드시 JSON만 반환: {\"strength\": \"...\", \"keywords\": [\"강점1\", \"강점2\", \"강점3\"]}"
+        )
+        messages = [{"role": "user", "content": combined}]
+        result = call_gpt(system, messages)
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
