@@ -273,7 +273,7 @@ export const Landing = () => {
           <div className="flex flex-col" style={{ gap: 100 }}>
             {steps.map((s, i) => (
               <div key={i} className={`flex flex-col md:flex-row gap-16 items-center ${i % 2 === 1 ? "md:flex-row-reverse" : ""}`}>
-                <div className="flex flex-col gap-4 md:w-80 flex-shrink-0">
+                <div className="flex flex-col gap-4 md:w-96 flex-shrink-0">
                     <div className="flex items-center justify-between">
                         <span style={{ fontSize: 13, fontWeight: 700, color: "#C6C6C7", letterSpacing: 2 }}>{s.step}</span>
                         <span style={{ fontSize: 12, fontWeight: 600, color: "#5D5F5F", background: "#F0EEEE", padding: "3px 10px", borderRadius: 10 }}>{s.tag}</span>
