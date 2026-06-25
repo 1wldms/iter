@@ -63,8 +63,7 @@ export const ExperienceDetail = () => {
                 <div className="flex items-center justify-between">
                     <button
                         onClick={() => navigate(from === "dashboard" ? "/dashboard" : "/experiences")}
-                        style={{ color: "#5D5F5F", fontSize: 13 }}
-                    >
+                        style={{ color: "#5D5F5F", fontSize: 13 }}>
                         ← 돌아가기
                     </button>
                     <span style={{ color: "#5D5F5F", fontSize: 12 }}>
@@ -94,21 +93,18 @@ export const ExperienceDetail = () => {
 
                 <div className="flex flex-wrap gap-3 mt-4">
                     <button
-                        onClick={() => navigate(`/experiences/${id}/edit`)}
-                        style={{ background: "black", color: "white", fontSize: 13, padding: "8px 16px" }}
-                    >
+                        onClick={() => navigate(`/experiences/${id}/edit`, { state: { from } })}
+                        style={{ background: "black", color: "white", fontSize: 13, padding: "8px 16px" }}>
                         직접 수정하기
                     </button>
                     <button
                         onClick={() => navigate("/ai-session", { state: { experience: exp } })}
-                        style={{ outline: "1px solid black", outlineOffset: -1, color: "black", fontSize: 13, padding: "8px 16px" }}
-                    >
+                        style={{ outline: "1px solid black", outlineOffset: -1, color: "black", fontSize: 13, padding: "8px 16px" }}>
                         AI와 함께 수정하기
                     </button>
                     <button
                         onClick={() => setShowDeleteModal(true)}
-                        style={{ color: "#7E7576", fontSize: 13, textDecoration: "underline", marginLeft: "auto" }}
-                    >
+                        style={{ color: "#7E7576", fontSize: 13, textDecoration: "underline", marginLeft: "auto" }}>
                         이 경험 삭제하기
                     </button>
                 </div>

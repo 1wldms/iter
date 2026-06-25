@@ -176,13 +176,26 @@ export const Dashboard = () => {
 
         {showFolders && (
           <div className="flex items-center gap-2 flex-wrap">
-            <button onClick={() => setSelectedFolder(null)} className="px-3 py-1"
-              style={{ borderRadius: 16, background: selectedFolder === null ? "black" : "#F5F3F3", color: selectedFolder === null ? "white" : "#4C4546", fontSize: 13, fontWeight: 400 }}>
+            <button
+              onClick={() => setSelectedFolder(null)}
+              style={{
+                height: 30, padding: "0 12px", borderRadius: 16,
+                background: selectedFolder === null ? "black" : "#F5F3F3",
+                color: selectedFolder === null ? "white" : "#4C4546",
+                fontSize: 13, fontWeight: 400, whiteSpace: "nowrap",
+              }}>
               전체
             </button>
             {folders.map((folder) => (
-              <button key={folder.id} onClick={() => setSelectedFolder(folder.id)} className="px-3 py-1"
-                style={{ borderRadius: 16, background: selectedFolder === folder.id ? "black" : "#F5F3F3", color: selectedFolder === folder.id ? "white" : "#4C4546", fontSize: 13, fontWeight: 400 }}>
+              <button
+                key={folder.id}
+                onClick={() => setSelectedFolder(folder.id)}
+                style={{
+                  height: 30, padding: "0 12px", borderRadius: 16,
+                  background: selectedFolder === folder.id ? "black" : "#F5F3F3",
+                  color: selectedFolder === folder.id ? "white" : "#4C4546",
+                  fontSize: 13, fontWeight: 400, whiteSpace: "nowrap",
+                }}>
                 {folder.name}
               </button>
             ))}
@@ -201,21 +214,23 @@ export const Dashboard = () => {
                   }}
                   placeholder="폴더 이름"
                   autoFocus
-                  className="px-2 py-1 outline-none"
-                  style={{ border: "1px solid #C6C6C7", borderRadius: 16, fontSize: 13, width: 120 }}
+                  className="px-2 outline-none"
+                  style={{ border: "1px solid #C6C6C7", borderRadius: 16, fontSize: 13, width: 120, height: 30 }}
                 />
-                <button type="button" onClick={handleCreateFolder} className="px-2 py-1"
-                  style={{ background: "black", color: "white", borderRadius: 16, fontSize: 13 }}>
+                <button type="button" onClick={handleCreateFolder}
+                  style={{ height: 30, padding: "0 10px", background: "black", color: "white", borderRadius: 16, fontSize: 13 }}>
                   추가
                 </button>
-                <button type="button" onClick={() => { setShowFolderInput(false); setNewFolderName(""); }} className="px-2 py-1"
-                  style={{ color: "#5D5F5F", fontSize: 13 }}>
+                <button type="button" onClick={() => { setShowFolderInput(false); setNewFolderName(""); }}
+                  style={{ height: 30, padding: "0 8px", color: "#5D5F5F", fontSize: 13 }}>
                   취소
                 </button>
               </div>
             ) : (
-              <button type="button" onClick={() => setShowFolderInput(true)} className="px-3 py-1"
-                style={{ borderRadius: 16, outline: "1px dashed #C6C6C7", outlineOffset: -1, color: "#5D5F5F", fontSize: 13 }}>
+              <button
+                type="button"
+                onClick={() => setShowFolderInput(true)}
+                style={{ height: 30, padding: "0 12px", borderRadius: 16, outline: "1px dashed #C6C6C7", outlineOffset: -1, color: "#5D5F5F", fontSize: 13 }}>
                 + 새 폴더
               </button>
             )}

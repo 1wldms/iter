@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { AppHeader } from "../components/AppHeader";
 import { authFetch } from "../auth";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://127.0.0.1:5001";
@@ -33,21 +34,10 @@ export const ExperienceList = () => {
 
   return (
     <div className="w-full min-h-screen flex flex-col" style={{ background: "#FBF9F9" }}>
-      {/* 헤더 */}
-      <div className="fixed top-0 left-0 right-0 z-50"
-        style={{ background: "rgba(251,249,249,0.90)", backdropFilter: "blur(6px)", borderBottom: "1px solid #E2E2E2" }}>
-        <div className="w-full mx-auto flex items-center justify-between px-4 md:px-6"
-          style={{ maxWidth: 1280, padding: "16px" }}>
-          <button onClick={() => navigate("/dashboard")} className="hover:opacity-70 transition-opacity">
-            <span style={{ color: "#1B1C1C", fontSize: 14 }}>← 돌아가기</span>
-          </button>
-          <span style={{ color: "black", fontSize: 24, fontFamily: "'Playfair Display', serif", fontWeight: 600 }}>ITER</span>
-          <div style={{ width: 64 }} />
-        </div>
-      </div>
+      <AppHeader />
 
-      <main className="flex flex-col" style={{ paddingTop: 64 }}>
-        <div className="flex flex-col items-center gap-1 pb-6 pt-6 px-4">
+      <main className="flex flex-col">
+        <div className="flex flex-col items-center gap-1 pb-6 pt-8 px-4">
           <h1 style={{ color: "#1B1C1C", fontSize: 22, fontWeight: 400, lineHeight: "32px", textAlign: "center" }}>
             모든 경험을 펼쳐보아요
           </h1>
@@ -71,9 +61,10 @@ export const ExperienceList = () => {
                 </p>
               </div>
               {experiences.map((exp) => (
-                <div key={exp.id} onClick={() => navigate(`/experiences/${exp.id}`)}
+                <div key={exp.id}
+                  onClick={() => navigate(`/experiences/${exp.id}`, { state: { from: "experiences" } })}
                   className="cursor-pointer flex-shrink-0 flex flex-col"
-                  style={{ width: CARD_WIDTH, height: 520, padding: 24, background: "white", outline: "1px solid black", outlineOffset: -1, gap: 8, overflow: "hidden" }}>
+                  style={{ padding: 24, background: "white", outline: "1px solid black", outlineOffset: -1, gap: 8, overflow: "hidden" }}>
                   <div className="flex items-center justify-between">
                     <span style={{ outline: "1px solid #7E7576", outlineOffset: -1, color: "#1B1C1C", fontSize: 11, fontWeight: 600, padding: "2px 6px" }}>
                       {exp.role || "경험"}
@@ -110,7 +101,8 @@ export const ExperienceList = () => {
                   </div>
 
                   {experiences.map((exp) => (
-                    <div key={exp.id} onClick={() => navigate(`/experiences/${exp.id}`)}
+                    <div key={exp.id}
+                      onClick={() => navigate(`/experiences/${exp.id}`, { state: { from: "experiences" } })}
                       className="cursor-pointer flex-shrink-0 flex flex-col"
                       style={{ width: CARD_WIDTH, height: 520, padding: 24, background: "white", outline: "1px solid black", outlineOffset: -1, overflowY: "auto", gap: 8 }}>
                       <div className="flex items-center justify-between">
