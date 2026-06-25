@@ -9,23 +9,22 @@ const featureCards = [
   { icon: iconDashboard, title: "명함 한 장으로 정리돼요", desc: "완성된 포트폴리오가 Card 페이지로 정리돼요. AI가 뽑은 한줄 소개로 나를 표현할 수 있어요." },
 ];
 
-// 목업 컴포넌트들
 const ArchiveMockup = () => (
-  <div style={{ background: "#FBF9F9", border: "1px solid #E2E2E2", borderRadius: 8, padding: 20, fontSize: 11 }}>
+  <div style={{ background: "#FBF9F9", border: "1px solid #E2E2E2", borderRadius: 8, padding: 20 }}>
     <div style={{ marginBottom: 12, fontWeight: 600, color: "#1B1C1C", fontSize: 13 }}>내 경험</div>
     {[
-      { role: "기획팀장 (팀원 4명)", title: "교내 UX 해커톤 기획팀장 경험", date: "2026년 3월 – 6월", tags: ["#리더십", "#기획 능력", "#의사소통"] },
-      { role: "서비스 기획자", title: "교내 창업 경진대회 팀장", date: "2026년 1월 – 3월", tags: ["#팀장", "#차별화", "#멘토링"] },
+      { role: "기획팀장 (팀원 4명)", title: "교내 UX 해커톤 기획팀장 경험", date: "2026년 3월 – 6월", tags: [{ t: "#리더십", bg: "#FDECEC", c: "#977171" }, { t: "#기획 능력", bg: "#FEF3E2", c: "#857948" }, { t: "#의사소통", bg: "#cbdfcd", c: "#638866" }] },
+      { role: "서비스 기획자", title: "교내 창업 경진대회 팀장", date: "2026년 1월 – 3월", tags: [{ t: "#팀장", bg: "#E3F2FD", c: "#647382" }, { t: "#차별화", bg: "#cdfaf5", c: "#566e6b" }, { t: "#멘토링", bg: "#FDECEC", c: "#977171" }] },
     ].map((exp, i) => (
       <div key={i} style={{ background: "white", border: "1px solid black", padding: 12, marginBottom: 8 }}>
         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-          <span style={{ border: "1px solid #7E7576", padding: "1px 6px", color: "#4C4546", fontSize: 10 }}>{exp.role}</span>
+          <span style={{ border: "1px solid #7E7576", padding: "1px 6px", color: "#4C4546", fontSize: 10, borderRadius: 4 }}>{exp.role}</span>
           <span style={{ color: "#5D5F5F", fontSize: 10 }}>{exp.date}</span>
         </div>
-        <div style={{ fontWeight: 400, color: "black", fontSize: 12, marginBottom: 8 }}>{exp.title}</div>
+        <div style={{ fontWeight: 400, color: "black", fontSize: 13, marginBottom: 8 }}>{exp.title}</div>
         <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
-          {exp.tags.map((t, j) => (
-            <span key={j} style={{ background: ["#FDECEC","#cbdfcd","#E3F2FD"][j], color: ["#977171","#638866","#647382"][j], padding: "1px 6px", borderRadius: 4, fontSize: 10 }}>{t}</span>
+          {exp.tags.map((tag, j) => (
+            <span key={j} style={{ background: tag.bg, color: tag.c, padding: "2px 8px", borderRadius: 4, fontSize: 11 }}>{tag.t}</span>
           ))}
         </div>
       </div>
@@ -35,34 +34,51 @@ const ArchiveMockup = () => (
 
 const InsightsMockup = () => (
   <div style={{ background: "#FBF9F9", border: "1px solid #E2E2E2", borderRadius: 8, padding: 20 }}>
-    <div style={{ marginBottom: 12, fontWeight: 600, color: "#1B1C1C", fontSize: 13 }}>Insights</div>
-    <div style={{ fontSize: 10, color: "#5D5F5F", marginBottom: 8, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase" }}>자주 등장한 키워드</div>
-    <div style={{ position: "relative", height: 100, marginBottom: 16 }}>
+    <div style={{ marginBottom: 16, fontWeight: 600, color: "#1B1C1C", fontSize: 13 }}>Insights</div>
+
+    {/* 키워드 클라우드 */}
+    <div style={{ fontSize: 10, color: "#5D5F5F", marginBottom: 12, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase" }}>자주 등장한 키워드</div>
+    <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 20, padding: "8px 0" }}>
       {[
-        { text: "#리더십", top: "5%", left: "25%", bg: "#FDECEC", color: "#977171", size: 14 },
-        { text: "#기획 능력", top: "5%", left: "58%", bg: "#FEF3E2", color: "#857948", size: 12 },
-        { text: "#의사소통", top: "40%", left: "8%", bg: "#cbdfcd", color: "#638866", size: 13 },
-        { text: "#책임감", top: "42%", left: "50%", bg: "#E3F2FD", color: "#647382", size: 11 },
-        { text: "#차별화", top: "42%", left: "76%", bg: "#cdfaf5", color: "#566e6b", size: 11 },
-        { text: "#팀장", top: "72%", left: "32%", bg: "#FDECEC", color: "#977171", size: 12 },
+        { t: "#리더십", bg: "#FDECEC", c: "#977171", size: 16 },
+        { t: "#기획 능력", bg: "#FEF3E2", c: "#857948", size: 14 },
+        { t: "#의사소통", bg: "#cbdfcd", c: "#638866", size: 15 },
+        { t: "#책임감", bg: "#E3F2FD", c: "#647382", size: 13 },
+        { t: "#차별화", bg: "#cdfaf5", c: "#566e6b", size: 12 },
+        { t: "#팀장", bg: "#FDECEC", c: "#977171", size: 13 },
       ].map((kw, i) => (
-        <span key={i} style={{ position: "absolute", top: kw.top, left: kw.left, background: kw.bg, color: kw.color, fontSize: kw.size, padding: "3px 8px", borderRadius: 12, whiteSpace: "nowrap" }}>{kw.text}</span>
+        <span key={i} style={{ background: kw.bg, color: kw.c, fontSize: kw.size, padding: "4px 10px", borderRadius: 14, whiteSpace: "nowrap", transform: i % 2 === 0 ? "rotate(-2deg)" : "rotate(2deg)", display: "inline-block" }}>{kw.t}</span>
       ))}
     </div>
-    <div style={{ fontSize: 10, color: "#5D5F5F", marginBottom: 8, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase" }}>경험 타임라인</div>
+
+    {/* 타임라인 */}
+    <div style={{ fontSize: 10, color: "#5D5F5F", marginBottom: 10, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase" }}>경험 타임라인</div>
     {[
       { date: "26년 1월", title: "교내 창업 경진대회" },
       { date: "26년 3월", title: "교내 UX 해커톤" },
     ].map((item, i) => (
       <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start", marginBottom: 8 }}>
-        <span style={{ fontSize: 10, color: "#5D5F5F", minWidth: 48, textAlign: "right" }}>{item.date}</span>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-          <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#1B1C1C", marginTop: 2 }} />
-          {i < 1 && <div style={{ width: 1, height: 16, background: "#DBDAD9" }} />}
+        <span style={{ fontSize: 10, color: "#5D5F5F", minWidth: 52, textAlign: "right" }}>{item.date}</span>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#1B1C1C", marginTop: 3 }} />
+          {i < 1 && <div style={{ width: 1, height: 18, background: "#DBDAD9" }} />}
         </div>
         <span style={{ fontSize: 11, color: "black" }}>{item.title}</span>
       </div>
     ))}
+
+    {/* AI 강점 분석 */}
+    <div style={{ fontSize: 10, color: "#5D5F5F", margin: "16px 0 10px", fontWeight: 600, letterSpacing: 1, textTransform: "uppercase" }}>AI 강점 분석</div>
+    <div style={{ background: "white", border: "1px solid black", padding: 12, borderRadius: 2 }}>
+      <p style={{ fontSize: 12, color: "#1B1C1C", lineHeight: "18px", marginBottom: 10 }}>
+        팀의 방향을 명확히 설정하고 구성원의 의견을 조율하는 리더십이 돋보이는 분입니다.
+      </p>
+      <div style={{ display: "flex", gap: 6 }}>
+        {[{ t: "리더십", bg: "#FDECEC", c: "#977171" }, { t: "기획력", bg: "#FEF3E2", c: "#857948" }, { t: "커뮤니케이션", bg: "#cbdfcd", c: "#638866" }].map((kw, i) => (
+          <span key={i} style={{ background: kw.bg, color: kw.c, fontSize: 10, padding: "2px 8px", borderRadius: 10 }}>{kw.t}</span>
+        ))}
+      </div>
+    </div>
   </div>
 );
 
@@ -74,23 +90,24 @@ const CardMockup = () => (
         {["Card", "Insights", "Archive"].map(l => <span key={l} style={{ fontSize: 10, color: "#5D5F5F", fontFamily: "'Playfair Display', serif" }}>{l}</span>)}
       </div>
     </div>
-    <div style={{ padding: 24, display: "flex", gap: 16 }}>
+    <div style={{ padding: 28, display: "flex", gap: 20, alignItems: "center" }}>
       <div style={{ flex: 1 }}>
-        <div style={{ width: 24, height: 2, background: "black", marginBottom: 12 }} />
-        <div style={{ fontSize: 28, fontWeight: 400, color: "black", marginBottom: 8 }}>민지은</div>
-        <div style={{ fontSize: 11, color: "#5D5F5F", lineHeight: "18px" }}>
-          팀의 방향을 잡고 협력으로<br />프로젝트를 이끄는 리더
+        <div style={{ width: 24, height: 2, background: "black", marginBottom: 16 }} />
+        <div style={{ fontSize: 36, fontWeight: 400, color: "black", marginBottom: 10, fontFamily: "sans-serif" }}>김서연</div>
+        <div style={{ fontSize: 13, color: "#5D5F5F", lineHeight: "20px" }}>
+          데이터를 기반으로 문제를 정의하고<br />팀과 함께 실행하는 기획자
         </div>
       </div>
-      <div style={{ borderLeft: "1px solid black", paddingLeft: 16, minWidth: 120 }}>
+      <div style={{ borderLeft: "1px solid black", paddingLeft: 20, minWidth: 140 }}>
         {[
-          { label: "사용 언어", value: "Figma, Python" },
-          { label: "학교 / 학과", value: "고려대 경영" },
-          { label: "연락처", value: "hello@email.com" },
+          { label: "사용 언어 / 스킬", value: "Python, Figma, SQL" },
+          { label: "학교 / 학과", value: "연세대 경영학과" },
+          { label: "링크", value: "github.com/seoyeon" },
+          { label: "연락처", value: "seoyeon@gmail.com" },
         ].map((row, i) => (
-          <div key={i} style={{ borderBottom: "1px solid #DBDAD9", paddingBottom: 8, marginBottom: 8 }}>
-            <div style={{ fontSize: 9, color: "#5D5F5F", marginBottom: 2 }}>{row.label}</div>
-            <div style={{ fontSize: 11, color: "black" }}>{row.value}</div>
+          <div key={i} style={{ borderBottom: "1px solid #DBDAD9", paddingBottom: 10, marginBottom: 10 }}>
+            <div style={{ fontSize: 10, color: "#5D5F5F", marginBottom: 3 }}>{row.label}</div>
+            <div style={{ fontSize: 12, color: "black" }}>{row.value}</div>
           </div>
         ))}
       </div>
@@ -108,7 +125,7 @@ const steps = [
   {
     step: "02", tag: "Insights",
     title: "패턴을 발견해요",
-    desc: "여러 경험에서 반복되는 키워드와 역할을 시각화해요. 내가 어떤 사람인지 데이터로 보여줘요.",
+    desc: "여러 경험에서 반복되는 키워드와 역할을 시각화해요. AI가 강점을 분석해서 내가 어떤 사람인지 데이터로 보여줘요.",
     mockup: <InsightsMockup />,
   },
   {
@@ -179,31 +196,92 @@ export const Landing = () => {
           ))}
         </div>
       </div>
+      {/* ── ITER 의미 섹션 ── */}
+      <div style={{ borderTop: "1px solid black", borderBottom: "1px solid black", background: "#1B1C1C" }}>
+        <div className="w-full mx-auto px-4 md:px-16 py-20 flex flex-col md:flex-row gap-16 items-start"
+          style={{ maxWidth: 1280 }}>
 
+          {/* 왼쪽: 단어 */}
+          <div className="flex-shrink-0">
+            <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(64px, 12vw, 120px)", fontWeight: 700, color: "white", lineHeight: 1, letterSpacing: -2 }}>
+              ITER
+            </div>
+            <div style={{ fontSize: 13, color: "#7E7576", marginTop: 8, letterSpacing: 2 }}>
+              /ˈiː.tɛr/
+            </div>
+          </div>
+
+          {/* 오른쪽: 설명 */}
+          <div className="flex flex-col gap-10 pt-2" style={{ flex: 1 }}>
+
+            {/* 라틴어 어원 */}
+            <div className="flex flex-col gap-3">
+              <span style={{ fontSize: 10, fontWeight: 600, color: "#7E7576", letterSpacing: 2, textTransform: "uppercase" }}>
+                Latin Origin
+              </span>
+              <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+                {["길 (Way)", "여정 (Journey)", "행군"].map((word, i) => (
+                  <span key={i} style={{ fontSize: 16, color: "white", fontWeight: 400, padding: "4px 14px", border: "1px solid #5D5F5F", borderRadius: 20 }}>
+                    {word}
+                  </span>
+                ))}
+              </div>
+              <p style={{ fontSize: 14, color: "#C6C6C7", lineHeight: "24px", marginTop: 4 }}>
+                라틴어 <em style={{ color: "white", fontStyle: "normal" }}>iter</em>는 단순한 이동이 아닌, 목적을 가진 여정을 뜻해요.<br />
+                당신의 경험 하나하나가 모여 하나의 길이 됩니다.
+              </p>
+            </div>
+
+            {/* 구분선 */}
+            <div style={{ width: "100%", height: 1, background: "#3A3B3B" }} />
+
+            {/* 영어 연상 */}
+            <div className="flex flex-col gap-3">
+              <span style={{ fontSize: 10, fontWeight: 600, color: "#7E7576", letterSpacing: 2, textTransform: "uppercase" }}>
+                Also echoes
+              </span>
+              <div className="flex flex-col gap-4">
+                {[
+                  { word: "Itinerary", meaning: "여정의 기록 — 경험을 체계적으로 남기는 것" },
+                  { word: "Eternity", meaning: "영원 — 흘러가는 순간을 영원히 기억하도록" },
+                ].map((item, i) => (
+                  <div key={i} className="flex items-baseline gap-4">
+                    <span style={{ fontSize: 18, color: "white", fontFamily: "'Playfair Display', serif", fontWeight: 400, minWidth: 110 }}>
+                      {item.word}
+                    </span>
+                    <span style={{ fontSize: 13, color: "#7E7576", lineHeight: "20px" }}>
+                      {item.meaning}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
       {/* ── 섹션 2: How it works ── */}
       <div style={{ background: "white", borderTop: "1px solid black", borderBottom: "1px solid black" }}>
         <div className="w-full mx-auto px-4 md:px-16 py-20" style={{ maxWidth: 1280 }}>
           <p style={{ fontSize: 11, fontWeight: 600, color: "#5D5F5F", letterSpacing: 2, textTransform: "uppercase", marginBottom: 12 }}>
             How it works
           </p>
-          <h2 style={{ fontSize: 32, fontWeight: 400, color: "black", marginBottom: 56, lineHeight: "44px" }}>
+          <h2 style={{ fontSize: 32, fontWeight: 400, color: "black", marginBottom: 80, lineHeight: "44px" }}>
             3단계로 나를 정리해요
           </h2>
 
-          <div className="flex flex-col gap-20">
+          <div className="flex flex-col" style={{ gap: 100 }}>
             {steps.map((s, i) => (
-              <div key={i} className={`flex flex-col md:flex-row gap-12 items-center ${i % 2 === 1 ? "md:flex-row-reverse" : ""}`}>
-                {/* 텍스트 */}
+              <div key={i} className={`flex flex-col md:flex-row gap-16 items-center ${i % 2 === 1 ? "md:flex-row-reverse" : ""}`}>
                 <div className="flex flex-col gap-4 md:w-80 flex-shrink-0">
                   <div className="flex items-center justify-between">
                     <span style={{ fontSize: 11, fontWeight: 700, color: "#C6C6C7", letterSpacing: 2 }}>{s.step}</span>
                     <span style={{ fontSize: 10, fontWeight: 600, color: "#5D5F5F", background: "#F0EEEE", padding: "2px 8px", borderRadius: 10 }}>{s.tag}</span>
                   </div>
                   <div style={{ width: 32, height: 1, background: "black" }} />
-                  <h3 style={{ fontSize: 22, fontWeight: 400, color: "black", lineHeight: "32px" }}>{s.title}</h3>
-                  <p style={{ fontSize: 14, color: "#5D5F5F", lineHeight: "24px" }}>{s.desc}</p>
+                  <h3 style={{ fontSize: 24, fontWeight: 400, color: "black", lineHeight: "34px" }}>{s.title}</h3>
+                  <p style={{ fontSize: 15, color: "#5D5F5F", lineHeight: "26px" }}>{s.desc}</p>
                 </div>
-                {/* 목업 */}
                 <div className="flex-1 w-full">
                   {s.mockup}
                 </div>
@@ -214,8 +292,8 @@ export const Landing = () => {
       </div>
 
       {/* ── 섹션 3: CTA ── */}
-      <div className="w-full mx-auto px-4 md:px-16 py-24 flex flex-col items-center gap-6" style={{ maxWidth: 1280 }}>
-        <h2 style={{ fontSize: 28, fontWeight: 400, color: "black", textAlign: "center", lineHeight: "40px" }}>
+      <div className="w-full mx-auto px-4 md:px-16 py-28 flex flex-col items-center gap-6" style={{ maxWidth: 1280 }}>
+        <h2 style={{ fontSize: 30, fontWeight: 400, color: "black", textAlign: "center", lineHeight: "44px" }}>
           지금 바로 나의 경험을<br />기록해볼까요?
         </h2>
         <p style={{ fontSize: 15, color: "#5D5F5F", textAlign: "center", lineHeight: "24px" }}>

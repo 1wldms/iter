@@ -221,14 +221,40 @@ export const Dashboard = () => {
         {loading ? (
           <p style={{ color: "#5D5F5F", fontSize: 14 }}>불러오는 중이에요...</p>
         ) : experiences.length === 0 ? (
-          <div className="flex flex-col items-center justify-center" style={{ paddingTop: 60, gap: 12 }}>
-            <p style={{ color: "#5D5F5F", fontSize: 16 }}>아직 기록된 경험이 없어요.</p>
-            <button onClick={() => navigate("/experiences/add")}
-              style={{ background: "black", color: "white", padding: "10px 20px", fontSize: 14 }}>
-              첫 경험 기록하기
-            </button>
+          <div className="flex flex-col" style={{ gap: 0 }}>
+            {/* 가이드 배너 */}
+            <div style={{ background: "white", outline: "1px solid black", outlineOffset: -1, padding: 32, marginBottom: 16 }}>
+              <p style={{ fontSize: 11, fontWeight: 600, color: "#5D5F5F", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 12 }}>
+                How it works
+              </p>
+              <h2 style={{ fontSize: 22, fontWeight: 400, color: "black", marginBottom: 24, lineHeight: "32px" }}>
+                ITER는 이렇게 사용해요
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6" style={{ marginBottom: 28 }}>
+                {[
+                  { step: "01", tag: "Archive", title: "경험을 기록해요", desc: "역할, 배경, 액션, 결과까지 구조화된 틀로 경험을 남겨요. AI와 함께 대화하며 채울 수도 있어요." },
+                  { step: "02", tag: "Insights", title: "패턴을 발견해요", desc: "키워드 클라우드와 타임라인으로 나의 패턴을 시각화해요. AI가 강점을 분석해줘요." },
+                  { step: "03", tag: "Card", title: "나를 표현해요", desc: "AI가 뽑은 한줄 소개가 Card 페이지에 반영돼요. 나만의 포트폴리오가 완성돼요." },
+                ].map((s, i) => (
+                  <div key={i} className="flex flex-col gap-3" style={{ padding: 20, background: "#FBF9F9", outline: "1px solid #E2E2E2", outlineOffset: -1 }}>
+                    <div className="flex items-center justify-between">
+                      <span style={{ fontSize: 10, fontWeight: 700, color: "#C6C6C7", letterSpacing: 2 }}>{s.step}</span>
+                      <span style={{ fontSize: 10, color: "#5D5F5F", background: "#F0EEEE", padding: "2px 8px", borderRadius: 10 }}>{s.tag}</span>
+                    </div>
+                    <div style={{ width: 24, height: 1, background: "black" }} />
+                    <p style={{ fontSize: 14, fontWeight: 500, color: "black" }}>{s.title}</p>
+                    <p style={{ fontSize: 12, color: "#5D5F5F", lineHeight: "20px" }}>{s.desc}</p>
+                  </div>
+                ))}
+              </div>
+              <button onClick={() => navigate("/experiences/add")}
+                style={{ background: "black", color: "white", padding: "12px 24px", fontSize: 14 }}>
+                첫 경험 기록하기 →
+              </button>
+            </div>
           </div>
         ) : (
+          // 경험이 있을 때 카드 그리드
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {filteredExperiences.slice(0, 4).map((exp) => (
               <ExperienceCard

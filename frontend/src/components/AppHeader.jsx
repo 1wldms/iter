@@ -50,14 +50,21 @@ export const AppHeader = () => {
 
         {/* 데스크톱 버튼 */}
         <div className="hidden md:flex items-center gap-4">
-          <button onClick={handleLogout} className="whitespace-nowrap px-6 py-3"
-            style={{ borderRadius: 2, outline: "1px solid black", outlineOffset: -1, color: "black", fontSize: 14, fontWeight: 400 }}>
-            로그아웃
-          </button>
-          <button onClick={() => navigate("/onboarding")} className="px-6 py-3"
-            style={{ background: "black", borderRadius: 2, color: "white", fontSize: 14, fontWeight: 400 }}>
-            정보수정
-          </button>
+            <button
+                onClick={() => navigate("/")}
+                style={{ width: 32, height: 32, borderRadius: "50%", outline: "1px solid #C6C6C7", outlineOffset: -1, color: "#5D5F5F", fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center" }}
+                title="사용 방법 보기"
+            >
+                ?
+            </button>
+            <button onClick={handleLogout} className="whitespace-nowrap px-6 py-3"
+                style={{ borderRadius: 2, outline: "1px solid black", outlineOffset: -1, color: "black", fontSize: 14, fontWeight: 400 }}>
+                로그아웃
+            </button>
+            <button onClick={() => navigate("/onboarding")} className="px-6 py-3"
+                style={{ background: "black", borderRadius: 2, color: "white", fontSize: 14, fontWeight: 400 }}>
+                정보수정
+            </button>
         </div>
 
         {/* 모바일 햄버거 */}
