@@ -172,8 +172,8 @@ export const Insights = () => {
                 style={{ maxWidth: 1080, paddingTop: 48, paddingBottom: 80, gap: 32 }}>
 
                 <div>
-                    <h1 style={{ fontSize: 28, fontWeight: 400, color: "black" }}>Insights</h1>
-                    <p style={{ fontSize: 14, color: "#5D5F5F", marginTop: 8 }}>
+                    <h1 style={{ fontSize: 32, fontWeight: 400, color: "black", lineHeight: "40px" }}>Insights</h1>
+                    <p style={{ fontSize: 14, color: "#5D5F5F", marginTop: 6 }}>
                         경험이 쌓이면 여기서 나의 패턴을 발견할 수 있어요.
                     </p>
                 </div>
@@ -220,7 +220,7 @@ export const Insights = () => {
             <AppHeader />
 
             <main className="w-full mx-auto flex flex-col px-4 md:px-16"
-                style={{ maxWidth: 1080, paddingTop: 32, paddingBottom: 80, gap: 28 }}>
+                style={{ maxWidth: 1280, paddingTop: 32, paddingBottom: 80, gap: 28 }}>
 
                 {/* 헤더 */}
                 <div>
