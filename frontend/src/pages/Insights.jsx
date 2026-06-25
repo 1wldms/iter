@@ -168,13 +168,45 @@ export const Insights = () => {
     if (experiences.length === 0) return (
         <div className="w-full min-h-screen flex flex-col" style={{ background: "#FBF9F9" }}>
             <AppHeader />
-            <div className="flex flex-col items-center justify-center gap-4" style={{ paddingTop: 120 }}>
-                <p style={{ color: "#5D5F5F", fontSize: 15 }}>아직 기록된 경험이 없어요.</p>
-                <button onClick={() => navigate("/experiences/add")}
-                    style={{ background: "black", color: "white", padding: "10px 20px", fontSize: 13 }}>
-                    첫 경험 기록하기
-                </button>
-            </div>
+            <main className="w-full mx-auto flex flex-col px-4 md:px-16"
+                style={{ maxWidth: 1080, paddingTop: 48, paddingBottom: 80, gap: 32 }}>
+
+                <div>
+                    <h1 style={{ fontSize: 28, fontWeight: 400, color: "black" }}>Insights</h1>
+                    <p style={{ fontSize: 14, color: "#5D5F5F", marginTop: 8 }}>
+                        경험이 쌓이면 여기서 나의 패턴을 발견할 수 있어요.
+                    </p>
+                </div>
+
+                <div style={{ background: "white", outline: "1px solid black", outlineOffset: -1, padding: 32 }}>
+                    <p style={{ fontSize: 11, fontWeight: 600, color: "#5D5F5F", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 20 }}>
+                        Insights에서 할 수 있는 것들
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6" style={{ marginBottom: 32 }}>
+                        {[
+                            { icon: "☁️", title: "키워드 클라우드", desc: "경험마다 AI가 추출한 키워드를 모아서 내가 자주 쓰는 역량과 강점이 무엇인지 한눈에 보여줘요. 경험이 많을수록 더 선명해져요." },
+                            { icon: "📅", title: "경험 타임라인", desc: "경험들을 시간 순으로 정렬해서 나의 성장 흐름을 시각화해요. 활동 기간을 입력하면 더 정확한 타임라인을 볼 수 있어요." },
+                            { icon: "✨", title: "AI 강점 분석", desc: "배운 점과 느낀 점을 바탕으로 AI가 나의 핵심 강점을 2~3문장으로 분석해줘요. 한줄로 압축해서 Card 소개로 저장할 수 있어요." },
+                        ].map((item, i) => (
+                            <div key={i} className="flex flex-col gap-3" style={{ padding: 20, background: "#FBF9F9", outline: "1px solid #E2E2E2", outlineOffset: -1 }}>
+                                <span style={{ fontSize: 20 }}>{item.icon}</span>
+                                <p style={{ fontSize: 14, fontWeight: 500, color: "black" }}>{item.title}</p>
+                                <p style={{ fontSize: 12, color: "#5D5F5F", lineHeight: "20px" }}>{item.desc}</p>
+                            </div>
+                        ))}
+                    </div>
+                    <div className="flex gap-3">
+                        <button onClick={() => navigate("/experiences/add")}
+                            style={{ background: "black", color: "white", padding: "12px 24px", fontSize: 14 }}>
+                            첫 경험 기록하기 →
+                        </button>
+                        <button onClick={() => navigate("/guide")}
+                            style={{ outline: "1px solid black", outlineOffset: -1, color: "black", padding: "12px 24px", fontSize: 14 }}>
+                            자세한 사용법 보기
+                        </button>
+                    </div>
+                </div>
+            </main>
         </div>
     );
 
