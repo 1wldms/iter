@@ -195,7 +195,7 @@ export const Insights = () => {
 
                 {/* 1. 키워드 워드클라우드 */}
                 <section>
-                    <p style={{ fontSize: 11, fontWeight: 600, color: "#5D5F5F", letterSpacing: 1, textTransform: "uppercase", marginBottom: 16 }}>
+                    <p style={{ fontSize: 14, fontWeight: 600, color: "#5D5F5F", letterSpacing: 1, textTransform: "uppercase", marginBottom: 16 }}>
                         자주 등장한 키워드
                     </p>
                     <WordCloud keywords={keywords} />
@@ -205,7 +205,7 @@ export const Insights = () => {
 
                 {/* 2. 경험 타임라인 */}
                 <section>
-                    <p style={{ fontSize: 11, fontWeight: 600, color: "#5D5F5F", letterSpacing: 1, textTransform: "uppercase", marginBottom: 24 }}>
+                    <p style={{ fontSize: 14, fontWeight: 600, color: "#5D5F5F", letterSpacing: 1, textTransform: "uppercase", marginBottom: 24 }}>
                         경험 타임라인
                     </p>
                     <div className="flex flex-col">
@@ -248,7 +248,7 @@ export const Insights = () => {
 
                 {/* 3. AI 강점 분석 */}
                 <section>
-                    <p style={{ fontSize: 11, fontWeight: 600, color: "#5D5F5F", letterSpacing: 1, textTransform: "uppercase", marginBottom: 20 }}>
+                    <p style={{ fontSize: 14, fontWeight: 600, color: "#5D5F5F", letterSpacing: 1, textTransform: "uppercase", marginBottom: 20 }}>
                         AI 강점 분석
                     </p>
 
