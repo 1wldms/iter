@@ -234,7 +234,9 @@ def experiences_add():
         "learned": data.get('learned', ''),
         "reflection": data.get('reflection', ''),
         "memo": data.get('memo', ''),
-        "keywords": keywords
+        "keywords": keywords,
+        "start_date": data.get('start_date') or None,
+        "end_date": data.get('end_date') or None,
     }
 
     try:

@@ -23,7 +23,7 @@ export const ExperienceEdit = () => {
     const from = location.state?.from || "experiences";
     const [form, setForm] = useState({
         title: "", role: "", background: "", action: "", result: "",
-        learned: "", reflection: "", memo: "",
+        learned: "", reflection: "", memo: "", start_date: "", end_date: "",
     });
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -44,6 +44,8 @@ export const ExperienceEdit = () => {
                     learned: exp.learned || "",
                     reflection: exp.reflection || "",
                     memo: exp.memo || "",
+                    start_date: exp.start_date || "",
+                    end_date: exp.end_date || "",
                 });
             } catch {
                 navigate("/dashboard");
@@ -99,6 +101,30 @@ export const ExperienceEdit = () => {
             </div>
 
             <div className="flex flex-col w-full px-4 md:px-0" style={{ maxWidth: 640, paddingTop: 24, gap: 28 }}>
+
+                {/* 날짜 필드 */}
+                <div className="flex flex-col" style={{ gap: 6 }}>
+                    <label style={{ color: "black", fontSize: 14, fontWeight: 600, letterSpacing: 0.70 }}>
+                        활동 기간
+                    </label>
+                    <div className="flex items-center gap-3">
+                        <input
+                            type="month"
+                            value={form.start_date}
+                            onChange={(e) => handleChange("start_date", e.target.value)}
+                            style={{ flex: 1, borderBottom: "1px solid #6B7280", padding: "8px", fontSize: 14, color: "#1B1C1C", background: "transparent", outline: "none" }}
+                        />
+                        <span style={{ color: "#5D5F5F", fontSize: 13 }}>~</span>
+                        <input
+                            type="month"
+                            value={form.end_date}
+                            onChange={(e) => handleChange("end_date", e.target.value)}
+                            style={{ flex: 1, borderBottom: "1px solid #6B7280", padding: "8px", fontSize: 14, color: "#1B1C1C", background: "transparent", outline: "none" }}
+                        />
+                    </div>
+                    <p style={{ fontSize: 11, color: "#C6C6C7", marginTop: 2 }}>진행 중인 활동이라면 종료일을 비워도 돼요.</p>
+                </div>
+
                 {fields.map((field) => (
                     <div key={field.key} className="flex flex-col" style={{ gap: 6 }}>
                         <label style={{ color: "black", fontSize: 14, fontWeight: 600, letterSpacing: 0.70 }}>

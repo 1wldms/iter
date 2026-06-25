@@ -69,7 +69,7 @@ export const Dashboard = () => {
   const [selectedFolder, setSelectedFolder] = useState(null);
   const [newFolderName, setNewFolderName] = useState("");
   const [showFolderInput, setShowFolderInput] = useState(false);
-  const [showFolders, setShowFolders] = useState(false);
+  const [showFolders, setShowFolders] = useState(true);
 
   useEffect(() => {
     const fetchExperiences = async () => {

@@ -19,7 +19,7 @@ export const ExperienceAdd = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState({
     title: "", role: "", background: "", action: "", result: "",
-    learned: "", reflection: "", memo: "",
+    learned: "", reflection: "", memo: "", start_date: "", end_date: "",
   });
   const [saving, setSaving] = useState(false);
 
@@ -47,10 +47,9 @@ export const ExperienceAdd = () => {
     <div className="w-full min-h-screen flex flex-col items-center"
       style={{ background: "#FBF9F9", paddingBottom: 64 }}>
 
-      {/* 상단 바 */}
       <div className="w-full flex-shrink-0" style={{ background: "#FBF9F9", borderBottom: "1px solid black" }}>
-        <div className="w-full mx-auto flex items-center justify-between"
-          className="w-full mx-auto flex items-center justify-between px-4 md:px-16" style={{ maxWidth: 1280, paddingTop: 20, paddingBottom: 20 }}>
+        <div className="w-full mx-auto flex items-center justify-between px-4 md:px-16"
+          style={{ maxWidth: 1280, paddingTop: 20, paddingBottom: 20 }}>
           <button onClick={() => navigate(-1)} className="flex items-center gap-3 hover:opacity-70 transition-opacity">
             <span style={{ color: "black", fontSize: 14 }}>←</span>
             <span style={{ color: "black", fontSize: 20, fontWeight: 400 }}>경험 기록하기</span>
@@ -58,17 +57,38 @@ export const ExperienceAdd = () => {
         </div>
       </div>
 
-      {/* 폼 영역 */}
       <div className="flex flex-col w-full px-4 md:px-0" style={{ maxWidth: 640, paddingTop: 24, gap: 32 }}>
-        
-        {/* 안내 문구 */}
         <p style={{ color: "#5D5F5F", fontSize: 16, fontWeight: 400, lineHeight: "26px" }}>
           작은 경험이라도 차곡차곡 모이면 훌륭한 포트폴리오가 됩니다.<br className="hidden md:block" />
           기억이 생생할 때 자세히 기록해 보세요.
         </p>
 
-        {/* 입력 필드들 */}
         <div className="flex flex-col" style={{ gap: 28, paddingBottom: 48 }}>
+
+          {/* ── 날짜 필드 ── */}
+          <div className="flex flex-col" style={{ gap: 6 }}>
+            <label style={{ color: "black", fontSize: 14, fontWeight: 600, letterSpacing: 0.70 }}>
+              활동 기간
+            </label>
+            <div className="flex items-center gap-3">
+              <input
+                type="month"
+                value={form.start_date}
+                onChange={(e) => handleChange("start_date", e.target.value)}
+                style={{ flex: 1, borderBottom: "1px solid #6B7280", padding: "8px", fontSize: 14, color: "#1B1C1C", background: "transparent", outline: "none" }}
+              />
+              <span style={{ color: "#5D5F5F", fontSize: 13 }}>~</span>
+              <input
+                type="month"
+                value={form.end_date}
+                onChange={(e) => handleChange("end_date", e.target.value)}
+                style={{ flex: 1, borderBottom: "1px solid #6B7280", padding: "8px", fontSize: 14, color: "#1B1C1C", background: "transparent", outline: "none" }}
+              />
+            </div>
+            <p style={{ fontSize: 11, color: "#C6C6C7", marginTop: 2 }}>진행 중인 활동이라면 종료일을 비워도 돼요.</p>
+          </div>
+
+          {/* ── 기존 필드들 ── */}
           {fields.map((field) => (
             <div key={field.key} className="flex flex-col" style={{ gap: 6 }}>
               <label htmlFor={field.key}
@@ -83,14 +103,8 @@ export const ExperienceAdd = () => {
                   placeholder={field.placeholder}
                   className="w-full bg-transparent outline-none"
                   style={{
-                    color: "#1B1C1C",
-                    fontSize: 14,
-                    fontWeight: 400,
-                    lineHeight: "22px",
-                    paddingLeft: 8,
-                    paddingRight: 8,
-                    resize: "none",
-                    overflow: "hidden",
+                    color: "#1B1C1C", fontSize: 14, fontWeight: 400, lineHeight: "22px",
+                    paddingLeft: 8, paddingRight: 8, resize: "none", overflow: "hidden",
                     minHeight: field.key === "role" ? 32 : 80,
                   }}
                   onInput={(e) => {
@@ -102,7 +116,6 @@ export const ExperienceAdd = () => {
             </div>
           ))}
 
-          {/* 저장 버튼 */}
           <button onClick={handleSave} disabled={saving}
             className="w-full flex items-center justify-center hover:opacity-80 transition-opacity disabled:opacity-50"
             style={{ background: "black", padding: "14px 24px", color: "white", fontSize: 15, fontWeight: 400 }}>
