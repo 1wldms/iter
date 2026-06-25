@@ -14,8 +14,6 @@ export const Onboarding = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [isEdit, setIsEdit] = useState(false);
-
-    // 한줄 소개 후보
     const [candidates, setCandidates] = useState([]);
     const [editingId, setEditingId] = useState(null);
     const [editingText, setEditingText] = useState("");
@@ -76,6 +74,7 @@ export const Onboarding = () => {
             const res = await authFetch(`${BACKEND_URL}/bio-candidates/${id}/select`, { method: "POST" });
             if (res.ok) {
                 setCandidates((prev) => prev.map((c) => ({ ...c, is_selected: c.id === id })));
+                setTimeout(() => navigate("/profile"), 600);
             }
         } catch { alert("선택에 실패했어요."); }
     };
@@ -120,6 +119,7 @@ export const Onboarding = () => {
     return (
         <div className="w-full min-h-screen flex flex-col items-center" style={{ background: "#FBF9F9" }}>
             <div className="w-full flex flex-col px-4 md:px-8" style={{ maxWidth: 560, paddingTop: 40, paddingBottom: 64 }}>
+
                 <span style={{ fontSize: 24, fontFamily: "'Playfair Display', serif", fontWeight: 700, marginBottom: 24 }}>
                     ITER
                 </span>
@@ -152,6 +152,7 @@ export const Onboarding = () => {
 
                 {error && <p style={{ color: "red", fontSize: 13, marginTop: 12 }}>{error}</p>}
 
+                {/* 상단 수정 완료 버튼 */}
                 <div className="flex gap-3" style={{ marginTop: 28 }}>
                     {isEdit && (
                         <button onClick={() => navigate(-1)}
@@ -165,88 +166,97 @@ export const Onboarding = () => {
                     </button>
                 </div>
 
-                {/* ── 한줄 소개 후보 관리 (정보수정 모드에서만) ── */}
+                {/* 한줄 소개 후보 관리 (정보수정 모드에서만) */}
                 {isEdit && (
-                    <div className="flex flex-col" style={{ marginTop: 48, gap: 16 }}>
-                        <div style={{ borderTop: "1px solid #E2E2E2", paddingTop: 32 }}>
-                            <p style={{ fontSize: 11, fontWeight: 600, color: "#5D5F5F", letterSpacing: 1, textTransform: "uppercase", marginBottom: 6 }}>
-                                한줄 소개 후보
-                            </p>
-                            <p style={{ fontSize: 12, color: "#C6C6C7", marginBottom: 20 }}>
-                                Insights에서 저장한 강점 분석 결과예요. 선택하면 Card에 표시돼요.
-                            </p>
+                    <div style={{ marginTop: 48, borderTop: "1px solid #E2E2E2", paddingTop: 32 }}>
+                        <p style={{ fontSize: 11, fontWeight: 600, color: "#5D5F5F", letterSpacing: 1, textTransform: "uppercase", marginBottom: 6 }}>
+                            한줄 소개 후보
+                        </p>
+                        <p style={{ fontSize: 12, color: "#C6C6C7", marginBottom: 20 }}>
+                            Insights에서 저장한 강점 분석 결과예요. 선택하면 Card에 표시돼요.
+                        </p>
 
-                            {candidates.length === 0 ? (
-                                <p style={{ fontSize: 13, color: "#C6C6C7" }}>
-                                    아직 저장된 후보가 없어요. Insights에서 강점 분석을 해보세요!
-                                </p>
-                            ) : (
-                                <div className="flex flex-col" style={{ gap: 10 }}>
-                                    {candidates.map((c) => (
-                                        <div key={c.id}
-                                            style={{
-                                                padding: 16,
-                                                background: c.is_selected ? "white" : "#F5F3F3",
-                                                outline: c.is_selected ? "1.5px solid black" : "1px solid #E2E2E2",
-                                                outlineOffset: -1,
-                                                display: "flex", flexDirection: "column", gap: 10,
-                                            }}>
-
-                                            {editingId === c.id ? (
-                                                <div className="flex flex-col gap-2">
-                                                    <textarea
-                                                        value={editingText}
-                                                        onChange={(e) => setEditingText(e.target.value)}
-                                                        className="w-full outline-none resize-none"
-                                                        style={{ fontSize: 13, color: "#1B1C1C", lineHeight: "22px", background: "transparent", borderBottom: "1px solid black", paddingBottom: 6 }}
-                                                        rows={3}
-                                                    />
-                                                    <div className="flex gap-2">
-                                                        <button type="button" onClick={() => handleEditSave(c.id)}
-                                                            style={{ fontSize: 12, background: "black", color: "white", padding: "4px 12px" }}>
-                                                            저장
-                                                        </button>
-                                                        <button type="button" onClick={() => { setEditingId(null); setEditingText(""); }}
-                                                            style={{ fontSize: 12, color: "#5D5F5F" }}>
-                                                            취소
-                                                        </button>
-                                                    </div>
+                        {candidates.length === 0 ? (
+                            <p style={{ fontSize: 13, color: "#C6C6C7" }}>
+                                아직 저장된 후보가 없어요. Insights에서 강점 분석을 해보세요!
+                            </p>
+                        ) : (
+                            <div className="flex flex-col" style={{ gap: 10 }}>
+                                {candidates.map((c) => (
+                                    <div key={c.id} style={{
+                                        padding: 16,
+                                        background: c.is_selected ? "white" : "#F5F3F3",
+                                        outline: c.is_selected ? "1.5px solid black" : "1px solid #E2E2E2",
+                                        outlineOffset: -1,
+                                        display: "flex", flexDirection: "column", gap: 10,
+                                    }}>
+                                        {editingId === c.id ? (
+                                            <div className="flex flex-col gap-2">
+                                                <textarea
+                                                    value={editingText}
+                                                    onChange={(e) => setEditingText(e.target.value)}
+                                                    className="w-full outline-none resize-none"
+                                                    style={{ fontSize: 13, color: "#1B1C1C", lineHeight: "22px", background: "transparent", borderBottom: "1px solid black", paddingBottom: 6 }}
+                                                    rows={3}
+                                                />
+                                                <div className="flex gap-2">
+                                                    <button type="button" onClick={() => handleEditSave(c.id)}
+                                                        style={{ fontSize: 12, background: "black", color: "white", padding: "4px 12px" }}>
+                                                        저장
+                                                    </button>
+                                                    <button type="button" onClick={() => { setEditingId(null); setEditingText(""); }}
+                                                        style={{ fontSize: 12, color: "#5D5F5F" }}>
+                                                        취소
+                                                    </button>
                                                 </div>
-                                            ) : (
-                                                <>
-                                                    <p style={{ fontSize: 13, color: "#1B1C1C", lineHeight: "22px" }}>{c.content}</p>
-                                                    <div className="flex items-center justify-between">
-                                                        <div className="flex gap-3">
-                                                            <button type="button"
-                                                                onClick={() => handleSelect(c.id)}
-                                                                style={{
-                                                                    fontSize: 11, padding: "3px 10px",
-                                                                    background: c.is_selected ? "black" : "white",
-                                                                    color: c.is_selected ? "white" : "black",
-                                                                    outline: "1px solid black", outlineOffset: -1,
-                                                                }}>
-                                                                {c.is_selected ? "✓ 선택됨" : "선택하기"}
-                                                            </button>
-                                                            <button type="button"
-                                                                onClick={() => { setEditingId(c.id); setEditingText(c.content); }}
-                                                                style={{ fontSize: 11, color: "#5D5F5F", textDecoration: "underline" }}>
-                                                                수정
-                                                            </button>
-                                                        </div>
-                                                        <button type="button" onClick={() => handleDelete(c.id)}
-                                                            style={{ fontSize: 11, color: "#C6C6C7" }}>
-                                                            삭제
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <p style={{ fontSize: 13, color: "#1B1C1C", lineHeight: "22px" }}>{c.content}</p>
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex gap-3">
+                                                        <button type="button"
+                                                            onClick={() => handleSelect(c.id)}
+                                                            style={{
+                                                                fontSize: 11, padding: "3px 10px",
+                                                                background: c.is_selected ? "black" : "white",
+                                                                color: c.is_selected ? "white" : "black",
+                                                                outline: "1px solid black", outlineOffset: -1,
+                                                            }}>
+                                                            {c.is_selected ? "✓ 선택됨" : "선택하기"}
+                                                        </button>
+                                                        <button type="button"
+                                                            onClick={() => { setEditingId(c.id); setEditingText(c.content); }}
+                                                            style={{ fontSize: 11, color: "#5D5F5F", textDecoration: "underline" }}>
+                                                            수정
                                                         </button>
                                                     </div>
-                                                </>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
+                                                    <button type="button" onClick={() => handleDelete(c.id)}
+                                                        style={{ fontSize: 11, color: "#C6C6C7" }}>
+                                                        삭제
+                                                    </button>
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* 하단 수정 완료 버튼 */}
+                        <div className="flex gap-3" style={{ marginTop: 24 }}>
+                            <button onClick={() => navigate(-1)}
+                                style={{ flex: 1, border: "1px solid black", color: "black", padding: "12px 24px", fontSize: 14, background: "transparent" }}>
+                                취소
+                            </button>
+                            <button onClick={handleSave} disabled={saving}
+                                style={{ flex: 2, background: "black", color: "white", padding: "12px 24px", fontSize: 14, fontWeight: 400, opacity: saving ? 0.5 : 1 }}>
+                                {saving ? "저장 중이에요..." : "수정 완료"}
+                            </button>
                         </div>
                     </div>
                 )}
+
             </div>
         </div>
     );
