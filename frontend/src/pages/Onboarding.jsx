@@ -105,19 +105,23 @@ export const Onboarding = () => {
         } catch { alert("수정에 실패했어요."); }
     };
 
+
     const handleDeleteAccount = async () => {
         setDeleting(true);
         try {
             const res = await authFetch(`${BACKEND_URL}/auth/delete`, { method: "POST" });
+            const data = await res.json();
             if (res.ok) {
                 localStorage.removeItem('access_token');
                 navigate("/");
             } else {
-                alert("탈퇴에 실패했어요. 다시 시도해주세요.");
+                alert("탈퇴 실패: " + data.error);  // 에러 내용 표시
             }
         } catch {
             alert("서버에 연결할 수 없어요.");
-        } finally { setDeleting(false); }
+        } finally {
+            setDeleting(false);
+        }
     };
 
     const fields = [

@@ -16,6 +16,8 @@ from supabase import create_client
 # 맨 위 client 설정 부분에 추가
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY")
+print("SERVICE KEY 존재:", bool(SUPABASE_SERVICE_KEY))
+print("SERVICE KEY 앞 10자:", SUPABASE_SERVICE_KEY[:10] if SUPABASE_SERVICE_KEY else "없음")
 supabase_admin = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
 
 
@@ -663,5 +665,5 @@ def delete_account():
         supabase_admin.auth.admin.delete_user(user.id)
         return jsonify({"message": "탈퇴 완료"}), 200
     except Exception as e:
-        print("탈퇴 에러:", str(e))  # 로그 추가
+        print("탈퇴 에러:", str(e))
         return jsonify({"error": str(e)}), 400
