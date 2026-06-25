@@ -117,22 +117,22 @@ const CardMockup = () => (
 
 const steps = [
   {
-    step: "01", tag: "Archive",
-    title: "경험을 기록해요",
-    desc: "어떤 역할을 맡았는지, 어떤 행동을 했는지, 무엇을 배웠는지 — 구조화된 틀로 경험을 남겨요. AI와 함께 대화하며 채울 수도 있어요.",
-    mockup: <ArchiveMockup />,
+      step: "01", tag: "Archive",
+      title: "경험을 기록해요",
+      desc: "어떤 역할을 맡았는지, 어떤 행동을 했는지,\n무엇을 배웠는지 — 구조화된 틀로 경험을 남겨요.\nAI와 함께 대화하며 채울 수도 있어요.",
+      mockup: <ArchiveMockup />,
   },
   {
-    step: "02", tag: "Insights",
-    title: "패턴을 발견해요",
-    desc: "여러 경험에서 반복되는 키워드와 역할을 시각화해요. AI가 강점을 분석해서 내가 어떤 사람인지 데이터로 보여줘요.",
-    mockup: <InsightsMockup />,
+      step: "02", tag: "Insights",
+      title: "패턴을 발견해요",
+      desc: "여러 경험에서 반복되는 키워드와 역할을 시각화해요.\nAI가 강점을 분석해서\n내가 어떤 사람인지 데이터로 보여줘요.",
+      mockup: <InsightsMockup />,
   },
   {
-    step: "03", tag: "Card",
-    title: "나를 한줄로 표현해요",
-    desc: "AI가 경험들을 종합해서 강점을 분석하고, 한줄 소개로 압축해줘요. Card 페이지에 바로 반영돼요.",
-    mockup: <CardMockup />,
+      step: "03", tag: "Card",
+      title: "나를 한줄로 표현해요",
+      desc: "AI가 경험들을 종합해서 강점을 분석하고,\n한줄 소개로 압축해줘요.\nCard 페이지에 바로 반영돼요.",
+      mockup: <CardMockup />,
   },
 ];
 
@@ -273,14 +273,14 @@ export const Landing = () => {
           <div className="flex flex-col" style={{ gap: 100 }}>
             {steps.map((s, i) => (
               <div key={i} className={`flex flex-col md:flex-row gap-16 items-center ${i % 2 === 1 ? "md:flex-row-reverse" : ""}`}>
-                <div className="flex flex-col gap-4 md:w-90 flex-shrink-0">
+                <div className="flex flex-col gap-4 md:w-80 flex-shrink-0">
                     <div className="flex items-center justify-between">
                         <span style={{ fontSize: 13, fontWeight: 700, color: "#C6C6C7", letterSpacing: 2 }}>{s.step}</span>
                         <span style={{ fontSize: 12, fontWeight: 600, color: "#5D5F5F", background: "#F0EEEE", padding: "3px 10px", borderRadius: 10 }}>{s.tag}</span>
                     </div>
                     <div style={{ width: 32, height: 1, background: "black" }} />
                     <h3 style={{ fontSize: 28, fontWeight: 400, color: "black", lineHeight: "38px" }}>{s.title}</h3>
-                    <p style={{ fontSize: 16, color: "#5D5F5F", lineHeight: "28px" }}>{s.desc}</p>
+                    <p style={{ fontSize: 16, color: "#5D5F5F", lineHeight: "28px", whiteSpace: "pre-line" }}>{s.desc}</p>
                 </div>
                 <div className="flex-1 w-full" style={{ minWidth: 0, overflow: "hidden" }}>
                     {s.mockup}
