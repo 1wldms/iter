@@ -65,6 +65,8 @@ export const Insights = () => {
     const [strength, setStrength] = useState(null);
     const [strengthKeywords, setStrengthKeywords] = useState([]);
     const [strengthLoading, setStrengthLoading] = useState(false);
+    const [compressedBio, setCompressedBio] = useState(null);
+    const [compressLoading, setCompressLoading] = useState(false);
     const [saveSuccess, setSaveSuccess] = useState(false);
     const [saving, setSaving] = useState(false);
 
@@ -72,6 +74,7 @@ export const Insights = () => {
         setStrengthLoading(true);
         setStrength(null);
         setStrengthKeywords([]);
+        setCompressedBio(null);
         setSaveSuccess(false);
         try {
             const res = await authFetch(`${BACKEND_URL}/insights/strengths`, { method: "POST" });
@@ -85,14 +88,29 @@ export const Insights = () => {
         }
     };
 
-    // 프로필 한줄 소개로 저장
+    const handleCompress = async () => {
+        setCompressLoading(true);
+        try {
+            const res = await authFetch(`${BACKEND_URL}/insights/compress`, {
+                method: "POST",
+                body: JSON.stringify({ strength }),
+            });
+            const data = await res.json();
+            setCompressedBio(data.compressed || "");
+        } catch {
+            setCompressedBio("");
+        } finally {
+            setCompressLoading(false);
+        }
+    };
+
     const handleSaveToBio = async () => {
-        if (!strength) return;
+        if (!compressedBio?.trim()) return;
         setSaving(true);
         try {
             const res = await authFetch(`${BACKEND_URL}/bio-candidates/add`, {
                 method: "POST",
-                body: JSON.stringify({ content: strength }),
+                body: JSON.stringify({ content: compressedBio }),
             });
             if (res.ok) setSaveSuccess(true);
         } catch {
@@ -118,9 +136,9 @@ export const Insights = () => {
         fetchData();
     }, []);
 
-    // 경험 로드 완료 후 자동 분석 실행
+    // 경험 로드 후 — 분석 결과 없을 때만 자동 실행
     useEffect(() => {
-        if (!loading && experiences.length > 0) {
+        if (!loading && experiences.length > 0 && !strength) {
             analyzeStrength();
         }
     }, [loading]);
@@ -236,6 +254,7 @@ export const Insights = () => {
 
                     {strength && !strengthLoading && (
                         <div className="flex flex-col gap-4">
+                            {/* 강점 분석 결과 */}
                             <div style={{ background: "white", outline: "1px solid black", outlineOffset: -1, padding: 24 }}>
                                 <p style={{ fontSize: 14, color: "#1B1C1C", lineHeight: "24px" }}>{strength}</p>
                                 {strengthKeywords.length > 0 && (
@@ -251,28 +270,55 @@ export const Insights = () => {
                                 )}
                             </div>
 
-                            {/* 프로필 한줄 소개로 저장 */}
-                            <div className="flex items-center gap-3 flex-wrap">
-                                {saveSuccess ? (
-                                    <span style={{ fontSize: 12, color: "#638866" }}>
-                                        ✓ 정보수정 페이지에서 확인하고 선택할 수 있어요
-                                    </span>
-                                ) : (
-                                    <button type="button" onClick={handleSaveToBio} disabled={saving}
-                                        style={{
-                                            fontSize: 12, padding: "6px 14px",
-                                            outline: "1px solid black", outlineOffset: -1,
-                                            color: "black", background: "white",
-                                            opacity: saving ? 0.5 : 1,
-                                        }}>
-                                        {saving ? "저장 중..." : "한줄 소개 후보로 저장하기"}
-                                    </button>
-                                )}
-                                <button type="button" onClick={analyzeStrength}
-                                    style={{ fontSize: 12, color: "#5D5F5F", textDecoration: "underline" }}>
-                                    다시 분석하기
+                            {/* 한줄 압축 단계 */}
+                            {!compressedBio && !compressLoading && (
+                                <button type="button" onClick={handleCompress}
+                                    style={{ alignSelf: "flex-start", outline: "1px solid black", outlineOffset: -1, background: "white", color: "black", fontSize: 13, padding: "8px 16px" }}>
+                                    한줄로 압축하기 →
                                 </button>
-                            </div>
+                            )}
+
+                            {compressLoading && (
+                                <div className="flex items-center gap-2">
+                                    <div style={{ width: 14, height: 14, border: "2px solid #1B1C1C", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+                                    <p style={{ fontSize: 13, color: "#5D5F5F" }}>한줄로 압축하는 중이에요...</p>
+                                </div>
+                            )}
+
+                            {compressedBio !== null && !compressLoading && (
+                                <div className="flex flex-col gap-2">
+                                    <p style={{ fontSize: 11, fontWeight: 600, color: "#5D5F5F", letterSpacing: 1, textTransform: "uppercase" }}>
+                                        한줄 소개 후보
+                                    </p>
+                                    <textarea
+                                        value={compressedBio}
+                                        onChange={(e) => setCompressedBio(e.target.value)}
+                                        className="w-full outline-none resize-none"
+                                        style={{ border: "1px solid black", padding: 12, fontSize: 13, color: "#1B1C1C", lineHeight: "22px", background: "white" }}
+                                        rows={2}
+                                    />
+                                    <p style={{ fontSize: 11, color: "#C6C6C7" }}>직접 수정할 수 있어요</p>
+                                    <div className="flex items-center gap-3">
+                                        {saveSuccess ? (
+                                            <span style={{ fontSize: 12, color: "#638866" }}>✓ 정보수정 페이지에서 확인하고 선택할 수 있어요</span>
+                                        ) : (
+                                            <button type="button" onClick={handleSaveToBio} disabled={saving}
+                                                style={{ fontSize: 12, padding: "6px 14px", background: "black", color: "white", opacity: saving ? 0.5 : 1 }}>
+                                                {saving ? "저장 중..." : "후보로 저장하기"}
+                                            </button>
+                                        )}
+                                        <button type="button" onClick={() => { setCompressedBio(null); setSaveSuccess(false); }}
+                                            style={{ fontSize: 12, color: "#5D5F5F", textDecoration: "underline" }}>
+                                            다시 압축하기
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
+                            <button type="button" onClick={analyzeStrength}
+                                style={{ alignSelf: "flex-start", fontSize: 12, color: "#5D5F5F", textDecoration: "underline" }}>
+                                다시 분석하기
+                            </button>
                         </div>
                     )}
                 </section>

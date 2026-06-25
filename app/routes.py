@@ -257,8 +257,8 @@ def experiences_add():
         "reflection": data.get('reflection', ''),
         "memo": data.get('memo', ''),
         "keywords": keywords,
-        "start_date": data.get('start_date') or None,
-        "end_date": data.get('end_date') or None,
+        "start_date": (data.get('start_date') + '-01') if len(data.get('start_date') or '') == 7 else (data.get('start_date') or None),
+        "end_date": (data.get('end_date') + '-01') if len(data.get('end_date') or '') == 7 else (data.get('end_date') or None),
     }
 
     try:
@@ -279,11 +279,17 @@ def experience_edit(experience_id):
         return jsonify({"error": "unauthorized"}), 401
     data = request.get_json()
 
-    # 빈 문자열 날짜를 None으로 변환 (DATE 컬럼 에러 방지)
-    if data.get('start_date') == '':
-        data['start_date'] = None
-    if data.get('end_date') == '':
-        data['end_date'] = None
+    # YYYY-MM → YYYY-MM-01 변환
+    for date_field in ['start_date', 'end_date']:
+        val = data.get(date_field, '')
+        if not val:
+            data[date_field] = None
+        elif len(val) == 7:
+            data[date_field] = val + '-01'
+
+    # Supabase에 보내면 안 되는 필드 제거
+    for field in ['id', 'user_id', 'created_at', 'folder_id']:
+        data.pop(field, None)
 
     # 키워드 재추출
     try:
@@ -608,5 +614,33 @@ def bio_candidates_select(candidate_id):
         else:
             supabase.table('user_profiles').insert({"user_id": user.id, "bio_sentence": selected_content}).execute()
         return jsonify({"message": "선택 성공!"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+    
+
+@main.route('/insights/compress', methods=['POST'])
+def insights_compress():
+    user = get_user_from_token(request)
+    if not user:
+        return jsonify({"error": "unauthorized"}), 401
+    data = request.get_json()
+    strength = data.get('strength', '')
+    if not strength:
+        return jsonify({"error": "strength 없음"}), 400
+    try:
+        system = (
+            "당신은 카피라이터입니다. 주어진 강점 분석 문장을 읽고, "
+            "20자 이내의 임팩트 있는 한줄 소개로 압축해주세요.\n\n"
+            "규칙:\n"
+            "1. 20자 이내\n"
+            "2. '~하는 사람' 또는 '~하는 분' 말투\n"
+            "3. 핵심 강점 하나만 담기\n"
+            "4. 추상적 단어(열정, 노력) 금지\n"
+            "예시: '팀의 방향을 잡고 협력으로 완성하는 리더'\n\n"
+            "반드시 JSON만 반환: {\"compressed\": \"...\"}"
+        )
+        messages = [{"role": "user", "content": strength}]
+        result = call_gpt(system, messages)
+        return jsonify(result), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400
