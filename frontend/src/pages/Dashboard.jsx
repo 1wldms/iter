@@ -16,6 +16,7 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://127.0.0.1:5001";
 const ExperienceCard = ({ exp, onClick, folders, onMove }) => (
   <div className="hover:shadow-md transition-shadow"
     style={{ padding: 20, background: "white", outline: "1px solid black", outlineOffset: -1, display: "flex", flexDirection: "column", gap: 6, height: 200, overflow: "hidden" }}>
+
     <div onClick={onClick} className="cursor-pointer flex items-center justify-between">
       <span className="px-2 py-1"
         style={{ borderRadius: 8, outline: "1px solid #7E7576", outlineOffset: -1, color: "#4C4546", fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.70 }}>
@@ -25,16 +26,18 @@ const ExperienceCard = ({ exp, onClick, folders, onMove }) => (
         기록일: {new Date(exp.created_at).toLocaleDateString("ko-KR")}
       </span>
     </div>
+
     <h3 onClick={onClick} className="cursor-pointer" style={{ color: "black", fontSize: 18, fontWeight: 400, lineHeight: "26px", paddingTop: 4, flex: 1 }}>
       {exp.title || exp.role || "제목 없음"}
     </h3>
-    <div className="flex items-center justify-between">
-      <div className="flex gap-2 flex-wrap">
+
+    <div className="flex items-center justify-between gap-2">
+      <div className="flex gap-1 flex-wrap overflow-hidden" style={{ maxHeight: 28 }}>
         {(exp.keywords && exp.keywords.length > 0)
           ? exp.keywords.map((kw, i) => {
               const color = KEYWORD_COLORS[i % KEYWORD_COLORS.length];
               return (
-                <span key={i} style={{ background: color.bg, color: color.text, fontSize: 11, fontWeight: 500, padding: "2px 8px", borderRadius: 4 }}>
+                <span key={i} style={{ background: color.bg, color: color.text, fontSize: 11, fontWeight: 500, padding: "2px 8px", borderRadius: 4, whiteSpace: "nowrap" }}>
                   #{kw}
                 </span>
               );
@@ -46,8 +49,7 @@ const ExperienceCard = ({ exp, onClick, folders, onMove }) => (
         value={exp.folder_id || ""}
         onChange={(e) => onMove(exp.id, e.target.value || null)}
         onClick={(e) => e.stopPropagation()}
-        className="px-1 py-1"
-        style={{ fontSize: 11, color: "#5D5F5F", border: "1px solid #C6C6C7", borderRadius: 4, background: "white" }}
+        style={{ flexShrink: 0, fontSize: 11, color: "#5D5F5F", border: "1px solid #C6C6C7", borderRadius: 4, background: "white", padding: "2px 4px" }}
       >
         <option value="">미분류</option>
         {folders.map((f) => (
