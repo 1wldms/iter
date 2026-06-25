@@ -147,6 +147,13 @@ export const Onboarding = () => {
                 <span style={{ fontSize: 24, fontFamily: "'Playfair Display', serif", fontWeight: 700, marginBottom: 24 }}>
                     ITER
                 </span>
+                {/* 뒤로가기 */}
+                {isEdit && (
+                    <button onClick={() => navigate(-1)}
+                        style={{ alignSelf: "flex-start", fontSize: 13, color: "#5D5F5F", marginBottom: 16, textDecoration: "underline" }}>
+                        ← 돌아가기
+                    </button>
+                )}
 
                 <h1 style={{ fontSize: 26, fontWeight: 400, lineHeight: "36px", marginBottom: 4 }}>
                     {isEdit ? "정보 수정" : "안녕하세요! 👋"}
