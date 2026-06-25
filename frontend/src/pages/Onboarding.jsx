@@ -127,7 +127,7 @@ export const Onboarding = () => {
         { key: "interests", label: "관심 분야", placeholder: "ex. 마케팅, 전략기획, 스타트업" },
         { key: "languages", label: "기술 스택 / 사용 언어", placeholder: "ex. Python, Figma, JavaScript (쉼표로 구분)" },
         { key: "github_url", label: "GitHub / 포트폴리오 링크", placeholder: "ex. github.com/username" },
-        { key: "contact", label: "연락처", placeholder: "ex. hello@email.com" },
+        { key: "contact", label: "연락처", placeholder: "ex. hello@email.com or 010-1234-5678" },
     ];
 
     if (loading) return (
