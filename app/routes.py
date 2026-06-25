@@ -645,3 +645,21 @@ def insights_compress():
         return jsonify(result), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+    
+# 회원 탈퇴
+@main.route('/auth/delete', methods=['POST'])
+def delete_account():
+    user = get_user_from_token(request)
+    if not user:
+        return jsonify({"error": "unauthorized"}), 401
+    try:
+        # 유저 데이터 삭제 (experiences, folders, bio_candidates, user_profiles)
+        supabase.table('bio_candidates').delete().eq('user_id', user.id).execute()
+        supabase.table('experiences').delete().eq('user_id', user.id).execute()
+        supabase.table('folders').delete().eq('user_id', user.id).execute()
+        supabase.table('user_profiles').delete().eq('user_id', user.id).execute()
+        # auth 유저 삭제 (service role 필요)
+        supabase.auth.admin.delete_user(user.id)
+        return jsonify({"message": "탈퇴 완료"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400

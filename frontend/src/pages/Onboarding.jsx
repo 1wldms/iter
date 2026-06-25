@@ -18,6 +18,8 @@ export const Onboarding = () => {
     const [candidates, setCandidates] = useState([]);
     const [editingId, setEditingId] = useState(null);
     const [editingText, setEditingText] = useState("");
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [deleting, setDeleting] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -57,7 +59,6 @@ export const Onboarding = () => {
         if (!form.name.trim()) { setError("이름은 꼭 입력해주세요!"); return; }
         setSaving(true); setError("");
         try {
-            // 현재 선택된 후보의 content를 bio_sentence로 함께 저장
             const selectedCandidate = candidates.find((c) => c.is_selected);
             const res = await authFetch(`${BACKEND_URL}/profile/save`, {
                 method: "POST",
@@ -103,6 +104,23 @@ export const Onboarding = () => {
                 setEditingText("");
             }
         } catch { alert("수정에 실패했어요."); }
+    };
+
+    const handleDeleteAccount = async () => {
+        setDeleting(true);
+        try {
+            const res = await authFetch(`${BACKEND_URL}/auth/delete`, { method: "POST" });
+            if (res.ok) {
+                localStorage.removeItem('access_token');
+                navigate("/");
+            } else {
+                alert("탈퇴에 실패했어요. 다시 시도해주세요.");
+            }
+        } catch {
+            alert("서버에 연결할 수 없어요.");
+        } finally {
+            setDeleting(false);
+        }
     };
 
     const fields = [
@@ -157,7 +175,7 @@ export const Onboarding = () => {
 
                 {error && <p style={{ color: "red", fontSize: 13, marginTop: 12 }}>{error}</p>}
 
-                {/* 한줄 소개 후보 관리 (정보수정 모드에서만) */}
+                {/* 한줄 소개 후보 */}
                 {isEdit && (
                     <div style={{ marginTop: 48, borderTop: "1px solid #E2E2E2", paddingTop: 32 }}>
                         <p style={{ fontSize: 11, fontWeight: 600, color: "#5D5F5F", letterSpacing: 1, textTransform: "uppercase", marginBottom: 6 }}>
@@ -166,7 +184,6 @@ export const Onboarding = () => {
                         <p style={{ fontSize: 12, color: "#C6C6C7", marginBottom: 20 }}>
                             Insights에서 저장한 강점 분석 결과예요. 선택하면 Card에 표시돼요.
                         </p>
-
                         {candidates.length === 0 ? (
                             <p style={{ fontSize: 13, color: "#C6C6C7" }}>
                                 아직 저장된 후보가 없어요. Insights에서 강점 분석을 해보세요!
@@ -206,8 +223,7 @@ export const Onboarding = () => {
                                                 <p style={{ fontSize: 13, color: "#1B1C1C", lineHeight: "22px" }}>{c.content}</p>
                                                 <div className="flex items-center justify-between">
                                                     <div className="flex gap-3">
-                                                        <button type="button"
-                                                            onClick={() => handleSelect(c.id)}
+                                                        <button type="button" onClick={() => handleSelect(c.id)}
                                                             style={{
                                                                 fontSize: 11, padding: "3px 10px",
                                                                 background: c.is_selected ? "black" : "white",
@@ -236,7 +252,7 @@ export const Onboarding = () => {
                     </div>
                 )}
 
-                {/* 수정 완료 버튼 — 하나만 */}
+                {/* 수정 완료 버튼 */}
                 <div className="flex gap-3" style={{ marginTop: 28 }}>
                     {isEdit && (
                         <button onClick={() => navigate(-1)}
@@ -250,7 +266,40 @@ export const Onboarding = () => {
                     </button>
                 </div>
 
+                {/* 회원 탈퇴 */}
+                {isEdit && (
+                    <div style={{ marginTop: 48, paddingTop: 32, borderTop: "1px solid #E2E2E2", textAlign: "center" }}>
+                        <button type="button" onClick={() => setShowDeleteModal(true)}
+                            style={{ fontSize: 13, color: "#C6C6C7", textDecoration: "underline" }}>
+                            회원 탈퇴
+                        </button>
+                    </div>
+                )}
             </div>
+
+            {/* 탈퇴 확인 모달 */}
+            {showDeleteModal && (
+                <div className="fixed inset-0 flex items-center justify-center"
+                    style={{ background: "rgba(0,0,0,0.4)", zIndex: 50 }}>
+                    <div className="flex flex-col"
+                        style={{ background: "white", padding: 32, gap: 16, maxWidth: 360, width: "90%", outline: "1px solid black", outlineOffset: -1 }}>
+                        <h2 style={{ fontSize: 16, fontWeight: 400, color: "black" }}>정말 탈퇴할까요?</h2>
+                        <p style={{ fontSize: 13, color: "#5D5F5F", lineHeight: "20px" }}>
+                            탈퇴하면 모든 경험 기록과 데이터가 영구적으로 삭제돼요. 복구할 수 없어요.
+                        </p>
+                        <div className="flex gap-3">
+                            <button onClick={() => setShowDeleteModal(false)}
+                                style={{ flex: 1, padding: "10px 0", outline: "1px solid black", outlineOffset: -1, fontSize: 13, color: "black" }}>
+                                취소
+                            </button>
+                            <button onClick={handleDeleteAccount} disabled={deleting}
+                                style={{ flex: 1, padding: "10px 0", background: "#C6C6C7", color: "white", fontSize: 13, opacity: deleting ? 0.5 : 1 }}>
+                                {deleting ? "탈퇴 중..." : "탈퇴하기"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

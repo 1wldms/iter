@@ -10,6 +10,8 @@ const policyLinks = [
   { id: "privacy", label: "개인정보처리방침", href: "#" },
 ];
 
+const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
 export const Login = () => {
   const [mode, setMode] = useState("main");
   const [email, setEmail] = useState("");
@@ -25,6 +27,11 @@ export const Login = () => {
   const handleEmailLogin = async () => {
     setLoading(true);
     setMessage("");
+    if (!validateEmail(email)) {
+        setMessage("올바른 이메일 형식이 아니에요.");
+        setLoading(false);
+        return;
+    }
     try {
       const res = await fetch(`${BACKEND_URL}/auth/login`, {
         method: "POST",
@@ -47,8 +54,13 @@ export const Login = () => {
   };
 
   const handleSignup = async () => {
-    setLoading(true);
-    setMessage("");
+      setLoading(true);
+      setMessage("");
+      if (!validateEmail(email)) {
+          setMessage("올바른 이메일 형식이 아니에요.");
+          setLoading(false);
+          return;
+      }
     try {
       const res = await fetch(`${BACKEND_URL}/auth/signup`, {
         method: "POST",
