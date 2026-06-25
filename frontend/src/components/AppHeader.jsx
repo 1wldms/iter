@@ -13,11 +13,12 @@ export const AppHeader = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const handleLogout = async () => {
-    await fetch(`${import.meta.env.VITE_BACKEND_URL || "http://127.0.0.1:5001"}/auth/logout`, {
-      method: "POST",
-      credentials: "include",
-    });
-    navigate("/login");
+      await fetch(`${import.meta.env.VITE_BACKEND_URL || "http://127.0.0.1:5001"}/auth/logout`, {
+          method: "POST",
+          credentials: "include",
+      });
+      localStorage.removeItem('access_token');
+      navigate("/");
   };
 
   return (
