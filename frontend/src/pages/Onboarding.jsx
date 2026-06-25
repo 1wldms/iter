@@ -55,11 +55,14 @@ export const Onboarding = () => {
         if (!form.name.trim()) { setError("이름은 꼭 입력해주세요!"); return; }
         setSaving(true); setError("");
         try {
+            // 현재 선택된 후보의 content를 bio_sentence로 함께 저장
+            const selectedCandidate = candidates.find((c) => c.is_selected);
             const res = await authFetch(`${BACKEND_URL}/profile/save`, {
                 method: "POST",
                 body: JSON.stringify({
                     ...form,
                     languages: form.languages.split(",").map((l) => l.trim()).filter(Boolean),
+                    bio_sentence: selectedCandidate?.content || "",
                 }),
             });
             if (res.ok) navigate("/profile");
@@ -74,7 +77,6 @@ export const Onboarding = () => {
             const res = await authFetch(`${BACKEND_URL}/bio-candidates/${id}/select`, { method: "POST" });
             if (res.ok) {
                 setCandidates((prev) => prev.map((c) => ({ ...c, is_selected: c.id === id })));
-                setTimeout(() => navigate("/profile"), 600);
             }
         } catch { alert("선택에 실패했어요."); }
     };
@@ -152,20 +154,6 @@ export const Onboarding = () => {
 
                 {error && <p style={{ color: "red", fontSize: 13, marginTop: 12 }}>{error}</p>}
 
-                {/* 상단 수정 완료 버튼 */}
-                <div className="flex gap-3" style={{ marginTop: 28 }}>
-                    {isEdit && (
-                        <button onClick={() => navigate(-1)}
-                            style={{ flex: 1, border: "1px solid black", color: "black", padding: "12px 24px", fontSize: 14, background: "transparent" }}>
-                            취소
-                        </button>
-                    )}
-                    <button onClick={handleSave} disabled={saving}
-                        style={{ flex: 2, background: "black", color: "white", padding: "12px 24px", fontSize: 14, fontWeight: 400, opacity: saving ? 0.5 : 1 }}>
-                        {saving ? "저장 중이에요..." : isEdit ? "수정 완료" : "시작할게요 →"}
-                    </button>
-                </div>
-
                 {/* 한줄 소개 후보 관리 (정보수정 모드에서만) */}
                 {isEdit && (
                     <div style={{ marginTop: 48, borderTop: "1px solid #E2E2E2", paddingTop: 32 }}>
@@ -242,20 +230,22 @@ export const Onboarding = () => {
                                 ))}
                             </div>
                         )}
-
-                        {/* 하단 수정 완료 버튼 */}
-                        <div className="flex gap-3" style={{ marginTop: 24 }}>
-                            <button onClick={() => navigate(-1)}
-                                style={{ flex: 1, border: "1px solid black", color: "black", padding: "12px 24px", fontSize: 14, background: "transparent" }}>
-                                취소
-                            </button>
-                            <button onClick={handleSave} disabled={saving}
-                                style={{ flex: 2, background: "black", color: "white", padding: "12px 24px", fontSize: 14, fontWeight: 400, opacity: saving ? 0.5 : 1 }}>
-                                {saving ? "저장 중이에요..." : "수정 완료"}
-                            </button>
-                        </div>
                     </div>
                 )}
+
+                {/* 수정 완료 버튼 — 하나만 */}
+                <div className="flex gap-3" style={{ marginTop: 28 }}>
+                    {isEdit && (
+                        <button onClick={() => navigate(-1)}
+                            style={{ flex: 1, border: "1px solid black", color: "black", padding: "12px 24px", fontSize: 14, background: "transparent" }}>
+                            취소
+                        </button>
+                    )}
+                    <button onClick={handleSave} disabled={saving}
+                        style={{ flex: 2, background: "black", color: "white", padding: "12px 24px", fontSize: 14, fontWeight: 400, opacity: saving ? 0.5 : 1 }}>
+                        {saving ? "저장 중이에요..." : isEdit ? "수정 완료" : "시작할게요 →"}
+                    </button>
+                </div>
 
             </div>
         </div>
