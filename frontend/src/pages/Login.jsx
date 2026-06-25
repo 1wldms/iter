@@ -70,7 +70,7 @@ export const Login = () => {
       });
       const data = await res.json();
       if (res.ok) {
-        setMessage("가입 완료! 이메일 인증 후 로그인해주세요.");
+        setMessage("가입 완료! 이제 로그인해주세요.");
         setMode("login");
       } else {
         setMessage(data.error || "회원가입에 실패했어요.");
@@ -96,16 +96,14 @@ export const Login = () => {
               body: JSON.stringify({ email }),
           });
           const data = await res.json();
+          // handleForgotPassword 성공 시
           if (res.ok) {
               setMessage("재설정 링크를 이메일로 보냈어요!");
               setMode("login");
-          } else {
-              const errMsg = data.error || "";
-              if (errMsg.toLowerCase().includes("rate limit")) {
-                  setMessage("잠시 후 다시 시도해주세요. (이메일 발송 제한)");
-              } else {
-                  setMessage("실패했어요. 다시 시도해주세요.");
-              }
+          }
+          // rate limit 에러 처리
+          if (errMsg.toLowerCase().includes("rate limit")) {
+              setMessage("잠시 후 다시 시도해주세요. (이메일 발송 제한)");
           }
       } catch {
           setMessage("서버에 연결할 수 없어요.");
