@@ -1,10 +1,7 @@
 from flask import Blueprint, jsonify, request, redirect
-print("routes: flask imported")
 from app.supabase_client import supabase
-print("routes: supabase imported")
 import os
 import json
-print("routes: os/json imported")
 from app.ai_prompts import (
     get_next_empty_field,
     build_session_messages,
@@ -12,9 +9,15 @@ from app.ai_prompts import (
     build_keyword_extraction_messages,
     EXPERIENCE_FIELDS,
 )
-print("routes: ai_prompts imported")
 from openai import OpenAI
-print("routes: openai imported")
+from supabase import create_client
+
+
+# 맨 위 client 설정 부분에 추가
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY")
+supabase_admin = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
+
 
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 BACKEND_URL = os.getenv("BACKEND_URL", "http://127.0.0.1:5001")
@@ -653,13 +656,12 @@ def delete_account():
     if not user:
         return jsonify({"error": "unauthorized"}), 401
     try:
-        # 유저 데이터 삭제 (experiences, folders, bio_candidates, user_profiles)
         supabase.table('bio_candidates').delete().eq('user_id', user.id).execute()
         supabase.table('experiences').delete().eq('user_id', user.id).execute()
         supabase.table('folders').delete().eq('user_id', user.id).execute()
         supabase.table('user_profiles').delete().eq('user_id', user.id).execute()
-        # auth 유저 삭제 (service role 필요)
-        supabase.auth.admin.delete_user(user.id)
+        # admin client로 auth 유저 삭제
+        supabase_admin.auth.admin.delete_user(user.id)
         return jsonify({"message": "탈퇴 완료"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400
