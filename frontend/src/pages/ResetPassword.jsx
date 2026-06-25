@@ -12,11 +12,19 @@ export const ResetPassword = () => {
     const [token, setToken] = useState("");
 
     useEffect(() => {
-        // URL 해시에서 access_token 추출
         const hash = window.location.hash;
-        const params = new URLSearchParams(hash.replace("#", "?"));
+        const params = new URLSearchParams(hash.substring(1)); // # 제거
         const accessToken = params.get("access_token");
-        if (accessToken) {
+        const type = params.get("type");
+        
+        console.log("hash:", hash);
+        console.log("access_token:", accessToken);
+        console.log("type:", type);
+        
+        if (accessToken && type === "recovery") {
+            setToken(accessToken);
+            saveToken(accessToken);
+        } else if (accessToken) {
             setToken(accessToken);
             saveToken(accessToken);
         } else {

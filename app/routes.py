@@ -688,15 +688,21 @@ def reset_password():
 # 비밀번호 변경
 @main.route('/auth/update-password', methods=['POST'])
 def update_password():
-    user = get_user_from_token(request)
-    if not user:
+    auth_header = request.headers.get('Authorization')
+    if not auth_header:
         return jsonify({"error": "unauthorized"}), 401
+    token = auth_header.replace('Bearer ', '')
     data = request.get_json()
     password = data.get('password')
     if not password or len(password) < 6:
         return jsonify({"error": "비밀번호는 6자 이상이어야 해요"}), 400
     try:
-        supabase.auth.update_user({"password": password})
+        # admin client로 유저 조회 후 비밀번호 변경
+        user = supabase.auth.get_user(token)
+        supabase_admin.auth.admin.update_user_by_id(
+            user.user.id,
+            {"password": password}
+        )
         return jsonify({"message": "비밀번호 변경 성공!"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400
