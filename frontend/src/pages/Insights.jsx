@@ -41,7 +41,7 @@ function WordCloud({ keywords }) {
             {keywords.map(([kw, count], i) => {
                 const color = KEYWORD_COLORS[i % KEYWORD_COLORS.length];
                 const ratio = count / maxCount;
-                const fontSize = 14 + Math.round(ratio * 14);
+                const fontSize = 13 + Math.round(ratio * 14);
                 const fontWeight = ratio === 1 ? 700 : ratio > 0.6 ? 600 : 400;
                 const pos = positions[i] || { top: `${10 + i * 8}%`, left: `${10 + i * 7}%` };
                 return (
@@ -183,19 +183,19 @@ export const Insights = () => {
             <AppHeader />
 
             <main className="w-full mx-auto flex flex-col px-4 md:px-16"
-                style={{ maxWidth: 1080, paddingTop: 48, paddingBottom: 80, gap: 56 }}>
+                style={{ maxWidth: 1080, paddingTop: 48, paddingBottom: 80, gap: 40 }}>
 
                 {/* 헤더 */}
                 <div>
-                    <h1 style={{ fontSize: 32, fontWeight: 400, color: "black" }}>Insights</h1>
-                    <p style={{ fontSize: 15, color: "#5D5F5F", marginTop: 8 }}>
+                    <h1 style={{ fontSize: 36, fontWeight: 400, color: "black" }}>Insights</h1>
+                    <p style={{ fontSize: 16, color: "#5D5F5F", marginTop: 8 }}>
                         {experiences.length}개의 경험에서 발견한 나의 패턴
                     </p>
                 </div>
 
                 {/* 1. 키워드 워드클라우드 */}
                 <section>
-                    <p style={{ fontSize: 11, fontWeight: 600, color: "#5D5F5F", letterSpacing: 1, textTransform: "uppercase", marginBottom: 24 }}>
+                    <p style={{ fontSize: 11, fontWeight: 600, color: "#5D5F5F", letterSpacing: 1, textTransform: "uppercase", marginBottom: 16 }}>
                         자주 등장한 키워드
                     </p>
                     <WordCloud keywords={keywords} />

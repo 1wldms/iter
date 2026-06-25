@@ -27,7 +27,7 @@ export const AppHeader = () => {
 
         {/* 로고 */}
         <button onClick={() => navigate("/profile")}
-          style={{ color: "black", fontSize: 28, fontFamily: "'Playfair Display', serif", fontWeight: 700, lineHeight: "41.6px" }}>
+          style={{ color: "black", fontSize: 32, fontFamily: "'Playfair Display', serif", fontWeight: 700, lineHeight: "41.6px" }}>
           ITER
         </button>
 
