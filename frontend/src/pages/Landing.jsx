@@ -282,8 +282,8 @@ export const Landing = () => {
                     <h3 style={{ fontSize: 28, fontWeight: 400, color: "black", lineHeight: "38px" }}>{s.title}</h3>
                     <p style={{ fontSize: 16, color: "#5D5F5F", lineHeight: "28px" }}>{s.desc}</p>
                 </div>
-                <div className="flex-1 w-full">
-                  {s.mockup}
+                <div className="flex-1 w-full" style={{ minWidth: 0, overflow: "hidden" }}>
+                    {s.mockup}
                 </div>
               </div>
             ))}
