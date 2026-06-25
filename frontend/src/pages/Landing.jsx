@@ -87,13 +87,13 @@ const CardMockup = () => (
     <div style={{ background: "#FBF9F9", padding: "8px 16px", borderBottom: "1px solid #E2E2E2", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
       <span style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: 14 }}>ITER</span>
       <div style={{ display: "flex", gap: 12 }}>
-        {["Card", "Insights", "Archive"].map(l => <span key={l} style={{ fontSize: 14, color: "#5D5F5F", fontFamily: "'Playfair Display', serif" }}>{l}</span>)}
+        {["Card", "Insights", "Archive"].map(l => <span key={l} style={{ fontSize: 12, color: "#5D5F5F", fontFamily: "'Playfair Display', serif" }}>{l}</span>)}
       </div>
     </div>
     <div style={{ padding: 32, display: "flex", gap: 24, alignItems: "flex-start", minHeight: 280 }}>
       <div style={{ flex: 1 }}>
         <div style={{ width: 24, height: 2, background: "black", marginBottom: 20 }} />
-        <div style={{ fontSize: 40, fontWeight: 400, color: "black", marginBottom: 14 }}>김서연</div>
+        <div style={{ fontSize: 40, fontWeight: 400, color: "black", marginBottom: 14 }}>김이터</div>
         <div style={{ fontSize: 13, color: "#5D5F5F", lineHeight: "22px" }}>
           데이터를 기반으로 문제를 정의하고<br />팀과 함께 실행하는 기획자
         </div>
@@ -101,9 +101,9 @@ const CardMockup = () => (
       <div style={{ borderLeft: "1px solid black", paddingLeft: 24, minWidth: 160 }}>
         {[
           { label: "사용 언어 / 스킬", value: "Python, Figma, SQL" },
-          { label: "학교 / 학과", value: "연세대 경영학과" },
-          { label: "링크", value: "github.com/seoyeon" },
-          { label: "연락처", value: "seoyeon@gmail.com" },
+          { label: "학교 / 학과", value: "연세대 응용정보공학전공" },
+          { label: "링크", value: "github.com/kim-iter" },
+          { label: "연락처", value: "iter@example.com" },
         ].map((row, i) => (
           <div key={i} style={{ borderBottom: "1px solid #DBDAD9", paddingBottom: 12, marginBottom: 12 }}>
             <div style={{ fontSize: 10, color: "#5D5F5F", marginBottom: 4 }}>{row.label}</div>
@@ -274,13 +274,13 @@ export const Landing = () => {
             {steps.map((s, i) => (
               <div key={i} className={`flex flex-col md:flex-row gap-16 items-center ${i % 2 === 1 ? "md:flex-row-reverse" : ""}`}>
                 <div className="flex flex-col gap-4 md:w-80 flex-shrink-0">
-                  <div className="flex items-center justify-between">
-                    <span style={{ fontSize: 11, fontWeight: 700, color: "#C6C6C7", letterSpacing: 2 }}>{s.step}</span>
-                    <span style={{ fontSize: 10, fontWeight: 600, color: "#5D5F5F", background: "#F0EEEE", padding: "2px 8px", borderRadius: 10 }}>{s.tag}</span>
-                  </div>
-                  <div style={{ width: 32, height: 1, background: "black" }} />
-                  <h3 style={{ fontSize: 24, fontWeight: 400, color: "black", lineHeight: "34px" }}>{s.title}</h3>
-                  <p style={{ fontSize: 15, color: "#5D5F5F", lineHeight: "26px" }}>{s.desc}</p>
+                    <div className="flex items-center justify-between">
+                        <span style={{ fontSize: 13, fontWeight: 700, color: "#C6C6C7", letterSpacing: 2 }}>{s.step}</span>
+                        <span style={{ fontSize: 12, fontWeight: 600, color: "#5D5F5F", background: "#F0EEEE", padding: "3px 10px", borderRadius: 10 }}>{s.tag}</span>
+                    </div>
+                    <div style={{ width: 32, height: 1, background: "black" }} />
+                    <h3 style={{ fontSize: 28, fontWeight: 400, color: "black", lineHeight: "38px" }}>{s.title}</h3>
+                    <p style={{ fontSize: 16, color: "#5D5F5F", lineHeight: "28px" }}>{s.desc}</p>
                 </div>
                 <div className="flex-1 w-full">
                   {s.mockup}
