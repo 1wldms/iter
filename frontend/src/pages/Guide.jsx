@@ -123,13 +123,17 @@ export const Guide = () => {
                         <p style={{ fontSize: 11, fontWeight: 600, color: "#5D5F5F", letterSpacing: 1, textTransform: "uppercase", marginBottom: 8 }}>
                             {guide.label}
                         </p>
-                        <p style={{ fontSize: 18, fontWeight: 400, color: "black", marginBottom: 12 }}>{guide.tagline}</p>
+                        <h2 style={{ fontSize: 22, fontWeight: 400, color: "black", marginBottom: 12 }}>
+                            {guide.tagline}
+                        </h2>
                         <p style={{ fontSize: 14, color: "#5D5F5F", lineHeight: "24px" }}>{guide.intro}</p>
                     </div>
 
                     {guide.sections.map((section, i) => (
                         <div key={i} style={{ paddingBottom: 32, borderBottom: "1px solid #E2E2E2" }}>
-                            <h3 style={{ fontSize: 16, fontWeight: 500, color: "black", marginBottom: 12 }}>{section.title}</h3>
+                            <h3 style={{ fontSize: 16, fontWeight: 600, color: "black", marginBottom: 12 }}>
+                                {section.title}
+                            </h3>
                             <p style={{ fontSize: 14, color: "#5D5F5F", lineHeight: "24px", marginBottom: section.items ? 16 : 0 }}>
                                 {section.desc}
                             </p>
