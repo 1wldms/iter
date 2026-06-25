@@ -194,7 +194,7 @@ export const Login = () => {
           {/* 이전으로 */}
           <div className="mt-8 flex w-full justify-center">
             <button type="button"
-              onClick={() => mode === "main" ? window.history.back() : setMode("main")}
+              onClick={() => mode === "main" ? window.location.href = "/" : setMode("main")}
               className="flex items-center gap-1 text-base text-[#5d5f5f]">
               <img className="h-[9px] w-[9px]" alt="" src={arrowLeft} aria-hidden="true" />
               <span>이전으로</span>
