@@ -87,7 +87,7 @@ const CardMockup = () => (
     <div style={{ background: "#FBF9F9", padding: "8px 16px", borderBottom: "1px solid #E2E2E2", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
       <span style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: 14 }}>ITER</span>
       <div style={{ display: "flex", gap: 12 }}>
-        {["Card", "Insights", "Archive"].map(l => <span key={l} style={{ fontSize: 10, color: "#5D5F5F", fontFamily: "'Playfair Display', serif" }}>{l}</span>)}
+        {["Card", "Insights", "Archive"].map(l => <span key={l} style={{ fontSize: 14, color: "#5D5F5F", fontFamily: "'Playfair Display', serif" }}>{l}</span>)}
       </div>
     </div>
     <div style={{ padding: 32, display: "flex", gap: 24, alignItems: "flex-start", minHeight: 280 }}>
