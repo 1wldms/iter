@@ -90,23 +90,23 @@ const CardMockup = () => (
         {["Card", "Insights", "Archive"].map(l => <span key={l} style={{ fontSize: 10, color: "#5D5F5F", fontFamily: "'Playfair Display', serif" }}>{l}</span>)}
       </div>
     </div>
-    <div style={{ padding: 28, display: "flex", gap: 20, alignItems: "center" }}>
+    <div style={{ padding: 32, display: "flex", gap: 24, alignItems: "flex-start", minHeight: 280 }}>
       <div style={{ flex: 1 }}>
-        <div style={{ width: 24, height: 2, background: "black", marginBottom: 16 }} />
-        <div style={{ fontSize: 36, fontWeight: 400, color: "black", marginBottom: 10, fontFamily: "sans-serif" }}>김서연</div>
-        <div style={{ fontSize: 13, color: "#5D5F5F", lineHeight: "20px" }}>
+        <div style={{ width: 24, height: 2, background: "black", marginBottom: 20 }} />
+        <div style={{ fontSize: 40, fontWeight: 400, color: "black", marginBottom: 14 }}>김서연</div>
+        <div style={{ fontSize: 13, color: "#5D5F5F", lineHeight: "22px" }}>
           데이터를 기반으로 문제를 정의하고<br />팀과 함께 실행하는 기획자
         </div>
       </div>
-      <div style={{ borderLeft: "1px solid black", paddingLeft: 20, minWidth: 140 }}>
+      <div style={{ borderLeft: "1px solid black", paddingLeft: 24, minWidth: 160 }}>
         {[
           { label: "사용 언어 / 스킬", value: "Python, Figma, SQL" },
           { label: "학교 / 학과", value: "연세대 경영학과" },
           { label: "링크", value: "github.com/seoyeon" },
           { label: "연락처", value: "seoyeon@gmail.com" },
         ].map((row, i) => (
-          <div key={i} style={{ borderBottom: "1px solid #DBDAD9", paddingBottom: 10, marginBottom: 10 }}>
-            <div style={{ fontSize: 10, color: "#5D5F5F", marginBottom: 3 }}>{row.label}</div>
+          <div key={i} style={{ borderBottom: "1px solid #DBDAD9", paddingBottom: 12, marginBottom: 12 }}>
+            <div style={{ fontSize: 10, color: "#5D5F5F", marginBottom: 4 }}>{row.label}</div>
             <div style={{ fontSize: 12, color: "black" }}>{row.value}</div>
           </div>
         ))}

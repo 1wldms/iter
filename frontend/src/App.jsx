@@ -10,6 +10,7 @@ import { Onboarding } from "./pages/Onboarding";
 import { ExperienceDetail } from "./pages/ExperienceDetail";
 import { ExperienceEdit } from "./pages/ExperienceEdit";
 import { Insights } from "./pages/Insights";
+import { Guide } from "./pages/Guide";
 
 
 
@@ -28,6 +29,7 @@ function App() {
         <Route path="/experiences/:id" element={<ExperienceDetail />} />
         <Route path="/experiences/:id/edit" element={<ExperienceEdit />} />
         <Route path="/insights" element={<Insights />} />
+        <Route path="/guide" element={<Guide />} />
       </Routes>
     </BrowserRouter>
   );

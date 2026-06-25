@@ -51,7 +51,7 @@ export const AppHeader = () => {
         {/* 데스크톱 버튼 */}
         <div className="hidden md:flex items-center gap-4">
             <button
-                onClick={() => navigate("/")}
+                onClick={() => navigate("/guide")}
                 style={{ width: 32, height: 32, borderRadius: "50%", outline: "1px solid #C6C6C7", outlineOffset: -1, color: "#5D5F5F", fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center" }}
                 title="사용 방법 보기"
             >
