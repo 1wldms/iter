@@ -8,8 +8,7 @@ export const Onboarding = () => {
     const navigate = useNavigate();
     const [form, setForm] = useState({
         name: "", school: "", department: "",
-        interests: "",
-        languages: "", github_url: "", contact: "",
+        interests: "", languages: "", github_url: "", contact: "",
     });
     const [saving, setSaving] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -20,6 +19,7 @@ export const Onboarding = () => {
     const [editingText, setEditingText] = useState("");
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deleting, setDeleting] = useState(false);
+    const [userEmail, setUserEmail] = useState("");
 
     useEffect(() => {
         const fetchData = async () => {
@@ -30,6 +30,7 @@ export const Onboarding = () => {
                 ]);
                 if (profileRes.ok) {
                     const data = await profileRes.json();
+                    setUserEmail(data.user?.email || "");
                     if (data.profile) {
                         setIsEdit(true);
                         setForm({
@@ -78,9 +79,7 @@ export const Onboarding = () => {
     const handleSelect = async (id) => {
         try {
             const res = await authFetch(`${BACKEND_URL}/bio-candidates/${id}/select`, { method: "POST" });
-            if (res.ok) {
-                setCandidates((prev) => prev.map((c) => ({ ...c, is_selected: c.id === id })));
-            }
+            if (res.ok) setCandidates((prev) => prev.map((c) => ({ ...c, is_selected: c.id === id })));
         } catch { alert("선택에 실패했어요."); }
     };
 
@@ -118,9 +117,7 @@ export const Onboarding = () => {
             }
         } catch {
             alert("서버에 연결할 수 없어요.");
-        } finally {
-            setDeleting(false);
-        }
+        } finally { setDeleting(false); }
     };
 
     const fields = [
@@ -156,6 +153,24 @@ export const Onboarding = () => {
 
                 {/* 기본 정보 필드 */}
                 <div className="flex flex-col" style={{ gap: 20 }}>
+
+                    {/* 가입 이메일 — 읽기 전용 */}
+                    {userEmail && (
+                        <div className="flex flex-col" style={{ gap: 4 }}>
+                            <label style={{ fontSize: 12, color: "#5D5F5F", letterSpacing: 1 }}>
+                                가입 이메일
+                            </label>
+                            <div style={{
+                                borderBottom: "1px solid #E2E2E2", paddingBottom: 8, paddingTop: 4,
+                                fontSize: 14, color: "#C6C6C7",
+                                display: "flex", alignItems: "center", justifyContent: "space-between"
+                            }}>
+                                <span>{userEmail}</span>
+                                <span style={{ fontSize: 11, color: "#C6C6C7" }}>수정 불가</span>
+                            </div>
+                        </div>
+                    )}
+
                     {fields.map((field) => (
                         <div key={field.key} className="flex flex-col" style={{ gap: 4 }}>
                             <label style={{ fontSize: 12, color: "#5D5F5F", letterSpacing: 1 }}>
