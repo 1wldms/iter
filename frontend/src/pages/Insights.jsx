@@ -62,8 +62,11 @@ export const Insights = () => {
     const navigate = useNavigate();
     const [experiences, setExperiences] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [strength, setStrength] = useState(null);
-    const [strengthKeywords, setStrengthKeywords] = useState([]);
+    const [strength, setStrength] = useState(() => sessionStorage.getItem('insight_strength') || null);
+    const [strengthKeywords, setStrengthKeywords] = useState(() => {
+        const saved = sessionStorage.getItem('insight_keywords');
+        return saved ? JSON.parse(saved) : [];
+    });
     const [strengthLoading, setStrengthLoading] = useState(false);
     const [compressedBio, setCompressedBio] = useState(null);
     const [compressLoading, setCompressLoading] = useState(false);
@@ -79,8 +82,13 @@ export const Insights = () => {
         try {
             const res = await authFetch(`${BACKEND_URL}/insights/strengths`, { method: "POST" });
             const data = await res.json();
-            setStrength(data.strength || "분석 결과를 가져오지 못했어요.");
-            setStrengthKeywords(data.keywords || []);
+            const s = data.strength || "분석 결과를 가져오지 못했어요.";
+            const k = data.keywords || [];
+            setStrength(s);
+            setStrengthKeywords(k);
+            // 캐시 저장
+            sessionStorage.setItem('insight_strength', s);
+            sessionStorage.setItem('insight_keywords', JSON.stringify(k));
         } catch {
             setStrength("분석 중 오류가 발생했어요. 다시 시도해주세요.");
         } finally {
