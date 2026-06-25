@@ -179,9 +179,14 @@ export const Insights = () => {
                 </div>
 
                 <div style={{ background: "white", outline: "1px solid black", outlineOffset: -1, padding: 32 }}>
-                    <p style={{ fontSize: 11, fontWeight: 600, color: "#5D5F5F", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 20 }}>
+                    <p style={{ fontSize: 11, fontWeight: 600, color: "#5D5F5F", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 8 }}>
                         Insights에서 할 수 있는 것들
                     </p>
+                    {/* 제목 추가 */}
+                    <h2 style={{ fontSize: 22, fontWeight: 400, color: "black", marginBottom: 8, lineHeight: "32px" }}>
+                        경험이 쌓이면, 나의 패턴이 보여요
+                    </h2>
+                    <div style={{ width: 32, height: 1, background: "black", marginBottom: 24 }} />
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6" style={{ marginBottom: 32 }}>
                         {[
                             { icon: "☁️", title: "키워드 클라우드", desc: "경험마다 AI가 추출한 키워드를 모아서 내가 자주 쓰는 역량과 강점이 무엇인지 한눈에 보여줘요. 경험이 많을수록 더 선명해져요." },

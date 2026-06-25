@@ -227,9 +227,10 @@ export const Dashboard = () => {
               <p style={{ fontSize: 11, fontWeight: 600, color: "#5D5F5F", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 12 }}>
                 How it works
               </p>
-              <h2 style={{ fontSize: 22, fontWeight: 400, color: "black", marginBottom: 24, lineHeight: "32px" }}>
-                ITER는 이렇게 사용해요
+              <h2 style={{ fontSize: 22, fontWeight: 400, color: "black", marginBottom: 8, lineHeight: "32px" }}>
+                  ITER는 이렇게 사용해요
               </h2>
+              <div style={{ width: 32, height: 1, background: "black", marginBottom: 24 }} />
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6" style={{ marginBottom: 28 }}>
                 {[
                   { step: "01", tag: "Archive", title: "경험을 기록해요", desc: "역할, 배경, 액션, 결과까지 구조화된 틀로 경험을 남겨요. AI와 함께 대화하며 채울 수도 있어요." },

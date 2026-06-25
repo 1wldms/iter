@@ -123,9 +123,10 @@ export const Guide = () => {
                         <p style={{ fontSize: 11, fontWeight: 600, color: "#5D5F5F", letterSpacing: 1, textTransform: "uppercase", marginBottom: 8 }}>
                             {guide.label}
                         </p>
-                        <h2 style={{ fontSize: 22, fontWeight: 400, color: "black", marginBottom: 12 }}>
+                        <h2 style={{ fontSize: 26, fontWeight: 400, color: "black", marginBottom: 12 }}>
                             {guide.tagline}
                         </h2>
+                        <div style={{ width: 32, height: 1, background: "black", marginBottom: 16 }} />
                         <p style={{ fontSize: 14, color: "#5D5F5F", lineHeight: "24px" }}>{guide.intro}</p>
                     </div>
 
