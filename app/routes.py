@@ -153,14 +153,15 @@ def profile_save():
     data = request.get_json()
     profile_data = {
         "user_id": user.id,
-        "name": data.get('name', ''), 
+        "name": data.get('name', ''),
         "languages": data.get('languages', []),
         "school": data.get('school', ''),
         "department": data.get('department', ''),
         "github_url": data.get('github_url', ''),
         "resume_url": data.get('resume_url', ''),
         "contact": data.get('contact', ''),
-        "bio_sentence": data.get('bio_sentence', '')
+        "bio_sentence": data.get('bio_sentence', ''),
+        "interests": data.get('interests', ''),
     }
     try:
         existing = supabase.table('user_profiles').select('id').eq('user_id', user.id).execute()

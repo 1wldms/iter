@@ -45,6 +45,7 @@ export const Profile = () => {
   }
 
   const displayName = user?.name || "이름 없음";
+  const interests = profile?.interests || "";
   const languages = profile?.languages?.join(", ") || "";
   const school = [profile?.school, profile?.department].filter(Boolean).join(" ") || "";
   const link = profile?.github_url || "";
@@ -52,11 +53,12 @@ export const Profile = () => {
   const bio = profile?.bio_sentence || null;
 
   const infoRows = [
-    { label: "사용 언어", value: languages },
-    { label: "학교 / 학과", value: school },
-    { label: "링크", value: link },
-    { label: "연락처", value: contact },
-  ];
+      { label: "관심 분야", value: interests },
+      { label: "기술 스택", value: languages },
+      { label: "학교 / 학과", value: school },
+      { label: "링크", value: link },
+      { label: "연락처", value: contact },
+  ].filter((row) => row.value);
 
   return (
     <div className="w-full bg-white flex flex-col" style={{ minHeight: "100vh" }}>

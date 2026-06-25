@@ -8,6 +8,7 @@ export const Onboarding = () => {
     const navigate = useNavigate();
     const [form, setForm] = useState({
         name: "", school: "", department: "",
+        interests: "",
         languages: "", github_url: "", contact: "",
     });
     const [saving, setSaving] = useState(false);
@@ -33,6 +34,7 @@ export const Onboarding = () => {
                             name: data.profile?.name || data.user?.name || "",
                             school: data.profile.school || "",
                             department: data.profile.department || "",
+                            interests: data.profile.interests || "",
                             languages: (data.profile.languages || []).join(", "),
                             github_url: data.profile.github_url || "",
                             contact: data.profile.contact || "",
@@ -107,7 +109,8 @@ export const Onboarding = () => {
         { key: "name", label: "이름", placeholder: "최대 6자", required: true },
         { key: "school", label: "학교", placeholder: "ex. 연세대학교" },
         { key: "department", label: "학과", placeholder: "ex. 컴퓨터공학부" },
-        { key: "languages", label: "사용 언어 / 스킬", placeholder: "ex. Python, Figma, JavaScript (쉼표로 구분)" },
+        { key: "interests", label: "관심 분야", placeholder: "ex. 마케팅, 전략기획, 스타트업" },
+        { key: "languages", label: "기술 스택 / 사용 언어", placeholder: "ex. Python, Figma, JavaScript (쉼표로 구분)" },
         { key: "github_url", label: "GitHub / 포트폴리오 링크", placeholder: "ex. github.com/username" },
         { key: "contact", label: "연락처", placeholder: "ex. hello@email.com" },
     ];
