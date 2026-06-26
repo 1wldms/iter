@@ -140,6 +140,20 @@ export const Dashboard = () => {
     }
   };
 
+  const handleDeleteFolder = async (folderId) => {
+    if (!window.confirm("폴더를 삭제할까요? 안에 있던 경험은 미분류로 이동돼요.")) return;
+    try {
+      const res = await authFetch(`${BACKEND_URL}/folders/${folderId}/delete`, { method: "POST" });
+      if (res.ok) {
+        setFolders((prev) => prev.filter((f) => f.id !== folderId));
+        setExperiences((prev) => prev.map((exp) => exp.folder_id === folderId ? { ...exp, folder_id: null } : exp));
+        if (selectedFolder === folderId) setSelectedFolder(null);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const sortedExperiences = [...experiences].sort((a, b) => {
     const dateA = new Date(a.created_at);
     const dateB = new Date(b.created_at);
@@ -182,10 +196,17 @@ export const Dashboard = () => {
             전체
           </button>
           {folders.map((folder) => (
-            <button key={folder.id} onClick={() => setSelectedFolder(folder.id)}
-              style={{ height: 30, padding: "0 12px", borderRadius: 16, background: selectedFolder === folder.id ? "black" : "#F5F3F3", color: selectedFolder === folder.id ? "white" : "#4C4546", fontSize: 13, fontWeight: 400, whiteSpace: "nowrap" }}>
-              {folder.name}
-            </button>
+            <div key={folder.id} className="flex items-center"
+              style={{ height: 30, borderRadius: 16, background: selectedFolder === folder.id ? "black" : "#F5F3F3" }}>
+              <button onClick={() => setSelectedFolder(folder.id)}
+                style={{ padding: "0 8px 0 12px", color: selectedFolder === folder.id ? "white" : "#4C4546", fontSize: 13, fontWeight: 400, whiteSpace: "nowrap" }}>
+                {folder.name}
+              </button>
+              <button onClick={(e) => { e.stopPropagation(); handleDeleteFolder(folder.id); }}
+                style={{ paddingRight: 8, color: selectedFolder === folder.id ? "#C6C6C7" : "#C6C6C7", fontSize: 12, lineHeight: 1 }}>
+                ×
+              </button>
+            </div>
           ))}
           {showFolderInput ? (
             <div className="flex items-center gap-1">
