@@ -199,11 +199,11 @@ export const Dashboard = () => {
             <div key={folder.id} className="flex items-center"
               style={{ height: 30, borderRadius: 16, background: selectedFolder === folder.id ? "black" : "#F5F3F3" }}>
               <button onClick={() => setSelectedFolder(folder.id)}
-                style={{ padding: "0 8px 0 12px", color: selectedFolder === folder.id ? "white" : "#4C4546", fontSize: 13, fontWeight: 400, whiteSpace: "nowrap" }}>
+                style={{ padding: "0 8px 0 12px", color: selectedFolder === folder.id ? "white" : "#4C4546", fontSize: 13, whiteSpace: "nowrap" }}>
                 {folder.name}
               </button>
               <button onClick={(e) => { e.stopPropagation(); handleDeleteFolder(folder.id); }}
-                style={{ paddingRight: 8, color: selectedFolder === folder.id ? "#C6C6C7" : "#C6C6C7", fontSize: 12, lineHeight: 1 }}>
+                style={{ paddingRight: 10, color: selectedFolder === folder.id ? "#aaa" : "#C6C6C7", fontSize: 14, lineHeight: 1 }}>
                 ×
               </button>
             </div>
