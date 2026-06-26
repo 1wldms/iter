@@ -241,19 +241,27 @@ export const AISession = () => {
   };
 
   const handleSaveAll = async () => {
-    const finalFields = { ...fields, [targetField]: editValues[targetField] };
+    const finalFields = { ...fields };
+    if (targetField) finalFields[targetField] = editValues[targetField];
+    
     try {
       const experienceId = finalFields.id;
       const url = experienceId
         ? `${BACKEND_URL}/experiences/${experienceId}/edit`
         : `${BACKEND_URL}/experiences/add`;
       const res = await authFetch(url, { method: "POST", body: JSON.stringify(finalFields) });
+      if (res.status === 401) return; // authFetch가 이미 로그인 페이지로 보냄
       const data = await res.json();
       if (res.ok) {
         const id = experienceId || data.experience.id;
         navigate(`/experiences/${id}`);
+      } else {
+        alert("저장에 실패했어요. 다시 시도해주세요.");
       }
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+      alert("저장 중 오류가 생겼어요.");
+    }
   };
 
   const autoResize = (e) => {

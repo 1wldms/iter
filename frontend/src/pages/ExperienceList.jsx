@@ -38,6 +38,10 @@ export const ExperienceList = () => {
 
       <main className="flex flex-col">
         <div className="flex flex-col items-center gap-1 pb-6 pt-8 px-4">
+          <button onClick={() => navigate("/dashboard")}
+            style={{ alignSelf: "flex-start", fontSize: 13, color: "#5D5F5F", marginBottom: 8, textDecoration: "underline" }}>
+            ← 돌아가기
+          </button>
           <h1 style={{ color: "#1B1C1C", fontSize: 22, fontWeight: 400, lineHeight: "32px", textAlign: "center" }}>
             모든 경험을 펼쳐보아요
           </h1>

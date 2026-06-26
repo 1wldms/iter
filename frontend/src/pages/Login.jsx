@@ -42,7 +42,7 @@ export const Login = () => {
       const data = await res.json();
       if (res.ok) {
         saveToken(data.access_token);
-        window.location.href = "/profile";
+        window.location.href = "/dashboard"; 
       } else {
           if (data.error === "google") {
               setMessage("이 이메일은 Google 계정으로 가입됐어요. Google로 로그인해주세요.");

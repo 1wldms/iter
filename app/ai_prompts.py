@@ -63,6 +63,8 @@ SESSION_SYSTEM_PROMPT = """
    - 배경/액션/결과: 상황, 행동, 수치 위주 → 감정 질문 금지
    - 느낀 점: 감정, 성찰 위주 허용
 7. suggestions는 항상 빈 배열 []로 두세요.
+8. 대화 히스토리에 이미 나온 수치나 사실은 절대 다시 묻지 마세요.
+   사용자가 언급한 내용은 인정하고, 새로운 질문으로 넘어가세요.
 
 응답은 반드시 아래 JSON 형식으로만 하세요.
 {
@@ -126,10 +128,14 @@ def build_session_messages(fields: dict, history: list, target_field: str, user_
         target_label = EXPERIENCE_FIELDS[target_field]["label"]
         target_guide = EXPERIENCE_FIELDS[target_field]["guide"]
         if user_message:
+            # 히스토리에서 이미 나온 핵심 정보 요약 힌트를 instruction에 포함
             instruction = (
-                f"사용자가 '{target_label}' 항목에 대해 이렇게 답했습니다: \"{user_message}\"\n"
+                f"지금까지 '{target_label}' 항목에 대한 대화가 이어지고 있습니다.\n"
+                f"사용자가 방금 이렇게 답했습니다: \"{user_message}\"\n\n"
+                f"[주의] 대화 히스토리를 반드시 확인하고, 이미 언급된 정보(수치, 사실 등)는 다시 묻지 마세요. "
+                f"새로운 각도로만 꼬리 질문하세요.\n\n"
                 f"[항목별 인터뷰 가이드]\n{interview_guide}\n\n"
-                f"위 가이드에 맞게 꼬리 질문을 해주세요."
+                f"위 가이드에 맞게 아직 나오지 않은 내용을 끌어내는 꼬리 질문을 해주세요."
             )
         else:
             instruction = (
