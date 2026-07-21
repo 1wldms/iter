@@ -64,8 +64,8 @@ export const Profile = () => {
     <div className="w-full bg-white flex flex-col" style={{ minHeight: "100vh" }}>
       <AppHeader />
 
-      {/* ───── 모바일 레이아웃 ───── */}
-      <div className="flex md:hidden flex-col px-6 pt-10 pb-16 gap-8">
+      {/* ───── 모바일·태블릿 레이아웃 ───── */}
+      <div className="flex lg:hidden flex-col px-6 pt-10 pb-16 gap-8">
         {/* 이름 상단 */}
         <div className="flex flex-col gap-3">
           <div style={{ width: 36, height: 3, background: "black" }} />
@@ -100,7 +100,7 @@ export const Profile = () => {
       </div>
 
       {/* ───── 데스크톱 레이아웃 ───── */}
-      <main className="hidden md:block relative flex-1 w-full mx-auto"
+      <main className="hidden lg:block relative flex-1 w-full mx-auto"
         style={{ maxWidth: 1280, height: "calc(100vh - 64px)", paddingLeft: 64, paddingRight: 64 }}>
 
         {/* 격자 배경 */}

@@ -28,26 +28,18 @@ function WordCloud({ keywords }) {
         <p style={{ fontSize: 14, color: "#C6C6C7" }}>키워드가 아직 없어요. AI 세션을 통해 경험을 정리해보세요.</p>
     );
     const maxCount = keywords[0][1];
-    const positions = [
-        { top: "10%", left: "30%" }, { top: "8%",  left: "58%" },
-        { top: "28%", left: "8%" },  { top: "32%", left: "42%" },
-        { top: "30%", left: "70%" }, { top: "55%", left: "18%" },
-        { top: "58%", left: "50%" }, { top: "55%", left: "76%" },
-        { top: "76%", left: "30%" }, { top: "74%", left: "62%" },
-    ];
     const rotations = [0, -8, 5, -3, 7, -6, 2, -4, 6, -2];
     return (
-        <div style={{ position: "relative", width: "100%", height: 280 }}>
+        <div className="flex flex-wrap items-center" style={{ width: "100%", gap: "18px 20px", padding: "12px 4px" }}>
             {keywords.map(([kw, count], i) => {
                 const color = KEYWORD_COLORS[i % KEYWORD_COLORS.length];
                 const ratio = count / maxCount;
                 const fontSize = 13 + Math.round(ratio * 14);
                 const fontWeight = ratio === 1 ? 700 : ratio > 0.6 ? 600 : 400;
-                const pos = positions[i] || { top: `${10 + i * 8}%`, left: `${10 + i * 7}%` };
                 return (
                     <span key={kw} style={{
-                        position: "absolute", top: pos.top, left: pos.left,
-                        transform: `rotate(${rotations[i] || 0}deg)`,
+                        display: "inline-block",
+                        transform: `rotate(${rotations[i % rotations.length]}deg)`,
                         background: color.bg, color: color.text,
                         fontSize, fontWeight, padding: "6px 16px",
                         borderRadius: 20, whiteSpace: "nowrap", userSelect: "none",

@@ -27,13 +27,13 @@ export const AppHeader = () => {
         style={{ maxWidth: 1280, height: 64 }}>
 
         {/* 로고 */}
-        <button onClick={() => navigate("/profile")}
+        <button onClick={() => navigate("/profile")} className="flex-shrink-0"
           style={{ color: "black", fontSize: 32, fontFamily: "'Playfair Display', serif", fontWeight: 700, lineHeight: "41.6px" }}>
           ITER
         </button>
 
-        {/* 데스크톱 네비게이션 — 절대 중앙 */}
-        <nav className="hidden md:flex items-stretch h-full absolute left-1/2 -translate-x-1/2">
+        {/* 데스크톱 네비게이션 */}
+        <nav className="hidden lg:flex items-stretch h-full flex-1 justify-center min-w-0">
           {navItems.map((item) => {
             const isActive = pathname === item.path;
             return (
@@ -49,7 +49,7 @@ export const AppHeader = () => {
         </nav>
 
         {/* 데스크톱 버튼 */}
-        <div className="hidden md:flex items-center gap-4">
+        <div className="hidden lg:flex items-center gap-4 flex-shrink-0">
             <button
                 onClick={() => navigate("/guide")}
                 style={{ width: 32, height: 32, borderRadius: "50%", outline: "1px solid #C6C6C7", outlineOffset: -1, color: "#5D5F5F", fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center" }}
@@ -58,17 +58,17 @@ export const AppHeader = () => {
                 ?
             </button>
             <button onClick={handleLogout} className="whitespace-nowrap px-6 py-3"
-                style={{ borderRadius: 2, outline: "1px solid black", outlineOffset: -1, color: "black", fontSize: 14, fontWeight: 400 }}>
-                로그아웃
+                style={{ borderRadius: 2, outline: "1px solid black", outlineOffset: -1, color: "black", fontSize: 14, fontWeight: 600, fontFamily: "'Playfair Display', serif", letterSpacing: 0.70 }}>
+                Logout
             </button>
-            <button onClick={() => navigate("/onboarding")} className="px-6 py-3"
-                style={{ background: "black", borderRadius: 2, color: "white", fontSize: 14, fontWeight: 400 }}>
-                정보수정
+            <button onClick={() => navigate("/onboarding")} className="whitespace-nowrap px-6 py-3"
+                style={{ background: "black", borderRadius: 2, color: "white", fontSize: 14, fontWeight: 600, fontFamily: "'Playfair Display', serif", letterSpacing: 0.70 }}>
+                Edit Profile
             </button>
         </div>
 
         {/* 모바일 햄버거 */}
-        <button className="flex md:hidden flex-col justify-center gap-1.5 p-2"
+        <button className="flex lg:hidden flex-col justify-center gap-1.5 p-2"
           onClick={() => setMenuOpen(v => !v)} aria-label="메뉴">
           <span className="block w-5 h-0.5 bg-black" />
           <span className="block w-5 h-0.5 bg-black" />
@@ -78,7 +78,7 @@ export const AppHeader = () => {
 
       {/* 모바일 드롭다운 */}
       {menuOpen && (
-        <div className="md:hidden flex flex-col" style={{ background: "#FBF9F9", borderTop: "1px solid #DBDAD9" }}>
+        <div className="lg:hidden flex flex-col" style={{ background: "#FBF9F9", borderTop: "1px solid #DBDAD9" }}>
           {navItems.map((item) => {
             const isActive = pathname === item.path;
             return (
@@ -90,14 +90,19 @@ export const AppHeader = () => {
               </button>
             );
           })}
+          <button onClick={() => { navigate("/guide"); setMenuOpen(false); }}
+            className="flex items-center px-6 py-4"
+            style={{ borderBottom: "1px solid #DBDAD9", color: pathname === "/guide" ? "black" : "#5D5F5F", fontFamily: "'Playfair Display', serif", fontSize: 16, fontWeight: pathname === "/guide" ? 900 : 600 }}>
+            Guide
+          </button>
           <button onClick={() => { navigate("/onboarding"); setMenuOpen(false); }}
             className="flex items-center px-6 py-4"
-            style={{ borderBottom: "1px solid #DBDAD9", color: "black", fontSize: 14 }}>
-            정보수정
+            style={{ borderBottom: "1px solid #DBDAD9", color: pathname === "/onboarding" ? "black" : "#5D5F5F", fontFamily: "'Playfair Display', serif", fontSize: 16, fontWeight: pathname === "/onboarding" ? 900 : 600 }}>
+            Edit Profile
           </button>
           <button onClick={handleLogout} className="flex items-center px-6 py-4"
-            style={{ color: "#5D5F5F", fontSize: 14 }}>
-            로그아웃
+            style={{ color: "#5D5F5F", fontFamily: "'Playfair Display', serif", fontSize: 16, fontWeight: 600 }}>
+            Logout
           </button>
         </div>
       )}
