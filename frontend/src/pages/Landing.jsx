@@ -93,7 +93,7 @@ const CardMockup = () => (
     <div style={{ padding: 32, display: "flex", gap: 24, alignItems: "flex-start", minHeight: 280 }}>
       <div style={{ flex: 1 }}>
         <div style={{ width: 24, height: 2, background: "black", marginBottom: 20 }} />
-        <div style={{ fontSize: 40, fontWeight: 400, color: "black", marginBottom: 14 }}>김이터</div>
+        <div style={{ fontSize: "clamp(20px, 5.5vw, 40px)", fontWeight: 400, color: "black", marginBottom: 14, whiteSpace: "nowrap" }}>김이터</div>
         <div style={{ fontSize: 13, color: "#5D5F5F", lineHeight: "22px" }}>
           데이터를 기반으로 문제를 정의하고<br />팀과 함께 실행하는 기획자
         </div>
@@ -167,9 +167,9 @@ export const Landing = () => {
       </div>
 
       {/* ── 섹션 1: 히어로 ── */}
-      <div className="w-full mx-auto flex flex-col md:flex-row md:items-center px-4 md:px-16 py-20 gap-10 md:gap-20"
+      <div className="w-full mx-auto flex flex-col lg:flex-row lg:items-center px-4 md:px-16 py-20 gap-10 lg:gap-20"
         style={{ maxWidth: 1280, minHeight: "calc(100vh - 64px)" }}>
-        <div className="flex flex-col gap-6 md:flex-shrink-0 md:w-72">
+        <div className="flex flex-col gap-6 lg:flex-shrink-0 lg:w-72">
           <div style={{ color: "black", fontSize: "clamp(36px, 8vw, 52px)", fontFamily: "'Playfair Display', serif", fontWeight: 700, lineHeight: 1.3 }}>
             Welcome<br />to your<br />ITER
           </div>
@@ -183,15 +183,17 @@ export const Landing = () => {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 flex-1">
           {featureCards.map((card, i) => (
-            <div key={i} className="flex flex-col gap-6"
-              style={{ padding: 28, background: "white", outline: "1px solid black", outlineOffset: -1, minHeight: 320 }}>
-              <div style={{ width: 44, height: 44, background: "#FBF9F9", borderRadius: 12, outline: "1px solid black", outlineOffset: -1, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                <img src={card.icon} alt="" aria-hidden="true" style={{ width: 20, height: 20 }} />
+            <div key={i} className="flex flex-col gap-3"
+              style={{ padding: 28, background: "white", outline: "1px solid black", outlineOffset: -1 }}>
+              <div className="flex items-center gap-3">
+                <div style={{ width: 44, height: 44, background: "#FBF9F9", borderRadius: 12, outline: "1px solid black", outlineOffset: -1, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <img src={card.icon} alt="" aria-hidden="true" style={{ width: 20, height: 20 }} />
+                </div>
+                <div style={{ color: "black", fontSize: 18, fontWeight: 400, lineHeight: "28px" }}>{card.title}</div>
               </div>
-              <div style={{ color: "black", fontSize: 18, fontWeight: 400, lineHeight: "28px" }}>{card.title}</div>
-              <div style={{ color: "#5D5F5F", fontSize: 14, fontWeight: 400, lineHeight: "22px", marginTop: "auto" }}>{card.desc}</div>
+              <div style={{ color: "#5D5F5F", fontSize: 14, fontWeight: 400, lineHeight: "22px" }}>{card.desc}</div>
             </div>
           ))}
         </div>
@@ -297,7 +299,7 @@ export const Landing = () => {
           지금 바로 나의 경험을<br />기록해볼까요?
         </h2>
         <p style={{ fontSize: 15, color: "#5D5F5F", textAlign: "center", lineHeight: "24px" }}>
-          무료로 시작할 수 있어요. 회원가입 후 바로 첫 경험을 기록해보세요.
+          무료로 시작할 수 있어요.<br />회원가입 후 바로 첫 경험을 기록해보세요.
         </p>
         <button onClick={() => navigate("/login")} className="flex items-center gap-2"
           style={{ padding: "14px 32px", background: "black" }}>

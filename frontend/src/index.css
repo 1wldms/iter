@@ -31,6 +31,9 @@
 /* 한국어 기본 폰트를 A2Z로 */
 :root {
   font-family: 'A2Z', 'Inter', sans-serif;
+  /* 한국어: 글자 단위가 아닌 어절 단위로만 줄바꿈 (한 글자만 다음 줄로 넘어가는 것 방지) */
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
 @layer base {
