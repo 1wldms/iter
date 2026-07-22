@@ -204,25 +204,26 @@ export const Dashboard = () => {
               모두 보기
             </button>
 
-            <div style={{ position: "relative" }}>
-              <button onClick={() => setShowExportMenu((v) => !v)} className="px-3 py-1"
-                style={{ outline: "1px solid black", outlineOffset: -1, background: "white", color: "black", fontSize: 13, fontWeight: 400 }}>
-                모든 경험 내보내기 ▾
-              </button>
-              {showExportMenu && (
-                <div style={{ position: "absolute", top: "calc(100% + 4px)", right: 0, background: "white", outline: "1px solid black", outlineOffset: -1, zIndex: 10, minWidth: 140 }}>
-                  <button
-                    onClick={() => { handleExportAll("pdf"); setShowExportMenu(false); }}
-                    style={{ display: "block", width: "100%", textAlign: "left", padding: "8px 12px", fontSize: 13, color: "black", background: "white" }}>
-                    전체 PDF로 저장
-                  </button>
-                  <button
-                    onClick={() => { handleExportAll("docx"); setShowExportMenu(false); }}
-                    style={{ display: "block", width: "100%", textAlign: "left", padding: "8px 12px", fontSize: 13, color: "black", background: "white", borderTop: "1px solid #E2E2E2" }}>
-                    전체 Word로 저장
-                  </button>
-                </div>
-              )}
+            <div style={{ position: "relative", alignSelf: "flex-end" }}>
+                <button
+                    onClick={() => setShowExportMenu((v) => !v)}
+                    style={{ outline: "1px solid black", outlineOffset: -1, color: "black", fontSize: 12, padding: "6px 12px" }}>
+                    내보내기 ▾
+                </button>
+                {showExportMenu && (
+                    <div style={{ position: "absolute", top: "calc(100% + 4px)", right: 0, background: "white", outline: "1px solid black", outlineOffset: -1, zIndex: 10, minWidth: 120 }}>
+                        <button
+                            onClick={() => { handleExport("pdf"); setShowExportMenu(false); }}
+                            style={{ display: "block", width: "100%", textAlign: "left", padding: "8px 12px", fontSize: 13, color: "black", background: "white" }}>
+                            PDF로 저장
+                        </button>
+                        <button
+                            onClick={() => { handleExport("docx"); setShowExportMenu(false); }}
+                            style={{ display: "block", width: "100%", textAlign: "left", padding: "8px 12px", fontSize: 13, color: "black", background: "white", borderTop: "1px solid #E2E2E2" }}>
+                            Word로 저장
+                        </button>
+                    </div>
+                )}
             </div>
           </div>
         </div>
