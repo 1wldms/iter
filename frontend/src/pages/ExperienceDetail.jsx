@@ -3,6 +3,7 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { AppHeader } from "../components/AppHeader";
 import { authFetch } from "../auth";
 
+
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://127.0.0.1:5001";
 
 const FIELD_LABELS = [
@@ -43,6 +44,22 @@ export const ExperienceDetail = () => {
     const handleDelete = async () => {
         await authFetch(`${BACKEND_URL}/experiences/${id}/delete`, { method: "POST" });
         navigate("/dashboard");
+    };
+
+
+    const handleExport = async (format) => {
+        const res = await authFetch(`${BACKEND_URL}/experiences/${id}/export?format=${format}`);
+        if (!res.ok) {
+            alert("내보내기에 실패했어요");
+            return;
+        }
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${exp.title || "experience"}.${format}`;
+        a.click();
+        URL.revokeObjectURL(url);
     };
 
     if (loading) return (
@@ -117,6 +134,16 @@ export const ExperienceDetail = () => {
                         onClick={() => navigate("/ai-session", { state: { experience: exp } })}
                         style={{ outline: "1px solid black", outlineOffset: -1, color: "black", fontSize: 13, padding: "8px 16px" }}>
                         AI와 함께 수정하기
+                    </button>
+                    <button
+                        onClick={() => handleExport("pdf")}
+                        style={{ outline: "1px solid black", outlineOffset: -1, color: "black", fontSize: 13, padding: "8px 16px" }}>
+                        PDF로 저장
+                    </button>
+                    <button
+                        onClick={() => handleExport("docx")}
+                        style={{ outline: "1px solid black", outlineOffset: -1, color: "black", fontSize: 13, padding: "8px 16px" }}>
+                        Word로 저장
                     </button>
                     <button
                         onClick={() => setShowDeleteModal(true)}

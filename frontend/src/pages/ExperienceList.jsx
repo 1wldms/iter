@@ -27,6 +27,20 @@ export const ExperienceList = () => {
     };
     fetchData();
   }, []);
+  const handleExportAll = async (format) => {
+    const res = await authFetch(`${BACKEND_URL}/experiences/export?format=${format}`);
+    if (!res.ok) {
+        alert("내보내기에 실패했어요");
+        return;
+    }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `experiences.${format}`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };    
 
   const total = experiences.length + 1;
   const prev = () => setCurrent((c) => Math.max(0, c - 1));
@@ -48,6 +62,20 @@ export const ExperienceList = () => {
           <p className="text-center" style={{ color: "#5D5F5F", fontSize: 13, fontWeight: 400, lineHeight: "20px", maxWidth: 320 }}>
             당신이 정성스럽게 엮어온 소중한 기록들입니다. 하나씩 넘겨보며 당신의 스토리를 확인해보세요.
           </p>
+          {experiences.length > 0 && (
+              <div className="flex gap-2 mt-2">
+                  <button onClick={() => handleExportAll("pdf")}
+                      style={{ outline: "1px solid black", outlineOffset: -1, color: "black", fontSize: 12, padding: "6px 12px" }}>
+                      전체 PDF로 저장
+                  </button>
+                  <button onClick={() => handleExportAll("docx")}
+                      style={{ outline: "1px solid black", outlineOffset: -1, color: "black", fontSize: 12, padding: "6px 12px" }}>
+                      전체 Word로 저장
+                  </button>
+              </div>
+          )}
+
+
         </div>
 
         {loading ? (

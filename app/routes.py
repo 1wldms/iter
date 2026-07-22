@@ -12,6 +12,14 @@ from app.ai_prompts import (
 from openai import OpenAI
 from supabase import create_client
 
+from flask import send_file
+from app.export_utils import (
+    generate_experience_pdf,
+    generate_experiences_list_pdf,
+    generate_experience_docx,
+    generate_experiences_list_docx,
+)
+
 
 # 맨 위 client 설정 부분에 추가
 SUPABASE_URL = os.getenv("SUPABASE_URL")
@@ -715,3 +723,85 @@ def update_password():
         return jsonify({"message": "비밀번호 변경 성공!"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+    
+    
+
+# 경험 1개 내보내기 (PDF/Word)
+@main.route('/experiences/<experience_id>/export')
+def experience_export(experience_id):
+    user = get_user_from_token(request)
+    if not user:
+        return jsonify({"error": "unauthorized"}), 401
+    fmt = request.args.get('format', 'pdf')  # 'pdf' 또는 'docx'
+
+    try:
+        res = supabase.table('experiences').select('*').eq('id', experience_id).eq('user_id', user.id).single().execute()
+        exp = res.data
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    if not exp:
+        return jsonify({"error": "경험을 찾을 수 없어요"}), 404
+    filename_base = (exp.get('title') or 'experience').replace('/', '_').replace('\\', '_')
+    try:
+        if fmt == 'docx':
+            buf = generate_experience_docx(exp)
+            return send_file(
+                buf,
+                as_attachment=True,
+                download_name=f"{filename_base}.docx",
+                mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            )
+        else:
+            buf = generate_experience_pdf(exp)
+            return send_file(
+                buf,
+                as_attachment=True,
+                download_name=f"{filename_base}.pdf",
+                mimetype='application/pdf',
+            )
+    except Exception as e:
+        return jsonify({"error": f"파일 생성 실패: {str(e)}"}), 500
+
+# 전체 경험 리스트 내보내기 (PDF/Word)
+@main.route('/experiences/export')
+def experiences_export():
+    user = get_user_from_token(request)
+    if not user:
+        return jsonify({"error": "unauthorized"}), 401
+    fmt = request.args.get('format', 'pdf')  # 'pdf' 또는 'docx'
+    folder_id = request.args.get('folder_id')  # 선택: 특정 폴더만 내보내고 싶을 때
+    try:
+        query = supabase.table('experiences').select('*').eq('user_id', user.id)
+        if folder_id:
+            query = query.eq('folder_id', folder_id)
+        res = query.order('created_at', desc=True).execute()
+        exps = res.data
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    try:
+        profile_res = supabase.table('user_profiles').select('name').eq('user_id', user.id).single().execute()
+        owner_name = profile_res.data.get('name', '') if profile_res.data else ''
+    except Exception:
+        owner_name = ''
+
+    try:
+        if fmt == 'docx':
+            buf = generate_experiences_list_docx(exps, owner_name)
+            return send_file(
+                buf,
+                as_attachment=True,
+                download_name="experiences.docx",
+                mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            )
+        else:
+            buf = generate_experiences_list_pdf(exps, owner_name)
+            return send_file(
+                buf,
+                as_attachment=True,
+                download_name="experiences.pdf",
+                mimetype='application/pdf',
+            )
+    except Exception as e:
+        return jsonify({"error": f"파일 생성 실패: {str(e)}"}), 500
