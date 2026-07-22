@@ -156,19 +156,24 @@ export const Dashboard = () => {
   };
 
 
-  const handleExportAll = async (format) => {   
-    const res = await authFetch(`${BACKEND_URL}/experiences/export?format=${format}`);
-    if (!res.ok) {
-      alert("내보내기에 실패했어요");
-      return;
-    }
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `experiences.${format}`;
-    a.click();
-    URL.revokeObjectURL(url);
+  const handleExportAll = async (format) => {
+      const params = new URLSearchParams({ format });
+      if (selectedFolder) {
+          params.set('folder_id', selectedFolder);
+      }
+      const res = await authFetch(`${BACKEND_URL}/experiences/export?${params.toString()}`);
+      if (!res.ok) {
+          alert("내보내기에 실패했어요");
+          return;
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const folderName = selectedFolder ? folders.find(f => f.id === selectedFolder)?.name : null;
+      a.download = folderName ? `${folderName}.${format}` : `experiences.${format}`;
+      a.click();
+      URL.revokeObjectURL(url);
   };
 
   const sortedExperiences = [...experiences].sort((a, b) => {
@@ -204,21 +209,20 @@ export const Dashboard = () => {
               모두 보기
             </button>
 
-            <div style={{ position: "relative", alignSelf: "flex-end" }}>
-                <button
-                    onClick={() => setShowExportMenu((v) => !v)}
-                    style={{ outline: "1px solid black", outlineOffset: -1, color: "black", fontSize: 12, padding: "6px 12px" }}>
-                    내보내기 ▾
+            <div style={{ position: "relative" }}>
+                <button onClick={() => setShowExportMenu((v) => !v)} className="px-3 py-1"
+                    style={{ outline: "1px solid black", outlineOffset: -1, background: "white", color: "black", fontSize: 13, fontWeight: 400 }}>
+                    {selectedFolder ? "이 폴더 내보내기 ▾" : "전체 내보내기 ▾"}
                 </button>
                 {showExportMenu && (
-                    <div style={{ position: "absolute", top: "calc(100% + 4px)", right: 0, background: "white", outline: "1px solid black", outlineOffset: -1, zIndex: 10, minWidth: 120 }}>
+                    <div style={{ position: "absolute", top: "calc(100% + 4px)", right: 0, background: "white", outline: "1px solid black", outlineOffset: -1, zIndex: 10, minWidth: 140 }}>
                         <button
-                            onClick={() => { handleExport("pdf"); setShowExportMenu(false); }}
+                            onClick={() => { handleExportAll("pdf"); setShowExportMenu(false); }}
                             style={{ display: "block", width: "100%", textAlign: "left", padding: "8px 12px", fontSize: 13, color: "black", background: "white" }}>
                             PDF로 저장
                         </button>
                         <button
-                            onClick={() => { handleExport("docx"); setShowExportMenu(false); }}
+                            onClick={() => { handleExportAll("docx"); setShowExportMenu(false); }}
                             style={{ display: "block", width: "100%", textAlign: "left", padding: "8px 12px", fontSize: 13, color: "black", background: "white", borderTop: "1px solid #E2E2E2" }}>
                             Word로 저장
                         </button>
