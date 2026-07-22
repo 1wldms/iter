@@ -20,6 +20,8 @@ from app.export_utils import (
     generate_experiences_list_docx,
 )
 
+from datetime import datetime, timezone
+
 
 # 맨 위 client 설정 부분에 추가
 SUPABASE_URL = os.getenv("SUPABASE_URL")
@@ -313,6 +315,7 @@ def experience_edit(experience_id):
     # Supabase에 보내면 안 되는 필드 제거
     for field in ['id', 'user_id', 'created_at', 'folder_id']:
         data.pop(field, None)
+    data['updated_at'] = datetime.now(timezone.utc).isoformat()
 
     # 키워드 재추출
     try:

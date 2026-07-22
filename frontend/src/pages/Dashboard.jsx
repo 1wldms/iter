@@ -73,6 +73,7 @@ export const Dashboard = () => {
   const [selectedFolder, setSelectedFolder] = useState(null);
   const [newFolderName, setNewFolderName] = useState("");
   const [showFolderInput, setShowFolderInput] = useState(false);
+  const [showExportMenu, setShowExportMenu] = useState(false); 
 
   useEffect(() => {
     const fetchExperiences = async () => {
@@ -154,6 +155,22 @@ export const Dashboard = () => {
     }
   };
 
+
+  const handleExportAll = async (format) => {   
+    const res = await authFetch(`${BACKEND_URL}/experiences/export?format=${format}`);
+    if (!res.ok) {
+      alert("내보내기에 실패했어요");
+      return;
+    }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `experiences.${format}`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const sortedExperiences = [...experiences].sort((a, b) => {
     const dateA = new Date(a.created_at);
     const dateB = new Date(b.created_at);
@@ -186,6 +203,27 @@ export const Dashboard = () => {
               style={{ outline: "1px solid black", outlineOffset: -1, background: "black", color: "#ffffff", fontSize: 13, fontWeight: 400 }}>
               모두 보기
             </button>
+
+            <div style={{ position: "relative" }}>
+              <button onClick={() => setShowExportMenu((v) => !v)} className="px-3 py-1"
+                style={{ outline: "1px solid black", outlineOffset: -1, background: "white", color: "black", fontSize: 13, fontWeight: 400 }}>
+                모든 경험 내보내기 ▾
+              </button>
+              {showExportMenu && (
+                <div style={{ position: "absolute", top: "calc(100% + 4px)", right: 0, background: "white", outline: "1px solid black", outlineOffset: -1, zIndex: 10, minWidth: 140 }}>
+                  <button
+                    onClick={() => { handleExportAll("pdf"); setShowExportMenu(false); }}
+                    style={{ display: "block", width: "100%", textAlign: "left", padding: "8px 12px", fontSize: 13, color: "black", background: "white" }}>
+                    전체 PDF로 저장
+                  </button>
+                  <button
+                    onClick={() => { handleExportAll("docx"); setShowExportMenu(false); }}
+                    style={{ display: "block", width: "100%", textAlign: "left", padding: "8px 12px", fontSize: 13, color: "black", background: "white", borderTop: "1px solid #E2E2E2" }}>
+                    전체 Word로 저장
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

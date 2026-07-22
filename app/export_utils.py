@@ -11,7 +11,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak
 
 from docx import Document
-from docx.shared import Pt
+from docx.shared import Pt, RGBColor 
 
 # ── 한글 폰트 등록 (PDF) ──────────────────────────────────
 # app/fonts/ 폴더에 NotoSansKR-Regular.ttf, NotoSansKR-Bold.ttf 를 넣어주세요.
@@ -169,12 +169,13 @@ def generate_experiences_list_pdf(experiences: list, owner_name: str = "") -> By
 # ── Word(.docx) 생성 ──────────────────────────────────────
 def _add_experience_to_doc(doc: Document, exp: dict):
     title = exp.get("title") or "(제목 없음)"
-    doc.add_heading(title, level=1)
+    _add_bold_heading(doc, title, size=18)   # ← doc.add_heading(title, level=1) 대신
 
     date_range = _format_date_range(exp)
     if date_range:
         p = doc.add_paragraph(date_range)
         p.runs[0].font.size = Pt(9)
+        p.runs[0].font.color.rgb = RGBColor(0x5D, 0x5F, 0x5F)
 
     keywords = exp.get("keywords") or []
     if keywords:
@@ -184,7 +185,7 @@ def _add_experience_to_doc(doc: Document, exp: dict):
         value = (exp.get(field) or "").strip()
         if not value:
             continue
-        doc.add_heading(FIELD_LABELS[field], level=3)
+        _add_bold_heading(doc, FIELD_LABELS[field], size=12)   # ← doc.add_heading(...) 대신
         for line in value.split("\n"):
             doc.add_paragraph(line if line.strip() else "")
 
@@ -197,11 +198,18 @@ def generate_experience_docx(experience: dict) -> BytesIO:
     buf.seek(0)
     return buf
 
+def _add_bold_heading(doc, text, size=14):
+    p = doc.add_paragraph()
+    run = p.add_run(text)
+    run.bold = True
+    run.font.size = Pt(size)
+    run.font.color.rgb = RGBColor(0x00, 0x00, 0x00)
+    return p
 
 def generate_experiences_list_docx(experiences: list, owner_name: str = "") -> BytesIO:
     doc = Document()
     header = f"{owner_name}의 경험 아카이브" if owner_name else "경험 아카이브"
-    doc.add_heading(header, level=0)
+    _add_bold_heading(doc, header, size=20)
     doc.add_paragraph(f"생성일: {datetime.now().strftime('%Y-%m-%d')} · 총 {len(experiences)}개")
 
     for i, exp in enumerate(experiences):
@@ -213,3 +221,5 @@ def generate_experiences_list_docx(experiences: list, owner_name: str = "") -> B
     doc.save(buf)
     buf.seek(0)
     return buf
+
+

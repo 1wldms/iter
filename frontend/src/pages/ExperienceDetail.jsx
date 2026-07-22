@@ -24,6 +24,7 @@ export const ExperienceDetail = () => {
     const [exp, setExp] = useState(null);
     const [loading, setLoading] = useState(true);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [showExportMenu, setShowExportMenu] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -83,9 +84,38 @@ export const ExperienceDetail = () => {
                         style={{ color: "#5D5F5F", fontSize: 13 }}>
                         ← 돌아가기
                     </button>
-                    <span style={{ color: "#5D5F5F", fontSize: 12 }}>
-                        {new Date(exp.created_at).toLocaleDateString("ko-KR")}
-                    </span>
+                    <div className="flex flex-col items-end" style={{ gap: 2 }}>
+                        <span style={{ color: "#5D5F5F", fontSize: 12 }}>
+                            작성일 {new Date(exp.created_at).toLocaleDateString("ko-KR")}
+                        </span>
+                        {exp.updated_at && new Date(exp.updated_at) - new Date(exp.created_at) > 60000 && (
+                            <span style={{ color: "#9C9C9C", fontSize: 11 }}>
+                                최근 수정 {new Date(exp.updated_at).toLocaleDateString("ko-KR")}
+                            </span>
+                        )}
+                    </div>
+                </div>
+
+                <div style={{ position: "relative", alignSelf: "flex-start" }}>
+                    <button
+                        onClick={() => setShowExportMenu((v) => !v)}
+                        style={{ outline: "1px solid black", outlineOffset: -1, color: "black", fontSize: 12, padding: "6px 12px" }}>
+                        내보내기 ▾
+                    </button>
+                    {showExportMenu && (
+                        <div style={{ position: "absolute", top: "calc(100% + 4px)", left: 0, background: "white", outline: "1px solid black", outlineOffset: -1, zIndex: 10, minWidth: 120 }}>
+                            <button
+                                onClick={() => { handleExport("pdf"); setShowExportMenu(false); }}
+                                style={{ display: "block", width: "100%", textAlign: "left", padding: "8px 12px", fontSize: 13, color: "black", background: "white" }}>
+                                PDF로 저장
+                            </button>
+                            <button
+                                onClick={() => { handleExport("docx"); setShowExportMenu(false); }}
+                                style={{ display: "block", width: "100%", textAlign: "left", padding: "8px 12px", fontSize: 13, color: "black", background: "white", borderTop: "1px solid #E2E2E2" }}>
+                                Word로 저장
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 {/* 제목 */}
@@ -134,16 +164,6 @@ export const ExperienceDetail = () => {
                         onClick={() => navigate("/ai-session", { state: { experience: exp } })}
                         style={{ outline: "1px solid black", outlineOffset: -1, color: "black", fontSize: 13, padding: "8px 16px" }}>
                         AI와 함께 수정하기
-                    </button>
-                    <button
-                        onClick={() => handleExport("pdf")}
-                        style={{ outline: "1px solid black", outlineOffset: -1, color: "black", fontSize: 13, padding: "8px 16px" }}>
-                        PDF로 저장
-                    </button>
-                    <button
-                        onClick={() => handleExport("docx")}
-                        style={{ outline: "1px solid black", outlineOffset: -1, color: "black", fontSize: 13, padding: "8px 16px" }}>
-                        Word로 저장
                     </button>
                     <button
                         onClick={() => setShowDeleteModal(true)}
