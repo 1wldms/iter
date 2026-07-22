@@ -96,32 +96,34 @@ export const ExperienceDetail = () => {
                     </div>
                 </div>
 
-                <div style={{ position: "relative", alignSelf: "flex-end" }}>
-                    <button
-                        onClick={() => setShowExportMenu((v) => !v)}
-                        style={{ outline: "1px solid black", outlineOffset: -1, color: "black", fontSize: 12, padding: "6px 12px" }}>
-                        내보내기 ▾
-                    </button>
-                    {showExportMenu && (
-                        <div style={{ position: "absolute", top: "calc(100% + 4px)", right: 0, background: "white", outline: "1px solid black", outlineOffset: -1, zIndex: 10, minWidth: 120 }}>
-                            <button
-                                onClick={() => { handleExport("pdf"); setShowExportMenu(false); }}
-                                style={{ display: "block", width: "100%", textAlign: "left", padding: "8px 12px", fontSize: 13, color: "black", background: "white" }}>
-                                PDF로 저장
-                            </button>
-                            <button
-                                onClick={() => { handleExport("docx"); setShowExportMenu(false); }}
-                                style={{ display: "block", width: "100%", textAlign: "left", padding: "8px 12px", fontSize: 13, color: "black", background: "white", borderTop: "1px solid #E2E2E2" }}>
-                                Word로 저장
-                            </button>
-                        </div>
-                    )}
-                </div>
 
-                {/* 제목 */}
-                <h1 style={{ fontSize: 22, fontWeight: 400, lineHeight: "30px", color: "black" }}>
-                    {exp.title || exp.role || "경험 기록"}
-                </h1>
+                {/* 제목 + 내보내기 */}
+                <div className="flex items-center justify-between" style={{ gap: 16 }}>
+                    <h1 style={{ fontSize: 22, fontWeight: 400, lineHeight: "30px", color: "black" }}>
+                        {exp.title || exp.role || "경험 기록"}
+                    </h1>
+                    <div style={{ position: "relative", flexShrink: 0 }}>
+                        <button
+                            onClick={() => setShowExportMenu((v) => !v)}
+                            style={{ outline: "1px solid black", outlineOffset: -1, color: "black", fontSize: 12, padding: "6px 12px" }}>
+                            내보내기 ▾
+                        </button>
+                        {showExportMenu && (
+                            <div style={{ position: "absolute", top: "calc(100% + 4px)", right: 0, background: "white", outline: "1px solid black", outlineOffset: -1, zIndex: 10, minWidth: 120 }}>
+                                <button
+                                    onClick={() => { handleExport("pdf"); setShowExportMenu(false); }}
+                                    style={{ display: "block", width: "100%", textAlign: "left", padding: "8px 12px", fontSize: 13, color: "black", background: "white" }}>
+                                    PDF로 저장
+                                </button>
+                                <button
+                                    onClick={() => { handleExport("docx"); setShowExportMenu(false); }}
+                                    style={{ display: "block", width: "100%", textAlign: "left", padding: "8px 12px", fontSize: 13, color: "black", background: "white", borderTop: "1px solid #E2E2E2" }}>
+                                    Word로 저장
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
 
                 {/* 활동 기간 */}
                 {(exp.start_date || exp.end_date) && (
